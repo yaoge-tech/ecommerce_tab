@@ -2,7 +2,7 @@
 
 美国市场电商 tab 的框架 demo。单文件 `index.html` + 本地 `assets/`,零依赖。
 
-**在线预览**:部署后填入 GitHub Pages 链接
+**在线预览**:https://yaoge-tech.github.io/ecommerce_tab/
 
 本地打开:
 
