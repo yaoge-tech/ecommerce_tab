@@ -54,7 +54,14 @@
     letter-spacing: -0.4px; color: var(--black); text-align: center; padding: 34px 36px 0; }
   .ask { margin: 22px 16px 6px; height: 52px; border-radius: 26px; background: var(--chip-bg);
     display: flex; align-items: center; padding: 0 16px 0 20px; cursor: text; gap: 14px; }
-  .ask .ph { flex: 1; font-size: 16px; color: var(--text-40); letter-spacing: -0.2px; }
+  /* placeholder 轮播:一条只能说一件事,轮播才说得清"你可以怎么说"。
+     内容是表达方式的示例(自然语言/带约束/指代/判断),与下方 chips(可点的快捷 query)分工不同 */
+  .ask .ph { flex: 1; font-size: 16px; color: var(--text-40); letter-spacing: -0.2px;
+    height: 21px; overflow: hidden; position: relative; min-width: 0; }
+  .ask .phroll { position: absolute; left: 0; right: 0; top: 0;
+    transition: transform .46s cubic-bezier(.32,.72,0,1); }
+  .ask .phroll span { display: block; height: 21px; line-height: 21px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .ask .aic { display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
   /* Ask 下的 query 推荐 chips:能力外露 + 个性化 query */
   .askchips { display: flex; gap: 7px; overflow-x: auto; padding: 10px 16px 0; }
@@ -868,7 +875,7 @@ const home = () => {
     </div>
     <div class="greet">What are you shopping for today?</div>
     <div class="ask" onclick="openFocus()">
-      <span class="ph">Ask me anything</span>
+      <span class="ph"><span class="phroll" id="phroll">${PH_ROLL.concat(PH_ROLL[0]).map(t=>`<span>${t}</span>`).join('')}</span></span>
       <span class="aic">${IC.mic}</span><span class="aic">${IC.plus}</span>
     </div>
     <div class="askchips">
@@ -1224,6 +1231,36 @@ const kbdHTML = () => `
   <div class="khome"></div>`;
 function kbdShow(v){ document.getElementById('kbd').classList.toggle('show', v); }
 
+/* 输入框 placeholder 轮播:每条演示一种"说法",不是演示品类。
+   ① 开放描述 ② 带预算约束的需求 ③ 指代已有物 ④ 具体属性判断
+   —— 合起来说清"不用凑关键词,怎么想就怎么说";与下方 chips(可点的快捷 query)分工不同 */
+const PH_ROLL = [
+  'Tell me what you need',
+  'A gift for my mom, under $50',
+  'Something like this, but cheaper',
+  'Will this fit a carry-on?',
+];
+const PH_H = 21, PH_MS = 2600;
+let phIdx = 0, phTimer = null;
+function phStart(){
+  const el = document.getElementById('phroll');
+  if (!el) return;
+  clearInterval(phTimer);
+  phIdx = 0; el.style.transition = 'none'; el.style.transform = 'translateY(0)';
+  setTimeout(()=>{ el.style.transition = ''; }, 30);
+  phTimer = setInterval(()=>{
+    if (!document.getElementById('phroll')) { clearInterval(phTimer); return; }
+    phIdx++;
+    el.style.transform = `translateY(-${phIdx * PH_H}px)`;
+    if (phIdx === PH_ROLL.length) {          /* 停在克隆的首条上,动画完成后无声跳回 */
+      setTimeout(()=>{
+        el.style.transition = 'none'; el.style.transform = 'translateY(0)'; phIdx = 0;
+        setTimeout(()=>{ el.style.transition = ''; }, 30);
+      }, 480);
+    }
+  }, PH_MS);
+}
+
 const CF_CHIPS = ['Packing for Tokyo?','Compare two picks','Is this a good price?','Gift ideas','Best budget pick','Find me a dupe'];
 /* 引用了具体商品时换一组"对这件东西"的 query;尺码/试穿只对服饰类出 */
 const CF_CHIPS_PROD = ['More like this','Find it cheaper','Is this a good price?'];
@@ -1238,7 +1275,7 @@ function cfRender(){
   /* 聚焦即有光标:空态时光标在 placeholder 之前(iOS 原生行为) */
   t.innerHTML = cfValue
     ? `${cfValue}<span class="caret"></span>`
-    : `<span class="caret lead"></span>${cfProd ? 'Ask about this…' : 'What can I help you?'}`;
+    : `<span class="caret lead"></span>${cfProd ? 'Ask about this…' : PH_ROLL[0]}`;
   document.getElementById('cfSend').classList.toggle('off', !cfValue);
 }
 /* 通用 composer 与商品 ✦ 走同一个函数 —— 点 ✦ 本质就是"唤起输入框 + 引用这件商品 + 给几条 query" */
@@ -1551,6 +1588,7 @@ function render() {
      <div class="cfocus" id="cfocus"></div>
      <div class="kbd" id="kbd">${kbdHTML()}</div>
      <div class="toast" id="toast"></div>`;
+  phStart();
 }
 render();
 </script>
