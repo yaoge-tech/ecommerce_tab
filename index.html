@@ -850,8 +850,8 @@ const home = () => {
   /* 首页商品零重复:Worth a look=sneaker/phones/watch;插卡内商品=keenz+doona(对比)/lamp+keyboard(橱窗)/chair(接续);
      以下 12 件只在流内出现一次 */
   const cells = [
-    gcard('tote'),      qcard('Which stroller for city + travel?'),
-    gcard('backpack'),  gcard('sunglasses'),
+    gcard('tote'),      gcard('sunglasses'),
+    gcard('backpack'),  qcard('Which stroller for city + travel?'),
     gcard('bottle'),    wcard(),
     gcard('sneaker2'),  gcard('perfume'),
     ccard(),            gcard('speaker'),
@@ -884,9 +884,10 @@ const home = () => {
       <div class="hrow">${['sneaker','phones','watch'].map(hcard).join('')}</div>
     </div>` : ''}
     <div class="sec">
+      ${HAS_EVENTS ? `
       <div class="sec-head" style="cursor:default">
         <div><div class="t">Daily Edit</div><div class="s">From your chats with Migoo</div></div>
-      </div>
+      </div>` : ''}
       <div class="grid"><div class="gcol">${c1.join('')}</div><div class="gcol">${c2.join('')}</div></div>
     </div>
   </div>`;
@@ -999,7 +1000,9 @@ function closePDP(){
   ov.classList.remove('open','full');
   document.getElementById('pdpBackdrop').classList.remove('show');
 }
-function askMigooPDP(){ const id = currentPdpId; closePDP(); if (id) setTimeout(()=>openSheet(id), 180); }
+/* composer 直接叠在 PDP 上(z-index 95 > PDP),不关闭 PDP ——
+   这样用户唤起输入框后又不想问了,关掉仍停在商品页,而不是被弹回首页 */
+function askMigooPDP(){ if (currentPdpId) openFocus(null, currentPdpId); }
 function attachSheetDrag(ov){
   ['.sheet-grabber','.pdp-hero'].forEach(sel=>{
     const el = ov.querySelector(sel);
@@ -1421,6 +1424,7 @@ function replyFor(q, id) {
 function sendQ(q) {
   const id = sheetId;
   closeSheet();
+  closePDP();                    /* 发送后切到会话 tab,PDP 不该留在底下 */
   const r = replyFor(q, id);
   chatFlow('', bubbleU(q, id), [{ t: r.text, rich: plist(r.ids) }]);
 }
