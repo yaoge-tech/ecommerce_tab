@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Migoo · Commerce Tab</title>
+<style>
+  :root {
+    --brand:      #007AFF;
+    --brand-soft: #F5FAFF;
+    --black:      #081021;
+    --text-87:    rgba(0,0,0,0.87);
+    --text-65:    rgba(0,0,0,0.65);
+    --text-40:    rgba(0,0,0,0.40);
+    --grey-99:    #999999;
+    --chip-bg:    #F3F4F6;
+    --line-09:    rgba(0,0,0,0.09);
+    --line-06:    rgba(0,0,0,0.06);
+    --ink:        #33507A;
+    --lk-scarce:  #C77400;
+    --lk-good:    #1E9E54;
+    --grey-bd:    #BDBDBD;
+    --section-gap:#F9FAFB;
+    --serif: "New York", Georgia, "Times New Roman", serif;
+    --sf: -apple-system, "SF Pro Text", "SF Pro Display", BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+  body { font-family: var(--sf); background: #E9EBEF; color: var(--text-87); padding: 32px 24px 80px; }
+
+  .page-head { text-align: center; margin-bottom: 26px; }
+  .page-head h1 { font-size: 21px; font-weight: 600; color: var(--black); letter-spacing: -0.4px; }
+  .page-head p  { font-size: 13px; color: #6B7280; margin-top: 5px; }
+  .page-head a  { color: var(--brand); text-decoration: none; }
+
+  .stage { display: flex; justify-content: center; align-items: flex-start; }
+
+  .phone {
+    width: 393px; height: 852px; flex-shrink: 0;
+    background: #fff; border-radius: 44px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04);
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .statusbar { height: 54px; flex-shrink: 0; background: #fff; position: relative; z-index: 60;
+    display: flex; align-items: flex-end; justify-content: space-between; padding: 0 28px 10px; }
+  .statusbar .time { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
+  .statusbar .icons { display: flex; align-items: center; gap: 7px; }
+
+  .screen-body { flex: 1; overflow-y: auto; overflow-x: hidden; background: #fff; padding-bottom: 28px; }
+  .screen-body::-webkit-scrollbar { width: 0; }
+
+  /* ---------- greeting + ask ---------- */
+  .greet { font-family: var(--serif); font-size: 32px; line-height: 1.16; font-weight: 600;
+    letter-spacing: -0.4px; color: var(--black); text-align: center; padding: 34px 36px 0; }
+  .ask { margin: 22px 16px 6px; height: 52px; border-radius: 26px; background: var(--chip-bg);
+    display: flex; align-items: center; padding: 0 16px 0 20px; cursor: text; gap: 14px; }
+  .ask .ph { flex: 1; font-size: 16px; color: var(--text-40); letter-spacing: -0.2px; }
+  .ask .aic { display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
+  /* Ask 下的 query 推荐 chips:能力外露 + 个性化 query */
+  .askchips { display: flex; gap: 7px; overflow-x: auto; padding: 10px 16px 0; }
+  .askchips::-webkit-scrollbar { height: 0; }
+  .achip { flex: 0 0 auto; font-size: 12.5px; color: var(--text-65); background: #fff;
+    border: 1px solid var(--line-09); border-radius: 999px; padding: 7px 12px;
+    cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+
+  /* ---------- sections ---------- */
+  .sec { margin-top: 26px; }
+  .sec-head { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; cursor: pointer; }
+  .sec-head .t { font-family: var(--serif); font-size: 21px; font-weight: 600; letter-spacing: -0.2px; color: var(--black); }
+  .sec-head .s { font-size: 13px; color: var(--text-65); margin-top: 3px; }
+  .sec-head .chev { flex-shrink: 0; }
+
+  .hrow { display: flex; gap: 10px; overflow-x: auto; padding: 12px 16px 2px; }
+  .hrow::-webkit-scrollbar { height: 0; }
+  .hcard { flex: 0 0 150px; width: 150px; min-width: 0; overflow: hidden; cursor: pointer; }
+  .hcard .imgw, .gcard .imgw { position: relative; border-radius: 14px; overflow: hidden; background: #F3F4F6; }
+  .hcard .imgw img { width: 100%; aspect-ratio: 1/1.18; object-fit: cover; display: block; }
+
+  .grid { display: flex; gap: 10px; padding: 12px 16px 0; }
+  .gcol { flex: 1; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .gcard { cursor: pointer; }
+  .gcard .imgw img { width: 100%; aspect-ratio: 1/1.22; object-fit: cover; display: block; }
+
+  .cap { padding: 8px 2px 0; }
+  .cap .ttl { font-size: 13px; line-height: 1.35; color: var(--text-87); letter-spacing: -0.1px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .cap .pr { font-size: 14.5px; font-weight: 700; color: var(--black); margin-top: 4px; }
+  .why { margin-top: 4px; font-size: 11.5px; line-height: 1.35; color: var(--ink);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .why.ev { -webkit-line-clamp: 1; font-weight: 600; }
+  .pdp-why { margin: 10px 16px 0; font-size: 12.5px; line-height: 1.4; color: var(--ink);
+    background: rgba(51,80,122,0.06); border-radius: 8px; padding: 6px 10px;
+    display: flex; align-items: center; gap: 6px; }
+
+  .heart { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.92); box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .sparkb { position: absolute; left: 8px; bottom: 8px; width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255,255,255,0.94); box-shadow: 0 1px 5px rgba(0,0,0,0.12);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+  /* ---------- 流内插卡:问题卡 / 橱窗卡(与 item 卡同构) ---------- */
+  .qcard { background: var(--chip-bg); border: 1px solid var(--line-06); border-radius: 14px;
+    padding: 16px 14px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 11px; }
+  /* serif 17 = 卡内唯一主体时(问句卡);serif 15 = 其下还有图组/双列时(橱窗/接续) */
+  .qcard .q { font-family: var(--serif); font-size: 17px; line-height: 1.28; font-weight: 600; color: var(--black); }
+  .qcard .go { font-size: 12.5px; font-weight: 600; color: var(--brand); }
+  /* 与商品卡同族:白底细边,不用品牌色标记生成物(同构插卡范式;
+     个性化靠眉题+内容构成表达,不靠底色——与"个性化 chip 特殊皮肤被否"同一条原则) */
+  .wcard2 { background: #fff; border: 1px solid var(--line-09); border-radius: 14px;
+    padding: 12px 12px 13px; cursor: pointer; box-shadow: 0 1px 2px rgba(8,16,33,0.04); }
+  .wcard2 .eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: 0.8px; color: var(--ink); }
+  .wcard2 .wt { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--black); margin-top: 3px; line-height: 1.28; }
+  .wcard2 .wimgs { display: flex; gap: 6px; margin-top: 10px; }
+  .wcard2 .wimgs img { width: calc(50% - 3px); aspect-ratio: 1/1; object-fit: cover; border-radius: 9px; background: #F3F4F6; }
+  .wcard2 .wopen { font-size: 12.5px; font-weight: 600; color: var(--brand); margin-top: 10px; }
+
+  /* Likes 常驻角标入口(quiet=安静图标,有事件=蓝色计数徽标) */
+  .screen-body { position: relative; }
+  .lk-corner { position: absolute; top: 8px; right: 14px; width: 38px; height: 38px; z-index: 20;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .lk-corner .badge { position: absolute; top: 2px; right: 0; min-width: 17px; height: 17px; padding: 0 4px;
+    border-radius: 9px; background: var(--brand); color: #fff; font-size: 10.5px; font-weight: 700;
+    line-height: 17px; text-align: center; }
+
+  /* 对比卡 */
+  .ccard { background: #fff; border: 1px solid var(--line-06); border-radius: 14px; padding: 12px; cursor: pointer;
+    box-shadow: 0 1px 2px rgba(8,16,33,0.04); }
+  .ccard .eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: 0.8px; color: var(--grey-99); }
+  .ccard .cimgs { display: flex; gap: 8px; margin-top: 10px; position: relative; align-items: flex-start; }
+  .ccard .cside { width: calc(50% - 4px); }
+  .ccard .cside img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 9px; background: #F3F4F6; display: block; }
+  .ccard .cside .cn { font-size: 11.5px; line-height: 1.35; color: var(--text-87); margin-top: 6px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .ccard .cside .cp { font-size: 13px; font-weight: 700; color: var(--black); margin-top: 2px; }
+  .ccard .vs { position: absolute; left: 50%; top: 34%; transform: translate(-50%,-50%);
+    background: #fff; color: var(--black); font-size: 9.5px; font-weight: 800; letter-spacing: .3px;
+    border-radius: 999px; padding: 4px 7px; box-shadow: 0 1px 5px rgba(0,0,0,.16); }
+  .ccard .go { font-size: 12.5px; font-weight: 600; color: var(--brand); margin-top: 11px;
+    border-top: 0.5px solid var(--line-06); padding-top: 9px; }
+  /* 接续卡 */
+  .contcard { background: var(--chip-bg); border: 1px solid var(--line-06); border-radius: 14px;
+    padding: 14px; cursor: pointer; }
+  .contcard .eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: 0.8px; color: var(--grey-99); }
+  /* 定稿 4 层:眉题(固定短语,不含时间)/ serif 引文 / 缩略图组(纯视觉)/ CTA(回去继续聊) */
+  .contcard .qx { font-family: var(--serif); font-size: 17px; line-height: 1.26; color: var(--black); margin-top: 7px; }
+  /* 主角是 query,缩略图只是"聊的是这几件"的佐证 —— 故用固定小尺寸,不撑满卡宽 */
+  .contcard .thumbs { display: flex; gap: 4px; margin-top: 11px; }
+  .contcard .thumbs img { width: 34px; height: 34px; object-fit: cover;
+    border-radius: 6px; background: #fff; flex-shrink: 0; }
+  .contcard .go { font-size: 12.5px; font-weight: 600; color: var(--brand); margin-top: 11px; }
+  /* PDP 内能力动作(场景预览/试穿——生成能力的落点) */
+  .pdp-scene { margin: 10px 16px 0; font-size: 13px; font-weight: 600; color: var(--brand); cursor: pointer; }
+  /* 策展流页(橱窗/运营落地) */
+  .flow { position: absolute; inset: 0; z-index: 78; background: #fff; display: none; flex-direction: column; }
+  .flow.show { display: flex; }
+  .flow .fhead { flex-shrink: 0; display: flex; align-items: flex-start; gap: 10px; padding: 58px 16px 12px;
+    border-bottom: 0.5px solid var(--line-06); }
+  .flow .fback { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .flow .ft { font-family: var(--serif); font-size: 21px; font-weight: 600; color: var(--black); line-height: 1.2; }
+  .flow .fs { font-size: 12.5px; color: var(--ink); margin-top: 4px; }
+  .flow .fbody { flex: 1; overflow-y: auto; padding: 14px 16px 40px; }
+  .flow .fbody::-webkit-scrollbar { width: 0; }
+  .flow .frefine { margin-top: 18px; text-align: center; font-size: 13px; font-weight: 600; color: var(--brand); cursor: pointer; }
+  /* 会话内对比表 */
+  .ctb { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; border-radius: 10px;
+    overflow: hidden; font-size: 12px; }
+  .ctb td { padding: 7px 9px; border-bottom: 0.5px solid var(--line-06); color: var(--text-87); vertical-align: top; }
+  .ctb tr:last-child td { border-bottom: none; }
+  .ctb td.k { color: var(--text-40); width: 64px; }
+  .ctb td b { font-weight: 700; }
+  /* Best-for 行:语义是"各有所长",两边同为中性标签,不分胜负 —— 胜负交给下面的差异行 */
+  .ctb tr.bf td { padding-top: 9px; padding-bottom: 9px; }
+  .ctb .bft { display: inline-block; font-size: 11px; font-weight: 700; line-height: 1.3;
+    color: var(--text-87); background: rgba(8,16,33,.05); border-radius: 6px; padding: 3px 7px; }
+  /* 胜出值用胶囊,不用 ✓ —— 胶囊编码"更好"而非"更大"(价格越低越好时 ✓/箭头都会歧义) */
+  .ctb .w { display: inline-block; font-weight: 700; color: #15803D;
+    background: rgba(21,128,61,.09); border-radius: 5px; padding: 1px 6px; }
+  .cts { text-align: center; font-size: 12px; color: var(--grey-99); padding: 10px 0 4px; }
+
+  /* ---------- Migoo app tabbar(82px / 无文字 / 27px 实心 / #D6D9E6→墨色) ---------- */
+  .tabbar { flex-shrink: 0; height: 82px; background: #fff; border-top: 1px solid var(--line-06);
+    display: flex; align-items: flex-start; padding-top: 10px; z-index: 55; }
+  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; color: #D6D9E6; cursor: pointer; }
+  .tab.on { color: var(--black); }
+  .tab svg.tabfill { width: 27px; height: 27px; }
+  .tab img.logo { width: 27px; height: 27px; border-radius: 7px; object-fit: contain; filter: grayscale(1) opacity(0.55); }
+  .tab.on img.logo { filter: none; }
+
+  /* ---------- 试穿预览浮层 ---------- */
+  .scrim { position: absolute; inset: 0; background: rgba(8,16,33,0.42); z-index: 86; display: none; }
+  .scrim.show { display: block; }
+  .sheet { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 87;
+    background: #fff; border-radius: 28px; padding: 20px 18px 16px;
+    transform: translateY(140%); visibility: hidden;
+    transition: transform .28s cubic-bezier(.32,.72,0,1), visibility 0s linear .28s;
+    box-shadow: 0 -8px 40px rgba(8,16,33,0.18); }
+  .sheet.show { transform: translateY(0); visibility: visible;
+    transition: transform .28s cubic-bezier(.32,.72,0,1), bottom .26s cubic-bezier(.32,.72,0,1); }
+  /* sheet 现在只剩展示型用途(试穿预览)—— 输入已统一到 composer(.cf-*) */
+  .sheet .pills { display: flex; gap: 10px; margin-top: 18px; }
+  .sheet .spill { flex: 1; height: 48px; border: 1px solid var(--line-09); border-radius: 24px; background: #fff;
+    font-family: var(--sf); font-size: 12.5px; font-weight: 700; letter-spacing: 0.6px; color: var(--black);
+    cursor: pointer; }
+
+  /* ---------- chat overlay (会话追问) ---------- */
+  /* ============================================================
+     会话页(对齐线上 Migoo 会话规范:居中 Migoo/Generated by AI 头部、
+     灰 AI 气泡 + 蓝用户胶囊、商品条白卡嵌灰气泡内、大商品卡带外跳)
+     ============================================================ */
+  .chat { position: absolute; inset: 0; z-index: 90; background: #fff; display: none; flex-direction: column; }
+  .chat.show { display: flex; }
+  .chat .chead { flex-shrink: 0; position: relative; padding: 54px 16px 12px; text-align: center; background: #fff; }
+  .chat .chead .ct { font-size: 17px; font-weight: 600; color: var(--black); letter-spacing: -.3px; line-height: 21px; }
+  .chat .chead .cs { font-size: 10.5px; color: var(--grey-99); margin-top: 1px; }
+  .chat .cback { position: absolute; left: 14px; top: 52px; width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .chat .cdoc { position: absolute; right: 14px; top: 52px; width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .chat .cbody { flex: 1; overflow-y: auto; padding: 6px 16px 24px; }
+  .chat .cbody::-webkit-scrollbar { width: 0; }
+  .cts { text-align: center; font-size: 12px; color: var(--grey-99); padding: 12px 0 8px; }
+  .mu { display: flex; flex-direction: column; align-items: flex-end; padding: 5px 0; }
+  /* 引用条贴在气泡上方,右对齐、比气泡窄 —— 是气泡的注脚而非并列内容 */
+  .uref { display: flex; align-items: center; gap: 7px; max-width: 78%; margin-bottom: 5px;
+    background: var(--chip-bg); border-radius: 11px; padding: 5px 9px 5px 5px; }
+  .uref img { width: 26px; height: 26px; border-radius: 6px; object-fit: cover; background: #fff; flex-shrink: 0; }
+  .uref span { font-size: 11.5px; color: var(--text-65); line-height: 1.25;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mu .b { background: var(--brand); color: #fff; border-radius: 20px; padding: 10px 15px;
+    font-size: 15.5px; line-height: 1.4; max-width: 74%; letter-spacing: -.2px; }
+  .ma { padding: 5px 0; display: flex; }
+  .ma .b { background: #F2F3F7; border-radius: 20px; padding: 13px 15px; max-width: 88%;
+    font-size: 15.5px; line-height: 1.45; color: var(--text-87); letter-spacing: -.2px; }
+  .ma .b code { font-family: var(--mono); font-size: 13.5px; color: var(--ink); background: none; }
+  /* 思考中(query 发出后的 2s) */
+  .ma .b.tping { display: flex; gap: 4.5px; align-items: center; padding: 16px 16px; }
+  .ma .b.tping i { width: 6px; height: 6px; border-radius: 50%; background: var(--text-40);
+    animation: tpb 1.3s ease-in-out infinite; }
+  .ma .b.tping i:nth-child(2) { animation-delay: .16s; }
+  .ma .b.tping i:nth-child(3) { animation-delay: .32s; }
+  @keyframes tpb { 0%,60%,100% { opacity: .26; transform: translateY(0); }
+                   30% { opacity: .95; transform: translateY(-3px); } }
+  /* 流式光标 */
+  .tcur { display: inline-block; width: 7px; height: 14px; border-radius: 1.5px;
+    background: var(--text-40); vertical-align: -2px; margin-left: 2px;
+    animation: tcb .9s step-end infinite; }
+  @keyframes tcb { 50% { opacity: 0; } }
+  /* 文字打完后富内容(商品列表/对比表)整块淡入 */
+  .crich { animation: crin .34s cubic-bezier(.32,.72,0,1) both; }
+  @keyframes crin { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
+  /* 商品条:白卡嵌在灰气泡内 */
+  .plist { margin-top: 11px; display: flex; flex-direction: column; gap: 8px; }
+  .prow2 { display: flex; align-items: center; gap: 11px; background: #fff; border-radius: 12px;
+    padding: 9px 11px 9px 9px; cursor: pointer; }
+  .prow2 img { width: 56px; height: 56px; border-radius: 9px; object-fit: cover; background: #F3F4F6; flex-shrink: 0; }
+  .prow2 .pn { font-size: 13.5px; line-height: 1.3; color: var(--text-87);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .prow2 .pp { font-size: 15px; font-weight: 700; color: var(--black); margin-top: 3px; }
+  /* 会话内商品网格:让"橱窗"在会话里也成立(视觉陈列 + 可对话) */
+  .pgrid { display: flex; gap: 8px; margin-top: 11px; }
+  .pgcol { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .pgc { background: #fff; border-radius: 12px; overflow: hidden; cursor: pointer; }
+  .pgc img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; background: #F3F4F6; }
+  .pgc .pgb { padding: 8px 9px 10px; }
+  .pgc .pn { font-size: 12px; line-height: 1.3; color: var(--text-87);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .pgc .pp { font-size: 13.5px; font-weight: 700; color: var(--black); margin-top: 2px; }
+
+  /* 大商品卡:hero 图 + 名称 + 价格 + 外跳 */
+  .pbig { margin-top: 11px; background: #fff; border-radius: 12px; overflow: hidden; cursor: pointer; }
+  .pbig img { width: 100%; aspect-ratio: 1/0.86; object-fit: cover; display: block; background: #F3F4F6; }
+  .pbig .pb { padding: 11px 12px 12px; }
+  .pbig .pn { font-size: 14px; color: var(--text-87); line-height: 1.3; }
+  .pbig .pp { font-size: 18px; font-weight: 800; color: var(--black); margin-top: 3px; letter-spacing: -.3px; }
+  .pbig .pbuy { font-size: 13.5px; font-weight: 600; color: var(--brand); margin-top: 9px;
+    border-top: 0.5px dashed var(--line-09); padding-top: 9px; }
+  .chat .cdock { flex-shrink: 0; padding: 8px 16px 10px; background: #fff; }
+  .chat .cask { height: 46px; border-radius: 23px; background: var(--chip-bg);
+    display: flex; align-items: center; gap: 12px; padding: 0 14px 0 16px;
+    font-size: 15px; color: var(--text-40); }
+  .chat .cask .sp2 { flex: 1; }
+
+  /* ============================================================
+     PDP(数据驱动的半屏 ↔ 全屏 sheet)
+     ============================================================ */
+  .pdp-body { flex: 1; overflow-y: auto; background: #fff; }
+  .pdp-body::-webkit-scrollbar { width: 0; }
+  .pdp-hero { position: relative; width: 393px; height: 393px; flex-shrink: 0; touch-action: none; }
+  .pdp-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pdp-hero .indicator { position: absolute; right: 12px; bottom: 12px;
+    background: rgba(0,0,0,0.5); color: #fff; font-size: 12px; padding: 3px 9px; border-radius: 100px; }
+  .pdp-close { position: absolute; top: 71px; left: 16px; z-index: 20; width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12); cursor: pointer; }
+  .pdp-watch { position: absolute; top: 71px; right: 16px; z-index: 20; height: 32px; padding: 0 12px; border-radius: 999px;
+    background: rgba(255,255,255,0.9); display: flex; align-items: center; gap: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12); font-size: 12px; font-weight: 600; color: #111; cursor: pointer; }
+  .pdp-pad { padding: 0 16px; }
+  .pdp-price { font-size: 24px; font-weight: 700; color: #000; line-height: 1.4; }
+  .pdp-subnote { font-size: 12px; color: var(--text-65); margin-top: 2px; }
+  .pdp-title { font-size: 16px; font-weight: 510; color: var(--text-87); line-height: 1.4; margin-top: 12px; }
+  .ai-bullets { margin: 12px 16px 0; padding: 12px 8px 12px 29px; border-radius: 12px;
+    background: linear-gradient(90deg, rgba(0,105,254,0.06), rgba(138,119,255,0.06)); }
+  .ai-bullets li { font-size: 14px; line-height: 1.4; color: var(--text-87); }
+  .section-divider { height: 6px; background: var(--section-gap); width: 100%; }
+  .var-group { padding: 0 16px; margin-top: 16px; }
+  .var-label { font-size: 12px; font-weight: 510; color: var(--text-65); display: inline-flex; align-items: center; gap: 2px; margin-bottom: 8px; }
+  .vchips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-right: 16px; }
+  .vchips::-webkit-scrollbar { display: none; height: 0; }
+  .vchip { flex-shrink: 0; white-space: nowrap; height: 32px; padding: 0 8px; min-width: 56px; border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+    font-size: 14px; color: var(--text-87); background: var(--chip-bg); }
+  .vchip.sel { background: #fff; border: 1px solid var(--text-87); font-weight: 510; }
+  .vchip.dis { color: var(--grey-bd); }
+  .offers { padding: 4px 0; }
+  .offer-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
+  .offer-left { display: flex; gap: 8px; align-items: center; }
+  .offer-logo { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; background: #fff;
+    border: 0.5px solid rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .offer-logo img { max-width: 26px; max-height: 24px; object-fit: contain; display: block; }
+  .offer-price { font-size: 14px; font-weight: 590; color: var(--text-87); }
+  .offer-sub { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 12px; color: var(--text-65); }
+  .offer-sub .vbar { width: 0.5px; height: 12px; background: var(--grey-bd); }
+  .offer-sub .rating { display: inline-flex; align-items: center; gap: 4px; }
+  .buy-btn { width: 56px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.87);
+    border: 1px solid var(--line-09); font-size: 14px; font-weight: 510; color: #000;
+    display: inline-flex; align-items: center; justify-content: center; }
+  .offer-line { height: 0.5px; background: var(--line-09); width: 333px; margin: 0 auto; }
+  .reviews { padding: 16px 0; display: flex; flex-direction: column; gap: 16px; }
+  .rev-head { padding: 0 16px; display: flex; align-items: center; gap: 4px; }
+  .rev-head .t { font-size: 16px; font-weight: 510; color: #111; letter-spacing: -0.38px; }
+  .rev-item { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; }
+  .rev-name { font-size: 12px; font-weight: 510; color: #111; }
+  .rev-stars { display: flex; align-items: center; gap: 4px; margin-top: 6px; }
+  .rev-stars .src { font-size: 14px; color: var(--grey-99); }
+  .rev-stars .vbar { width: 0.5px; height: 12px; background: var(--line-09); }
+  .rev-text { font-size: 14px; line-height: 1.4; color: var(--text-87); }
+  .rev-media { display: flex; gap: 8px; }
+  .rev-media .m { width: 108px; height: 108px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+  .rev-line { height: 0.5px; background: var(--line-09); margin: 0 16px; }
+  .details { padding: 22px 16px 8px; }
+  .details h3 { font-size: 15px; font-weight: 600; color: var(--black); margin-bottom: 14px; }
+  .spec-row { display: flex; padding: 10px 0; }
+  .spec-row .k { width: 120px; font-size: 14px; color: var(--text-65); flex-shrink: 0; }
+  .spec-row .v { font-size: 14px; color: var(--text-87); line-height: 1.4; }
+  .details .desc { font-size: 14px; line-height: 1.5; color: var(--text-87); margin-top: 16px; }
+  .pdp-dock { flex-shrink: 0; background: #fff; box-shadow: inset 0 0.5px 0 var(--line-06);
+    display: flex; align-items: center; padding: 8px 16px 20px; }
+  .ask-migoo { width: 93px; height: 48px; border-radius: 14px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; cursor: pointer; }
+  .ask-migoo .ask-logo { width: 24px; height: 24px; display: block; }
+  .ask-migoo span { font-size: 12px; color: var(--text-65); }
+  .buy-main { flex: 1; height: 48px; border-radius: 12px; background: var(--brand); color: #fff;
+    font-size: 16px; font-weight: 510; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
+  .pdp-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.32);
+    opacity: 0; pointer-events: none; transition: opacity .3s ease; z-index: 82; }
+  .pdp-backdrop.show { opacity: 1; pointer-events: auto; }
+  .pdp-overlay { position: absolute; left: 0; right: 0; bottom: 0; top: 10%;
+    background: #fff; display: flex; flex-direction: column; overflow: hidden;
+    border-radius: 18px 18px 44px 44px; transform: translateY(102%);
+    transition: transform .38s cubic-bezier(.32,.72,0,1), top .32s cubic-bezier(.32,.72,0,1), border-radius .3s ease;
+    z-index: 85; box-shadow: 0 -10px 34px rgba(0,0,0,0.16); }
+  .pdp-overlay.open { transform: translateY(0); }
+  .pdp-overlay.full { top: 0; border-radius: 44px; }
+  .pdp-overlay.dragging { transition: none; }
+  .sheet-grabber { position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+    width: 40px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.92);
+    box-shadow: 0 0 4px rgba(0,0,0,0.35); z-index: 25; cursor: grab; touch-action: none; }
+  .home-indicator { height: 20px; display: flex; align-items: center; justify-content: center; background: #fff; }
+  .home-indicator::after { content: ""; width: 144px; height: 5px; border-radius: 100px; background: var(--black); }
+
+  /* ============================================================
+     Likes 委托台
+     ============================================================ */
+  .tappable{cursor:pointer;}
+  .likes-overlay{position:absolute;inset:0;z-index:75;background:#fff;display:flex;flex-direction:column;overflow:hidden;opacity:0;pointer-events:none;transition:opacity .25s ease;}
+  .likes-overlay.show{opacity:1;pointer-events:auto;}
+  .lk-header{position:relative;padding:4px 16px 10px;text-align:center;border-bottom:.5px solid var(--line-06);flex-shrink:0;}
+  .lk-header .t{font-size:17px;font-weight:600;color:var(--black);letter-spacing:-.3px;line-height:22px;}
+  .lk-header .s{font-size:11px;color:var(--grey-99);margin-top:1px;display:flex;justify-content:center;align-items:center;gap:5px;}
+  .lk-header .more{position:absolute;right:16px;top:2px;width:32px;height:32px;border:none;background:none;font-size:17px;letter-spacing:2px;color:var(--black);cursor:pointer;}
+  .lk-pdot{width:5px;height:5px;border-radius:50%;background:var(--lk-good);flex-shrink:0;position:relative;}
+  .lk-pdot::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1.2px solid var(--lk-good);opacity:0;animation:lkvp 2.4s ease-out infinite;}
+  .lk-header .s.scanning .lk-pdot{background:var(--brand);}
+  .lk-header .s.scanning .lk-pdot::after{border-color:var(--brand);animation-duration:1s;}
+  @keyframes lkvp{0%{transform:scale(.5);opacity:.7}70%{transform:scale(1.3);opacity:0}100%{opacity:0}}
+  .lk-prog{margin:0 16px;height:2px;border-radius:1px;background:var(--line-06);overflow:hidden;opacity:0;transition:opacity .2s;flex-shrink:0;}
+  .lk-prog.show{opacity:1;}
+  .lk-prog i{display:block;height:100%;width:0;background:var(--brand);transition:width .5s ease;}
+  .lk-navmenu{position:absolute;right:12px;top:40px;background:#fff;border:.5px solid var(--line-09);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.16);padding:4px;z-index:42;display:none;min-width:180px;text-align:left;}
+  .lk-navmenu.open{display:block;}
+  .lk-navmenu .mi{padding:9px 12px;font-size:13px;color:var(--text-87);border-radius:8px;cursor:pointer;white-space:nowrap;}
+  .lk-body{flex:1;overflow-y:auto;}
+  .lk-body::-webkit-scrollbar{width:0;}
+  .lk-fhead{padding:14px 16px 2px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-40);}
+  .lk-card{margin:10px 16px 0;border:.5px solid var(--line-09);border-radius:14px;padding:11px 12px;box-shadow:0 1px 4px rgba(0,0,0,.03);position:relative;}
+  .lk-tag{font-weight:700;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;}
+  .lk-tag.scarce{color:var(--lk-scarce);} .lk-tag.inkt{color:var(--ink);} .lk-tag.deal{color:var(--lk-good);}
+  .lk-hd{display:flex;gap:11px;align-items:center;margin-top:9px;}
+  .lk-hd img{width:56px;height:56px;border-radius:11px;object-fit:cover;flex-shrink:0;}
+  .lk-hd .bd{flex:1;min-width:0;}
+  .lk-hd .ttl{font-size:13.5px;font-weight:650;color:var(--black);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .lk-hd .mdl{font-size:11.5px;color:var(--text-40);margin-top:3px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .lk-hd .prc{font-size:14px;font-weight:800;letter-spacing:-.2px;margin-top:4px;color:var(--black);}
+  .lk-mono{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.15px;}
+  .lk-ink{color:var(--ink);}
+  .lk-delta{font-size:11px;font-weight:600;margin-left:5px;}
+  .lk-note{margin-top:9px;border-radius:9px;padding:7px 10px;font-size:11.5px;line-height:1.45;color:#3a3a3c;}
+  .lk-note.scarcebg{background:rgba(199,116,0,.07);}
+  .lk-note.inkbg{background:rgba(51,80,122,.055);}
+  .lk-note.goodbg{background:rgba(30,158,84,.07);}
+  .lk-acts{display:flex;gap:6px;margin-top:10px;align-items:center;}
+  .lk-btn{font-family:var(--sf);font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid #DCDFE4;background:#fff;color:var(--text-87);}
+  .lk-btn.pri{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .lk-kebab{margin-left:auto;width:30px;height:26px;border-radius:8px;border:none;background:transparent;color:var(--text-40);font-size:15px;cursor:pointer;line-height:1;}
+  .lk-menu{position:absolute;right:10px;bottom:44px;background:#fff;border:.5px solid var(--line-09);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.14);padding:4px;z-index:20;display:none;min-width:180px;}
+  .lk-menu.open{display:block;}
+  .lk-menu .mi{padding:9px 12px;font-size:12.5px;color:var(--text-87);border-radius:8px;cursor:pointer;white-space:nowrap;}
+  .lk-menu .mi.danger{color:#E8442B;}
+  .lk-sec{padding:15px 16px 4px;border-top:8px solid var(--section-gap);margin-top:14px;}
+  .lk-sec .st{font-size:13px;font-weight:700;color:var(--black);}
+  .lk-row{display:flex;gap:12px;align-items:center;padding:11px 16px;position:relative;}
+  .lk-rowmore{flex:none;width:30px;height:30px;border:none;background:transparent;color:var(--text-40);font-size:16px;cursor:pointer;line-height:1;border-radius:8px;}
+  .lk-row .lk-menu{top:40px;bottom:auto;right:12px;}
+  .lk-row + .lk-row{border-top:.5px solid var(--line-06);}
+  .lk-row img{width:54px;height:54px;border-radius:11px;object-fit:cover;flex-shrink:0;}
+  .lk-row .bd{flex:1;min-width:0;}
+  .lk-row .t{font-size:13px;font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-87);}
+  .lk-row .m{font-size:11.5px;color:var(--text-40);margin-top:3px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .lk-row .p{font-size:13.5px;font-weight:700;margin-top:4px;color:var(--black);}
+  .lk-chv{color:rgba(0,0,0,.28);}
+  .lk-reveal{opacity:0;transform:translateY(8px);animation:lkrise .4s ease forwards;}
+  @keyframes lkrise{to{opacity:1;transform:none;}}
+  .lk-toast{position:absolute;left:50%;bottom:110px;transform:translateX(-50%);background:rgba(17,17,20,.92);color:#fff;font-size:12px;padding:8px 16px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;z-index:80;max-width:88%;overflow:hidden;text-overflow:ellipsis;}
+  .lk-toast.show{opacity:1;}
+
+  /* ============================================================
+     模拟键盘 + composer 聚焦态(对齐线上 Migoo 输入规范)
+     ============================================================ */
+  .kbd { position: absolute; left: 0; right: 0; bottom: 0; height: 291px; z-index: 96;
+    background: #D1D4DA; padding: 8px 3px 0; transform: translateY(100%);
+    transition: transform .26s cubic-bezier(.32,.72,0,1); }
+  .kbd.show { transform: translateY(0); }
+  .kbd .krow { display: flex; justify-content: center; gap: 6px; margin-bottom: 11px; }
+  .kbd .k { flex: 1; max-width: 33px; height: 42px; background: #fff; border-radius: 5px;
+    box-shadow: 0 1px 0 rgba(0,0,0,.28); display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 400; color: #000; letter-spacing: 0; }
+  .kbd .k.wide { max-width: 44px; background: #ADB3BC; }
+  .kbd .k.space { max-width: 172px; }
+  .kbd .k.go { max-width: 62px; background: #ADB3BC; font-size: 16px; }
+  .kbd .krow.last { padding: 0 4px; }
+  .kbd .khome { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
+    width: 134px; height: 5px; border-radius: 3px; background: rgba(0,0,0,.4); }
+
+  .cfocus { position: absolute; inset: 0; z-index: 95; display: none; }
+  .cfocus.show { display: block; }
+  .cfocus .cf-scrim { position: absolute; inset: 0; background: rgba(255,255,255,.72);
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+  .cf-dock { position: absolute; left: 0; right: 0; bottom: 291px; padding: 0 12px 10px; }
+  .cf-chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 2px 10px; }
+  .cf-chips::-webkit-scrollbar { height: 0; }
+  .cf-chip { flex: 0 0 auto; font-size: 13.5px; color: var(--text-87); background: #fff;
+    border: 1px solid var(--line-09); border-radius: 999px; padding: 9px 15px; cursor: pointer;
+    white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  .cf-input { background: #fff; border-radius: 20px; padding: 14px 14px 10px;
+    box-shadow: 0 2px 14px rgba(8,16,33,.10), 0 0 0 0.5px rgba(0,0,0,.05); }
+  /* 商品引用条:点商品 ✦ = 唤起同一个输入框,只是预先引用了这件商品(附件范式) */
+  .cf-quote { display: flex; align-items: center; gap: 9px; padding: 6px 8px 6px 6px;
+    background: var(--chip-bg); border-radius: 13px; margin-bottom: 11px; }
+  .cf-quote img { width: 34px; height: 34px; border-radius: 8px; object-fit: cover;
+    background: #fff; flex-shrink: 0; }
+  .cf-quote .qi { flex: 1; min-width: 0; }
+  .cf-quote .qb { font-size: 12px; font-weight: 600; color: var(--text-87); line-height: 1.25; }
+  .cf-quote .qn { font-size: 11.5px; color: var(--text-40); line-height: 1.3; margin-top: 1px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cf-quote .qx { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; color: var(--text-40); }
+  .cf-text { font-size: 16.5px; line-height: 1.35; color: var(--text-87); min-height: 22px;
+    letter-spacing: -.2px; word-break: break-word; }
+  .cf-text.ph { color: var(--text-40); }
+  .cf-text .caret { display: inline-block; width: 2px; height: 18px; background: var(--brand);
+    vertical-align: -3px; margin-left: 1px; animation: cfblink 1.1s step-end infinite; }
+  .cf-text .caret.lead { margin-left: 0; margin-right: 3px; }
+  @keyframes cfblink { 50% { opacity: 0; } }
+  .cf-row { display: flex; align-items: center; margin-top: 12px; }
+  .cf-row .sp3 { flex: 1; }
+  .cf-row .ic { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .cf-send { width: 34px; height: 34px; border-radius: 50%; background: var(--brand);
+    display: flex; align-items: center; justify-content: center; margin-left: 6px; cursor: pointer;
+    transition: opacity .15s; }
+  .cf-send.off { opacity: .35; }
+
+  .toast { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%) translateY(8px);
+    background: rgba(8,16,33,0.92); color: #fff; font-size: 12.5px; font-weight: 500;
+    border-radius: 999px; padding: 9px 16px; z-index: 95; opacity: 0; pointer-events: none;
+    transition: all .25s ease; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ---------- side notes ---------- */
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <h1>Migoo · Commerce Tab</h1>
+</div>
+<style>
+  .tglbtn{font-family:var(--sf);font-size:13px;font-weight:600;border-radius:999px;padding:7px 16px;cursor:pointer;border:1px solid rgba(0,0,0,0.09);background:#fff;color:#374151;}
+  .tglbtn.on{background:#081021;border-color:#081021;color:#fff;}
+</style>
+<div style="display:flex;justify-content:center;gap:8px;margin:-8px 0 22px">
+  <button class="tglbtn on" id="tgl-active" onclick="setDemoState('active')">收藏有更新</button>
+  <button class="tglbtn" id="tgl-quiet" onclick="setDemoState('quiet')">收藏夹无商品更新</button>
+</div>
+
+<div class="stage">
+  <div class="phone" id="phone"></div>
+
+</div>
+
+<script>
+const A = 'assets/';
+const P = {
+  /* —— Worth a look(事件区,不进流) —— */
+  sneaker: { brand:'Nike',   nm:'Free RN Flyknit — Crimson', pr:89,  rt:'4.7', sold:'5.6k', img:A+'prod-sneaker.jpg', tryon:true },
+  watch:   { brand:'Apple',  nm:'Watch Series 9 · 45mm',     pr:329, rt:'4.8', sold:'2.1k', img:A+'prod-watch.jpg', tryon:true },
+  phones:  { brand:'Apple',  nm:'AirPods Max — Silver',      pr:449, rt:'4.7', sold:'3.4k', img:A+'prod-headphones.jpg' },
+  /* —— 流内商品卡 —— */
+  tote:    { brand:'Madewell', nm:'Transport Tote — English Saddle', pr:178, rt:'4.7', sold:'620', img:A+'table-prod1a.png', tryon:true,
+             why:'Like the totes you saved' },
+  backpack:{ brand:'Level8', nm:'Atlas Laptop Backpack 20L', pr:79,  rt:'4.8', sold:'1.9k', img:A+'prod-backpack.jpg',
+             why:'From your Tokyo-trip chat — fits as a personal item' },
+  sunglasses:{ brand:'Ray-Ban', nm:'New Wayfarer — Polarized', pr:188, rt:'4.8', sold:'2.7k', img:A+'prod-sunglasses.jpg', tryon:true,
+             why:'Polarized, like you asked for' },
+  bottle:  { brand:'Simple Modern', nm:'Summit Bottle 17oz — Olive', pr:25, rt:'4.8', sold:'12k', img:A+'prod-bottle.jpg',
+             why:'For your 10K training plan' },
+  sneaker2:{ brand:'Nike',   nm:"Air Force 1 '07 × Carhartt WIP", pr:140, rt:'4.9', sold:'830', img:A+'prod-sneaker2.jpg', tryon:true,
+             why:'You kept coming back to this one' },
+  perfume: { brand:'Chanel', nm:'N°5 Eau de Parfum · 3.4 oz', pr:172, rt:'4.9', sold:'1.4k', img:A+'prod-perfume.jpg',
+             why:"Gift ideas — your mom's birthday is May 4" },
+  speaker: { brand:'JBL',    nm:'Flip 5 — Midnight Black',   pr:89,  rt:'4.8', sold:'6.2k', img:A+'prod-speaker.jpg',
+             why:'You asked what to bring camping' },
+  mug:     { brand:'Kinto',  nm:'SCS Mug — White · 11oz',    pr:22,  rt:'4.7', sold:'2.4k', img:A+'prod-mug.jpg',
+             why:'Goes with your desk reset' },
+  plant:   { brand:'The Sill', nm:'Haworthia · 4" Ceramic Pot', pr:34, rt:'4.6', sold:'510', img:A+'prod-plant.jpg',
+             why:'Low-light — your desk faces away from the window' },
+  candle:  { brand:'Boy Smells', nm:'Kush Scented Candle · 8.5 oz', pr:36, rt:'4.7', sold:'930', img:A+'prod-candle.jpg' },
+  camera:  { brand:'Polaroid', nm:'OneStep 2 i-Type Camera',  pr:99,  rt:'4.6', sold:'1.1k', img:A+'prod-camera.jpg',
+             why:'You looked at instant cameras before the trip' },
+  wallet:  { brand:'Bellroy', nm:'Hide & Seek Wallet — Java', pr:99,  rt:'4.8', sold:'3.2k', img:A+'prod-wallet.jpg',
+             why:'Slimmer than the one you mentioned' },
+  /* —— 仅在插卡/二级页出现(保证首页零重复) —— */
+  chair:   { brand:'Article', nm:'Svelti Dining Chair — Black', pr:129, rt:'4.5', sold:'420', img:A+'prod-chair.jpg' },
+  chair2:  { brand:'IKEA',    nm:'NORRÅKER Bar Stool — White', pr:89,  rt:'4.4', sold:'760', img:A+'prod-chair2.jpg' },
+  chair3:  { brand:'Article', nm:'Chantel Accent Chair — Ivory', pr:149, rt:'4.6', sold:'310', img:A+'prod-chair3.jpg' },
+  keenz:   { brand:'Keenz',  nm:'Air Plus Compact Stroller', pr:349, rt:'4.8', sold:'1.2k', img:A+'table-prod2.png',
+             why:'From your Tokyo-trip chat' },
+  doona:   { brand:'Doona',  nm:'Car Seat & Stroller — Nitro Black', pr:549, rt:'4.7', sold:'980', img:A+'prod-stroller-doona.jpg' },
+  lamp:    { brand:'IKEA',   nm:'HEKTAR Floor Lamp — Dark Gray', pr:69, rt:'4.6', sold:'740', img:A+'prod-lamp.jpg', scene:true },
+  keyboard:{ brand:'Apple',  nm:'Magic Keyboard',            pr:99,  rt:'4.8', sold:'4.1k', img:A+'prod-keyboard.jpg' },
+};
+const SIMILAR = {
+  sneaker:['sneaker2','bottle'], watch:['bottle','phones'], phones:['speaker','watch'],
+  tote:['backpack','wallet'], backpack:['tote','bottle'], sunglasses:['perfume','wallet'],
+  bottle:['backpack','sneaker'], sneaker2:['sneaker','sunglasses'], perfume:['candle','sunglasses'],
+  speaker:['phones','camera'], mug:['plant','candle'], plant:['mug','candle'],
+  candle:['plant','perfume'], camera:['speaker','wallet'], wallet:['tote','sunglasses'],
+  keenz:['doona','backpack'], doona:['keenz','backpack'], lamp:['keyboard','plant'],
+  keyboard:['lamp','speaker'], chair:['chair2','chair3'],
+  chair2:['chair','chair3'], chair3:['chair','chair2'],
+};
+const saved = new Set(['sneaker','watch','phones','tote','backpack','sunglasses','bottle','sneaker2']);
+/* 收藏夹更新事件。三态:有事件=完整区 / 有收藏无事件=一行履约条 / 无收藏=整区隐藏 */
+const SAVE_EVENTS = { sneaker:'↓ to $89 — your target', phones:'↓$100 since you saved', watch:'Low stock · 4 left' };
+let HAS_EVENTS = true;
+let likesState = 'active';          /* active / quiet,与 HAS_EVENTS 同源 */
+function setDemoState(s) {
+  likesState = s;
+  HAS_EVENTS = (s === 'active');
+  ['active','quiet'].forEach(k => {
+    const b = document.getElementById('tgl-'+k);
+    if (b) b.classList.toggle('on', k === s);
+  });
+  const wasOpen = document.getElementById('likesTab')?.classList.contains('show');
+  render();
+  if (wasOpen) { lkScanned = true; openLikes(); }
+}
+function setEvents(v) { setDemoState(v ? 'active' : 'quiet'); }
+let sheetId = null;
+
+/* ---------- PDP data(价格与卡片对齐) ---------- */
+const PDPD = {
+  sneaker: { hero:'prod-sneaker.jpg', gallery:9, price:'89.00', sub:'Diskon 12% · Authenticated · Free Shipping',
+    bullets:['Breathable one-piece knit upper wraps the foot with almost no break-in','Responsive foam midsole tuned for daily runs and all-day wear','Lightweight at ~250g with a grippy rubber outsole for wet pavement'],
+    variants:[{label:'Color: Crimson',options:[{t:'Crimson',sel:1},{t:'Black'},{t:'White'},{t:'Volt'}]},{label:'Size: US 9',options:[{t:'US 8'},{t:'US 9',sel:1},{t:'US 10'},{t:'US 11'}]}],
+    offers:[{price:'89.00',src:'Amazon',rating:'4.5'},{price:'95.00',src:'Ebay',rating:'4.4'}], buy:{src:'Amazon',price:'89'},
+    reviews:[{name:'Leo P',src:'Amazon',full:5,text:'True to size and light as anything. Knit upper breathes well on long runs, no hot spots.',media:[{src:'prod-sneaker.jpg'}]},{name:'Nina R',src:'Amazon',full:4,text:'Comfy straight out of the box. The crimson is even nicer in person.'}],
+    details:[['Weight','~250 g (US 9)'],['Upper','One-piece knit'],['Midsole','Responsive foam'],['Drop','8 mm']],
+    desc:'A light, breathable knit runner that needs no break-in — daily miles or all-day wear.' },
+  watch: { hero:'prod-watch.jpg', gallery:8, price:'329.00', sub:'Diskon 7% · Authenticated · Free Shipping',
+    bullets:['Always-on LTPO display hits 2000 nits — readable in direct sunlight','Built-in GPS plus ECG, blood-oxygen and skin-temperature sensing','All-day 18-hour battery, water-resistant to 50 m, 0→80% in 30 minutes'],
+    variants:[{label:'Case: Midnight',options:[{t:'Midnight',sel:1},{t:'Starlight'},{t:'Silver'},{t:'RED'}]},{label:'Band: Sport',options:[{t:'Sport',sel:1},{t:'Braided'},{t:'Milanese'}]}],
+    offers:[{price:'329.00',src:'Amazon',rating:'4.7'},{price:'339.00',src:'Walmart',rating:'4.6'},{price:'309.00',src:'Ebay',rating:'4.5'}], buy:{src:'Amazon',price:'329'},
+    reviews:[{name:'Sam W',src:'Amazon',full:5,text:'Sleep and workout tracking are accurate and the screen is gorgeous outdoors. Charges fast enough that the short battery never bothers me.',media:[{src:'prod-watch.jpg'}]},{name:'Ava M',src:'Ebay',full:4,half:true,text:'Comfortable band and the always-on display still gets me through a full day with room to spare.'}],
+    details:[['Case size','45 mm aluminum'],['Display','LTPO OLED · 2000 nits'],['Battery','~18 h'],['Water resist','50 m (5 ATM)']],
+    desc:'A full health-and-fitness tracker on your wrist — bright always-on screen, GPS, and serious sensors.' },
+  phones: { hero:'prod-headphones.jpg', gallery:10, price:'449.00', sub:'Save $100 · Authenticated · Free Shipping',
+    bullets:['Adaptive ANC cuts ~95% of cabin and office noise across the day','40-hour battery with ANC on — a 5-minute charge returns ~4 hours of playback','Lossless USB-C audio plus multipoint Bluetooth to two devices at once'],
+    variants:[{label:'Color: Silver',options:[{t:'Silver',sel:1},{t:'Space Black'},{t:'Sky Blue'},{t:'Pink'}]}],
+    offers:[{price:'449.00',src:'Amazon',rating:'4.8'},{price:'469.00',src:'Walmart',rating:'4.7'},{price:'429.00',src:'Ebay',rating:'4.6'}], buy:{src:'Amazon',price:'449'},
+    reviews:[{name:'Jordan P',src:'Amazon',full:5,text:'ANC is shockingly good for the price — flights feel silent and the call mics are clear. Best value headphones I have owned.',media:[{src:'prod-headphones.jpg'}]},{name:'Lena R',src:'Walmart',full:4,half:true,text:'Plush earcups, light enough for all-day wear, and the battery genuinely lasts a full week of commuting.'}],
+    details:[['Driver','40 mm dynamic'],['Battery','40 h (ANC on)'],['Weight','268 g'],['Connectivity','BT 5.3 · USB-C']],
+    desc:'Studio-grade sound with adaptive noise cancelling and a battery that lasts the whole trip.' },
+  tote: { hero:'table-prod1a.png', gallery:9, price:'178.00', sub:'Authenticated · Free Shipping',
+    bullets:['Full-grain cowhide that patinas richly — it wears in, not out','Fits a 14" laptop plus everyday carry, with a secure interior zip pocket','Hand-finished edges, solid brass hardware, and a reinforced base'],
+    variants:[{label:'Color: Tan',options:[{t:'Tan',sel:1},{t:'Black'},{t:'Espresso'},{t:'Burgundy'}]}],
+    offers:[{price:'178.00',src:'Amazon',rating:'4.9'},{price:'188.00',src:'Walmart',rating:'4.7'},{price:'165.00',src:'Ebay',rating:'4.6'}], buy:{src:'Amazon',price:'178'},
+    reviews:[{name:'Maya L',src:'Amazon',full:5,text:'The leather is gorgeous and softens beautifully after a few weeks. Goes with literally everything and the finish looks premium far beyond the price.',media:[{src:'table-prod1a.png'}]},{name:'Selissa M',src:'Walmart',full:4,half:true,text:'Holds its shape well and the brass hardware feels solid. A genuine everyday workhorse.'}],
+    details:[['Dimensions','35 × 28 × 12 cm'],['Material','Full-grain cowhide'],['Hardware','Solid brass'],['Origin','Made in Spain']],
+    desc:'A daily-carry leather tote that only looks better with age — full-grain cowhide, brass hardware, and room for your laptop.' },
+  lamp: { hero:'prod-lamp.jpg', gallery:6, price:'69.00', sub:'Authenticated · Free Shipping',
+    bullets:['Adjustable arc reaches over a sofa or reading chair without a side table','Warm-to-cool dimming (2700K–5000K) with a touch dimmer on the pole','Weighted base stays put; matte charcoal finish hides fingerprints'],
+    variants:[{label:'Finish: Charcoal',options:[{t:'Charcoal',sel:1},{t:'Brass'},{t:'White'}]},{label:'Bulb: Warm White',options:[{t:'Warm White',sel:1},{t:'Daylight'}]}],
+    offers:[{price:'69.00',src:'Amazon',rating:'4.6'},{price:'75.00',src:'Walmart',rating:'4.5'}], buy:{src:'Amazon',price:'69'},
+    reviews:[{name:'Dana K',src:'Amazon',full:5,text:'The arc clears my couch perfectly and the warm dimming is cozy at night. Base is heavy enough it never tips.'},{name:'Marcus T',src:'Amazon',full:4,half:true,text:'Solid build for the price, assembly took two minutes. Wish the cord were a touch longer.'}],
+    details:[['Height','170 cm max'],['Color temp','2700K–5000K'],['Bulb','E26 LED included'],['Base','Weighted steel']],
+    desc:'A reach-over-the-sofa arc lamp with warm-to-cool dimming — reading light without a side table.' },
+  keenz: { hero:'table-prod2.png', gallery:18, price:'349.00', sub:'Diskon 8% · Authenticated · Free Shipping',
+    bullets:['Cabin-approved fold — collapses one-handed to 52×44×18 cm, fits the overhead bin','Smooth all-wheel suspension takes cobblestones and curbs without waking baby','Grows with your child: newborn nest to toddler, supports up to 22 kg on one frame'],
+    variants:[{label:'Color: Beige',options:[{t:'Beige',sel:1},{t:'Grey'},{t:'Black'},{t:'Pink'}]},{label:'Frame: Black',options:[{t:'Black',sel:1},{t:'White'}]}],
+    offers:[{price:'349.00',src:'Amazon',rating:'4.8'},{price:'365.00',src:'Walmart',rating:'4.7'},{price:'329.00',src:'Ebay',rating:'4.6'}], buy:{src:'Amazon',price:'349'},
+    reviews:[{name:'Hannah K',src:'Amazon',full:5,text:'Folds smaller than my carry-on and pops open one-handed while I hold the baby. Genuinely the reason travel got easy again.',media:[{src:'table-prod2.png'}]},{name:'David L',src:'Walmart',full:4,half:true,text:'Suspension is buttery on city pavement. Wish the basket were bigger, but the fold is unbeatable.'}],
+    details:[['Folded size','52 × 44 × 18 cm'],['Weight','6.2 kg'],['Suitable','0–4 years · max 22 kg'],['Warranty','2 years']],
+    desc:'The travel stroller parents actually fly with — one-hand fold, airline-cabin size, and a ride smooth enough for newborns.' },
+  doona: { hero:'prod-stroller-doona.jpg', gallery:12, price:'549.00', sub:'Diskon 5% · Authenticated · Free Shipping',
+    bullets:['Car seat → stroller in seconds — wheels fold away, no separate frame to carry','FAA-approved for air travel and clicks into most ISOFIX bases','Integrated 5-point harness with side-impact protection, certified to ECE R129'],
+    variants:[{label:'Color: Nitro Black',options:[{t:'Nitro Black',sel:1},{t:'Blush Pink'},{t:'Sky Grey'},{t:'Racing Green'}]}],
+    offers:[{price:'549.00',src:'Amazon',rating:'4.7'},{price:'555.00',src:'Walmart',rating:'4.6'},{price:'529.00',src:'Ebay',rating:'4.5'}], buy:{src:'Amazon',price:'549'},
+    reviews:[{name:'Priya S',src:'Amazon',full:5,text:'The car-seat-to-stroller trick is pure magic at the airport — out of the cab and walking in under ten seconds.',media:[{src:'prod-stroller-doona.jpg'}]},{name:'Marco T',src:'Ebay',full:4,half:true,text:'Heavier than a bare infant seat, but the all-in-one convenience more than makes up for it.'}],
+    details:[['Folded size','65 × 44 × 26 cm'],['Weight','7.0 kg'],['Suitable','Birth–15 months · max 13 kg'],['Origin','Made in Israel']],
+    desc:'One product that is both an infant car seat and a stroller — pop the wheels down and walk straight out of the car.' },
+  mug: { hero:'prod-mug.jpg', gallery:5, price:'22.00', sub:'Authenticated · Free Shipping',
+    bullets:['Double-walled stoneware keeps coffee hot longer and stays cool to hold','Rounded 11 oz body feels balanced; comfortable thumb-rest handle','Microwave- and dishwasher-safe; matte glaze resists ring stains'],
+    variants:[{label:'Color: Matte White',options:[{t:'Matte White',sel:1},{t:'Sand'},{t:'Sage'},{t:'Charcoal'}]},{label:'Set: Single',options:[{t:'Single',sel:1},{t:'Set of 4'}]}],
+    offers:[{price:'22.00',src:'Amazon',rating:'4.8'},{price:'24.00',src:'Walmart',rating:'4.6'}], buy:{src:'Amazon',price:'22'},
+    reviews:[{name:'Priya S',src:'Amazon',full:5,text:'Keeps my coffee warm past the first cup and the handle sits right. Feels far pricier than it is.'},{name:'Tom H',src:'Amazon',full:4,half:true,text:'Lovely matte finish, survives the dishwasher fine. One arrived boxed a little loose but intact.'}],
+    details:[['Capacity','11 oz'],['Material','Porcelain'],['Care','Microwave & dishwasher safe'],['Origin','Made in Japan']],
+    desc:'A quietly perfect porcelain mug — balanced in the hand, keeps its glaze for years.' },
+  backpack: { hero:'prod-backpack.jpg', gallery:7, price:'79.00', sub:'Authenticated · Free Shipping',
+    bullets:['Fits a 16" laptop with a dedicated suspended sleeve','20L with a luggage pass-through for travel days','Water-resistant 900D shell — commute through rain without a cover'],
+    variants:[{label:'Color: Navy',options:[{t:'Navy',sel:1},{t:'Black'},{t:'Olive'}]}],
+    offers:[{price:'79.00',src:'Amazon',rating:'4.8'},{price:'85.00',src:'Walmart',rating:'4.6'}], buy:{src:'Amazon',price:'79'},
+    reviews:[{name:'Kevin R',src:'Amazon',full:5,text:'Slid under every airline seat this month and the laptop sleeve is genuinely protective. Zippers feel expensive.'},{name:'Dana M',src:'Amazon',full:4,half:true,text:'Great organizer layout. Wish the bottle pocket fit a 32oz, but everything else is dialed.'}],
+    details:[['Capacity','20 L'],['Laptop','Up to 16"'],['Weight','2.1 lb'],['Warranty','5 years']],
+    desc:'A clean commuter pack that moonlights as a personal-item travel bag.' },
+  bottle: { hero:'prod-bottle.jpg', gallery:5, price:'25.00', sub:'Authenticated · Free Shipping',
+    bullets:['Cold for 24 h, hot for 12 h — double-wall vacuum insulation','Fits standard cup holders; powder-coat grip doesn’t sweat','Leakproof lid — throw it in the gym bag with your laptop'],
+    variants:[{label:'Color: Olive',options:[{t:'Olive',sel:1},{t:'Black'},{t:'Cream'}]},{label:'Size: 17oz',options:[{t:'17oz',sel:1},{t:'24oz'}]}],
+    offers:[{price:'25.00',src:'Amazon',rating:'4.8'},{price:'27.00',src:'Walmart',rating:'4.7'}], buy:{src:'Amazon',price:'25'},
+    reviews:[{name:'Jess T',src:'Amazon',full:5,text:'Ice from morning runs still rattling at dinner. The matte finish hides scratches well.'},{name:'Aaron B',src:'Amazon',full:4,half:true,text:'Solid and truly leakproof. Hand-wash only is the one chore.'}],
+    details:[['Capacity','17 oz'],['Material','18/8 stainless'],['Lid','Leakproof screw'],['Care','Hand wash']],
+    desc:'The everyday bottle that actually keeps its promises on temperature.' },
+  sneaker2: { hero:'prod-sneaker2.jpg', gallery:8, price:'140.00', sub:'Collab · Authenticated · Free Shipping',
+    bullets:['Carhartt WIP canvas and leather on the classic AF1 cupsole','Winterized build — sealed seams, cordura tongue','Collab colorway "Ale Brown" — wears in like workwear'],
+    variants:[{label:'Size: US 9',options:[{t:'US 8'},{t:'US 9',sel:1},{t:'US 10'},{t:'US 11'}]}],
+    offers:[{price:'140.00',src:'Amazon',rating:'4.9'},{price:'165.00',src:'Ebay',rating:'4.7'}], buy:{src:'Amazon',price:'140'},
+    reviews:[{name:'Marco V',src:'Amazon',full:5,text:'The canvas breaks in beautifully — looks better at month three than day one.'},{name:'Tina L',src:'Ebay',full:4,half:true,text:'Runs a half size large like most AF1s. Build quality is a clear step above the standard pair.'}],
+    details:[['Upper','Canvas + leather'],['Sole','AF1 cupsole'],['Fit','Runs half size large'],['Collab','Carhartt WIP']],
+    desc:'A workwear take on the most-worn silhouette in sneakers.' },
+  speaker: { hero:'prod-speaker.jpg', gallery:6, price:'89.00', sub:'Authenticated · Free Shipping',
+    bullets:['12-hour battery — a full deck day on one charge','IPX7 waterproof: pool splashes and rain are fine','PartyBoost pairs a second Flip for stereo'],
+    variants:[{label:'Color: Black',options:[{t:'Black',sel:1},{t:'Blue'},{t:'Red'}]}],
+    offers:[{price:'89.00',src:'Amazon',rating:'4.8'},{price:'94.00',src:'Walmart',rating:'4.7'}], buy:{src:'Amazon',price:'89'},
+    reviews:[{name:'Sam K',src:'Amazon',full:5,text:'Loud enough for a backyard of twenty, and it took a full glass of spilled soda like nothing.'},{name:'Renee P',src:'Walmart',full:4,half:true,text:'Bass is impressive for the size. USB-C charging is quick.'}],
+    details:[['Battery','12 h'],['Rating','IPX7'],['Weight','1.2 lb'],['Input','USB-C']],
+    desc:'The default answer to "which portable speaker" — loud, tough, simple.' },
+  plant: { hero:'prod-plant.jpg', gallery:4, price:'34.00', sub:'Ships potted · Free Shipping',
+    bullets:['Haworthia — thrives on neglect and low light','Ships in the ceramic pot, no repotting needed','Pet-safe: non-toxic to cats and dogs'],
+    variants:[{label:'Pot: Mint',options:[{t:'Mint',sel:1},{t:'White'},{t:'Terracotta'}]}],
+    offers:[{price:'34.00',src:'Amazon',rating:'4.6'},{price:'36.00',src:'Walmart',rating:'4.5'}], buy:{src:'Amazon',price:'34'},
+    reviews:[{name:'Olivia H',src:'Amazon',full:5,text:'Arrived healthy with zero soil spill. Sits on my desk and asks for water twice a month.'},{name:'Derek W',src:'Amazon',full:4,half:true,text:'Smaller than the photo suggests but growing steadily.'}],
+    details:[['Species','Haworthia'],['Light','Low–bright indirect'],['Water','Every 2–3 weeks'],['Pet-safe','Yes']],
+    desc:'The desk plant for people who forget about desk plants.' },
+  perfume: { hero:'prod-perfume.jpg', gallery:5, price:'172.00', sub:'Authenticated · Gift wrap available',
+    bullets:['The reference aldehyde floral — a century in, still singular','Eau de Parfum concentration wears 8+ hours','Ships in signature gift box'],
+    variants:[{label:'Size: 3.4 oz',options:[{t:'1.2 oz'},{t:'3.4 oz',sel:1}]}],
+    offers:[{price:'172.00',src:'Amazon',rating:'4.9'},{price:'178.00',src:'Walmart',rating:'4.8'}], buy:{src:'Amazon',price:'172'},
+    reviews:[{name:'Claire D',src:'Amazon',full:5,text:'Bought for my mother’s birthday — the bottle and box are exactly boutique quality.'},{name:'Hannah S',src:'Amazon',full:5,text:'Wears close and lasts all day. Timeless is the only word.'}],
+    details:[['Concentration','Eau de Parfum'],['Size','3.4 oz / 100 ml'],['Family','Aldehyde floral'],['Origin','France']],
+    desc:'The one perfume that needs no introduction — and still earns it.' },
+  sunglasses: { hero:'prod-sunglasses.jpg', gallery:6, price:'188.00', sub:'Polarized · Authenticated · Free Shipping',
+    bullets:['Polarized G-15 lenses cut glare without shifting color','Acetate frame, softer square than the original Wayfarer','100% UVA/UVB protection'],
+    variants:[{label:'Lens: Polarized',options:[{t:'Polarized',sel:1},{t:'Standard'}]},{label:'Size: 55mm',options:[{t:'52mm'},{t:'55mm',sel:1}]}],
+    offers:[{price:'188.00',src:'Amazon',rating:'4.8'},{price:'172.00',src:'Ebay',rating:'4.6'}], buy:{src:'Amazon',price:'188'},
+    reviews:[{name:'Miguel A',src:'Amazon',full:5,text:'Driving glare is gone. The classic shape works with literally everything.'},{name:'Beth C',src:'Amazon',full:4,half:true,text:'Hinges feel sturdy. Case is bulkier than expected — good protection though.'}],
+    details:[['Lens','Polarized G-15'],['Frame','Acetate'],['Width','55 mm'],['Includes','Case + cloth']],
+    desc:'The sunglasses you stop thinking about — which is the point.' },
+  camera: { hero:'prod-camera.jpg', gallery:5, price:'99.00', sub:'Authenticated · Free Shipping',
+    bullets:['One-button instant photography — point, shoot, print','Built-in flash tuned for indoor shots','Uses i-Type film (no battery in the pack — cheaper per shot)'],
+    variants:[{label:'Color: White',options:[{t:'White',sel:1},{t:'Black'}]}],
+    offers:[{price:'99.00',src:'Amazon',rating:'4.6'},{price:'105.00',src:'Walmart',rating:'4.5'}], buy:{src:'Amazon',price:'99'},
+    reviews:[{name:'Zoe F',src:'Amazon',full:5,text:'Brought it to a wedding — the prints got passed around all night. Film cost is the real budget item.'},{name:'Ian G',src:'Walmart',full:4,text:'Simple and fun. Learn the flash distances and shots come out great.'}],
+    details:[['Film','Polaroid i-Type'],['Battery','USB rechargeable'],['Weight','460 g'],['Flash','Built-in']],
+    desc:'Instant film, zero learning curve — the party camera that prints memories.' },
+  candle: { hero:'prod-candle.jpg', gallery:4, price:'36.00', sub:'Authenticated · Free Shipping',
+    bullets:['Kush — cannabis flower, suede and white musk','Coconut & beeswax blend burns clean for ~60 hours','Reusable glass vessel with a matte finish'],
+    variants:[{label:'Scent: Kush',options:[{t:'Kush',sel:1},{t:'Cowboy Kush'},{t:'Ash'}]}],
+    offers:[{price:'36.00',src:'Amazon',rating:'4.7'},{price:'39.00',src:'Walmart',rating:'4.6'}], buy:{src:'Amazon',price:'36'},
+    reviews:[{name:'Nora J',src:'Amazon',full:5,text:'Fills the whole apartment without being sweet. The jar is nice enough to keep after.'},{name:'Ellis P',src:'Amazon',full:4,half:true,text:'Burns evenly to the edge if you give the first burn a few hours.'}],
+    details:[['Burn time','~60 h'],['Wax','Coconut & beeswax'],['Size','8.5 oz'],['Wick','Cotton']],
+    desc:'The candle that reads as a room, not a fragrance — smoky, soft, unmistakable.' },
+  wallet: { hero:'prod-wallet.jpg', gallery:5, price:'99.00', sub:'Authenticated · Free Shipping',
+    bullets:['Holds 5–12 cards plus folded bills without bulking','Quick-access pull-tab for the two cards you use daily','Environmentally certified leather, 3-year warranty'],
+    variants:[{label:'Color: Java',options:[{t:'Java',sel:1},{t:'Black'},{t:'Charcoal'}]}],
+    offers:[{price:'99.00',src:'Amazon',rating:'4.8'},{price:'105.00',src:'Walmart',rating:'4.7'}], buy:{src:'Amazon',price:'99'},
+    reviews:[{name:'Ryan T',src:'Amazon',full:5,text:'Two years in and the leather looks better than day one. Pull-tab is the feature I did not know I needed.'},{name:'Mia K',src:'Amazon',full:4,half:true,text:'Slim as promised. Takes a week to break in enough for the coin pouch.'}],
+    details:[['Capacity','5–12 cards'],['Leather','Env. certified'],['Warranty','3 years'],['Weight','48 g']],
+    desc:'A slim bifold that stays slim — the quiet upgrade to your back pocket.' },
+  chair: { hero:'prod-chair.jpg', gallery:6, price:'129.00', sub:'Authenticated · Free Shipping',
+    bullets:['Molded shell with a padded seat — comfortable past the second hour','Solid beech legs, no wobble on hard floors','Assembles in under 10 minutes'],
+    variants:[{label:'Color: Black',options:[{t:'Black',sel:1},{t:'White'},{t:'Grey'}]}],
+    offers:[{price:'129.00',src:'Amazon',rating:'4.5'},{price:'139.00',src:'Walmart',rating:'4.4'}], buy:{src:'Amazon',price:'129'},
+    reviews:[{name:'Grace L',src:'Amazon',full:5,text:'Bought four for the dining table and they double as desk chairs. Legs feel solid.'},{name:'Owen S',src:'Amazon',full:4,text:'Seat pad is firmer than expected but comfortable. Assembly took eight minutes.'}],
+    details:[['Seat height','18"'],['Legs','Solid beech'],['Max load','250 lb'],['Assembly','~10 min']],
+    desc:'A clean shell chair that works at the table or the desk.' },
+  chair2: { hero:'prod-chair2.jpg', gallery:4, price:'89.00', sub:'Authenticated · Free Shipping',
+    bullets:['Counter height (24") — fits most kitchen islands','Solid birch, whitewashed finish','Stackable: two fit in a closet corner'],
+    variants:[{label:'Color: White',options:[{t:'White',sel:1},{t:'Natural'},{t:'Black'}]}],
+    offers:[{price:'89.00',src:'Amazon',rating:'4.4'},{price:'95.00',src:'Walmart',rating:'4.3'}], buy:{src:'Amazon',price:'89'},
+    reviews:[{name:'Tara B',src:'Amazon',full:4,half:true,text:'Sturdy for the price and the whitewash hides marks. Seat is hard — add a cushion if you sit long.'}],
+    details:[['Height','24" counter'],['Material','Solid birch'],['Max load','220 lb'],['Stackable','Yes']],
+    desc:'A plain, honest counter stool that disappears into the room.' },
+  chair3: { hero:'prod-chair3.jpg', gallery:5, price:'149.00', sub:'Authenticated · Free Shipping',
+    bullets:['Tufted velvet seat — the comfortable one of the three','Turned solid-wood legs, no assembly beyond four screws','Works as a desk chair or a corner reading chair'],
+    variants:[{label:'Color: Ivory',options:[{t:'Ivory',sel:1},{t:'Sage'},{t:'Charcoal'}]}],
+    offers:[{price:'149.00',src:'Amazon',rating:'4.6'},{price:'159.00',src:'Walmart',rating:'4.5'}], buy:{src:'Amazon',price:'149'},
+    reviews:[{name:'Elena R',src:'Amazon',full:5,text:'Prettier in person and genuinely comfortable — I read in it for hours. Velvet cleans up fine.'},{name:'Josh P',src:'Amazon',full:4,text:'Solid build. Slightly smaller than expected, which actually suits a small apartment.'}],
+    details:[['Seat height','18"'],['Upholstery','Velvet'],['Legs','Solid wood'],['Assembly','4 screws']],
+    desc:'The comfortable one — a small tufted chair that works at a desk or in a corner.' },
+  keyboard: { hero:'prod-keyboard.jpg', gallery:4, price:'99.00', sub:'Authenticated · Free Shipping',
+    bullets:['Scissor keys — quiet, stable, fast to type on','A month of battery per charge','Pairs instantly with Mac and iPad'],
+    variants:[{label:'Color: White',options:[{t:'White',sel:1}]}],
+    offers:[{price:'99.00',src:'Amazon',rating:'4.8'}], buy:{src:'Amazon',price:'99'},
+    reviews:[{name:'Priya N',src:'Amazon',full:5,text:'Typing feel is unmatched for low-profile boards. Battery lasted five weeks.'}],
+    details:[['Switch','Scissor'],['Battery','~1 month'],['Connect','Bluetooth'],['Layout','US English']],
+    desc:'The quiet default for a clean desk setup.' },
+};
+
+const IC = {
+  sig: '<svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect x="0" y="7" width="3" height="4" rx="1" fill="#000"/><rect x="5" y="5" width="3" height="6" rx="1" fill="#000"/><rect x="10" y="2.5" width="3" height="8.5" rx="1" fill="#000"/><rect x="15" y="0" width="3" height="11" rx="1" fill="#000" opacity="0.3"/></svg>',
+  wifi: '<svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 9.9a1.6 1.6 0 100 2.1 1.6 1.6 0 000-2.1z" fill="#000"/><path d="M8.5 6.5c1.6 0 3 .6 4.1 1.6l-1.3 1.4a4.2 4.2 0 00-5.6 0L4.4 8.1a6 6 0 014.1-1.6z" fill="#000"/><path d="M8.5 3c2.5 0 4.8 1 6.5 2.6l-1.3 1.3A7.6 7.6 0 008.5 4.9c-2 0-3.9.8-5.2 2L2 5.6A9.3 9.3 0 018.5 3z" fill="#000"/></svg>',
+  batt: '<svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="#000" opacity="0.35"/><rect x="2" y="2" width="18" height="8" rx="1.8" fill="#000"/><path d="M23.5 4v4a2.2 2.2 0 000-4z" fill="#000" opacity="0.4"/></svg>',
+  up: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 13V3M3.5 7.5L8 3l4.5 4.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  upSm: '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 12.6V3.6M4 7.6L8 3.6l4 4" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  chev: '<svg width="9" height="15" viewBox="0 0 9 15" fill="none"><path d="M1.5 1.5l6 6-6 6" stroke="#54545C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  back: '<svg width="11" height="19" viewBox="0 0 11 19" fill="none"><path d="M9.5 1.5l-8 8 8 8" stroke="#1C1C1E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  close: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 4l10 10M14 4L4 14" stroke="#081021" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  chevR: '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M4.5 2.5 8 6l-3.5 3.5" stroke="rgba(0,0,0,0.4)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>',
+  chevHead: '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3.5 10.5 8 6 12.5" stroke="#111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>',
+  play: '<svg width="32" height="32" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="15" fill="rgba(0,0,0,0.35)"/><path d="M13 11l8 5-8 5z" fill="#fff"/></svg>',
+  star: (c='#FFB100') => '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 .8l1.6 3.3 3.6.5-2.6 2.5.6 3.6L6 9.5 2.8 11.2l.6-3.6L.8 5.1l3.6-.5z" fill="'+c+'"/></svg>',
+  starHalf: '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><defs><linearGradient id="sh" x1="0" x2="12" y1="0" y2="0"><stop offset="55%" stop-color="#FFB100"/><stop offset="55%" stop-color="#E3E5E9"/></linearGradient></defs><path d="M6 .8l1.6 3.3 3.6.5-2.6 2.5.6 3.6L6 9.5 2.8 11.2l.6-3.6L.8 5.1l3.6-.5z" fill="url(#sh)"/></svg>',
+  arrowUR: '<span style="font-size:13px;line-height:1">↗</span>',
+  doc: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="5" y="3.5" width="14" height="17" rx="2.6" stroke="#1C1C1E" stroke-width="1.6"/><path d="M8.6 8.4h6.8M8.6 12h6.8M8.6 15.6h4" stroke="#1C1C1E" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  mic: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 11.4336C18.5523 11.4336 19 11.8813 19 12.4336C19 15.7584 16.3266 18.3772 13 18.8203V19.7148H14.1436C14.6956 19.7151 15.1436 20.1627 15.1436 20.7148C15.1436 21.267 14.6956 21.7146 14.1436 21.7148H9.85742C9.30514 21.7148 8.85742 21.2671 8.85742 20.7148C8.85742 20.1626 9.30514 19.7148 9.85742 19.7148H11V18.8203C7.67339 18.3772 5 15.7584 5 12.4336C5 11.8813 5.44772 11.4336 6 11.4336C6.55228 11.4336 7 11.8813 7 12.4336C7 14.8062 9.14675 16.8877 12 16.8877C14.8532 16.8877 17 14.8062 17 12.4336C17 11.8813 17.4477 11.4336 18 11.4336ZM12.001 1.57031C14.4467 1.57039 16.4297 3.55324 16.4297 5.99902V10.9512C16.4297 13.397 14.4467 15.3798 12.001 15.3799C9.55514 15.3799 7.57227 13.397 7.57227 10.9512V5.99902C7.57227 3.55319 9.55514 1.57031 12.001 1.57031ZM12.001 3.57031C10.6597 3.57031 9.57227 4.65776 9.57227 5.99902V10.9512C9.57227 12.2924 10.6597 13.3799 12.001 13.3799C13.3422 13.3798 14.4297 12.2924 14.4297 10.9512V5.99902C14.4297 4.65781 13.3422 3.57039 12.001 3.57031Z" fill="#1F1F1F"/></svg>',
+  plus: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="7" y="11" width="10" height="2" rx="1" fill="#1F1F1F"/><rect x="13" y="7" width="10" height="2" rx="1" transform="rotate(90 13 7)" fill="#1F1F1F"/><circle cx="12" cy="12" r="9" stroke="#1F1F1F" stroke-width="2"/></svg>',
+  heart: (on)=>'<svg width="17" height="16" viewBox="0 0 20 18" fill="none"><path d="M10 17S1 11.6 1 5.9C1 3 3.2 1 5.7 1 7.5 1 9.1 2 10 3.5 10.9 2 12.5 1 14.3 1 16.8 1 19 3 19 5.9 19 11.6 10 17 10 17z" fill="'+(on?'#081021':'none')+'" stroke="'+(on?'#081021':'#54545C')+'" stroke-width="1.7" stroke-linejoin="round"/></svg>',
+  spark: '<svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M7 0l1.3 4.2L12.5 5.5 8.3 6.8 7 11 5.7 6.8 1.5 5.5 5.7 4.2 7 0z" fill="#007AFF"/><path d="M11.5 9.5l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6.6-1.9z" fill="#007AFF" opacity="0.65"/></svg>',
+  sparkSm: '<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 0l1.4 4.6L12 6 7.4 7.4 6 12 4.6 7.4 0 6l4.6-1.4L6 0z" fill="#33507A"/></svg>',
+  heartHead: '<svg width="22" height="20" viewBox="0 0 20 18" fill="none"><path d="M10 17S1 11.6 1 5.9C1 3 3.2 1 5.7 1 7.5 1 9.1 2 10 3.5 10.9 2 12.5 1 14.3 1 16.8 1 19 3 19 5.9 19 11.6 10 17 10 17z" stroke="#1C1C1E" stroke-width="1.7" stroke-linejoin="round"/></svg>',
+  tabTasks: '<svg class="tabfill" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 8.27726C1.5 5.11417 4.06419 2.54999 7.22727 2.54999H16.7727C19.9358 2.54999 22.5 5.11418 22.5 8.27726V15.7227C22.5 18.8858 19.9358 21.45 16.7727 21.45H7.22727C4.06419 21.45 1.5 18.8858 1.5 15.7227V8.27726Z" fill="currentColor"/><path d="M7.6 12.3l3 3 5.8-6.1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  tabAgents: '<svg class="tabfill" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 8.27726C1.5 5.11417 4.06419 2.54999 7.22727 2.54999H16.7727C19.9358 2.54999 22.5 5.11418 22.5 8.27726V15.7227C22.5 18.8858 19.9358 21.45 16.7727 21.45H7.22727C4.06419 21.45 1.5 18.8858 1.5 15.7227V8.27726Z" fill="currentColor"/><path d="M15.7158 8.16773C16.2302 7.84549 16.9096 8.00031 17.2324 8.51441C17.5548 9.02873 17.3987 9.70804 16.8848 10.031L13.9863 11.8494L16.8848 13.6677C17.3987 13.9907 17.5548 14.67 17.2324 15.1843C16.9096 15.6986 16.2303 15.8534 15.7158 15.531L12.4766 13.4988C11.2607 12.7355 11.2606 10.9632 12.4766 10.2L15.7158 8.16773ZM8.59961 8.54956C9.207 8.54963 9.6991 9.0418 9.69922 9.64917V14.0496C9.69901 14.6569 9.20694 15.1491 8.59961 15.1492C7.99232 15.1491 7.50021 14.6568 7.5 14.0496V9.64917C7.50012 9.04183 7.99227 8.54968 8.59961 8.54956Z" fill="white"/></svg>',
+  tabShop: '<svg class="tabfill" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 1.5A4.5 4.5 0 007.5 6v1.05H5.31a1.8 1.8 0 00-1.79 1.62l-1 10A2.5 2.5 0 005.01 21.45h13.98a2.5 2.5 0 002.49-2.78l-1-10a1.8 1.8 0 00-1.79-1.62H16.5V6A4.5 4.5 0 0012 1.5zm-2.5 5.55V6a2.5 2.5 0 015 0v1.05h-5z" fill="currentColor"/></svg>',
+  tabMe: '<svg class="tabfill" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.6364 14H10.3636C6.29681 14 3 16.9305 3 20.5455C3 21.3488 3.65193 22 4.45525 22C11.0836 22 15.5353 22 19.5458 22C20.3492 22 21 21.3488 21 20.5455C21 16.9305 17.7032 14 13.6364 14Z" fill="currentColor"/><path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 7C6.5 3.96243 8.96243 1.5 12 1.5C15.0376 1.5 17.5 3.96243 17.5 7C17.5 10.0376 15.0376 12.5 12 12.5C8.96243 12.5 6.5 10.0376 6.5 7Z" fill="currentColor"/></svg>',
+};
+
+const statusbar = () => `<div class="statusbar"><span class="time">9:41</span><span class="icons">${IC.sig}${IC.wifi}${IC.batt}</span></div>`;
+
+const cap = (id, showWhy) => { const p=P[id]; return `
+  <div class="cap">
+    <div class="ttl">${p.brand} ${p.nm}</div>
+    <div class="pr">$${p.pr}</div>
+    ${(showWhy && p.why) ? `<div class="why">${p.why}</div>` : ''}
+  </div>`; };
+
+const imgw = (id) => { const p=P[id]; return `
+  <div class="imgw">
+    <img src="${p.img}" alt="">
+    <div class="sparkb" onclick="event.stopPropagation();openSheet('${id}')">${IC.spark}</div>
+  </div>`; };
+
+const hcard = (id) => { const p=P[id]; return `
+  <div class="hcard" onclick="openPDP('${id}')">${imgw(id)}
+    <div class="cap">
+      <div class="ttl">${p.brand} ${p.nm}</div>
+      <div class="pr">$${p.pr}</div>
+      ${SAVE_EVENTS[id] ? `<div class="why ev">${SAVE_EVENTS[id]}</div>` : ''}
+    </div>
+  </div>`; };
+const gcard = (id) => `<div class="gcard" onclick="openPDP('${id}')">${imgw(id)}${cap(id,true)}</div>`;
+
+const secHead = (t, s) => `
+  <div class="sec-head" onclick="toast('Section landing — full flow (P1)')">
+    <div><div class="t">${t}</div><div class="s">${s}</div></div>
+    <span class="chev">${IC.chev}</span>
+  </div>`;
+
+/* 决策卡族·问句型:类目级困惑,纯问句(有具体候选的场景归对比型) */
+const qcard = (q) => `
+  <div class="qcard" onclick="chatQuery('${q.replace(/'/g,"\\'")}')">
+    <div class="q">${q}</div>
+    <div class="go">Ask ›</div>
+  </div>`;
+const wcard = () => `
+  <div class="wcard2" onclick="chatWindow()">
+    <div class="eyebrow">FROM YOUR CHATS</div>
+    <div class="wt">Late-night desk reset</div>
+    <div class="wimgs"><img src="${A}prod-lamp.jpg"><img src="${A}prod-keyboard.jpg"></div>
+    <div class="wopen">Open ›</div>
+  </div>`;
+/* 对比卡:行为触发(同 session 看过两个同类,且都没下单)
+   这张卡不在卡上给结论 —— 它只唤起"未决"这个状态,把人送进会话,由会话完成对比。
+   眉题与接续卡构成一族,是漏斗上的两级未完成态:
+     STILL LOOKING?  = 聊了一半没找到(接续卡)
+     STILL DECIDING? = 找到两个没选定(对比卡) */
+const ccard = () => `
+  <div class="ccard" onclick="chatCompare()">
+    <div class="eyebrow">STILL DECIDING?</div>
+    <div class="cimgs">
+      <div class="cside"><img src="${P.keenz.img}"><div class="cn">Keenz Air Plus</div><div class="cp">$349</div></div>
+      <div class="cside"><img src="${P.doona.img}"><div class="cn">Doona Car Seat</div><div class="cp">$549</div></div>
+      <span class="vs">VS</span>
+    </div>
+    <div class="go">Which one fits your trip? ›</div>
+  </div>`;
+/* 接续卡:上次会话未收口的决策(非事件——事件归事件卡,一个故事只出现一次) */
+/* 眉题用固定短语不含时间(Google Discover "You asked to see" 范式):
+   动态时间词长度不可控,且越久越像催促;时间不是这张卡的决策信息 */
+const contcard = () => `
+  <div class="contcard" onclick="chatContinue()">
+    <div class="eyebrow">STILL LOOKING?</div>
+    <div class="qx">“Dining chairs for a small apartment, under $150”</div>
+    <div class="thumbs">${['chair','chair2','chair3'].map(id=>`<img src="${P[id].img}">`).join('')}</div>
+    <div class="go">Continue this chat ›</div>
+  </div>`;
+/* 试穿(Try it on):服饰类能力,入口 = ✦ composer chip + PDP 动作 */
+
+const home = () => {
+  /* 首页商品零重复:Worth a look=sneaker/phones/watch;插卡内商品=keenz+doona(对比)/lamp+keyboard(橱窗)/chair(接续);
+     以下 12 件只在流内出现一次 */
+  const cells = [
+    gcard('tote'),      qcard('Which stroller for city + travel?'),
+    gcard('backpack'),  gcard('sunglasses'),
+    gcard('bottle'),    wcard(),
+    gcard('sneaker2'),  gcard('perfume'),
+    ccard(),            gcard('speaker'),
+    gcard('mug'),       gcard('candle'),
+    gcard('plant'),     contcard(),
+    gcard('camera'),    gcard('wallet'),
+  ];
+  const c1=[], c2=[];
+  cells.forEach((h,i)=>(i%2===0?c1:c2).push(h));
+  return `
+  <div class="screen-body" id="sb">
+    <div class="lk-corner" onclick="openLikes()">
+      ${IC.heartHead}${HAS_EVENTS ? '<span class="badge">3</span>' : ''}
+    </div>
+    <div class="greet">What are you shopping for today?</div>
+    <div class="ask" onclick="openFocus()">
+      <span class="ph">Ask me anything</span>
+      <span class="aic">${IC.mic}</span><span class="aic">${IC.plus}</span>
+    </div>
+    <div class="askchips">
+      ${(HAS_EVENTS ? CF_CHIPS : CF_CHIPS.slice(1))
+        .map(t=>`<span class="achip" onclick="openFocus('${t.replace(/'/g,"\\'")}')">${t}</span>`).join('')}
+    </div>
+    ${HAS_EVENTS ? `
+    <div class="sec">
+      <div class="sec-head" onclick="openLikes()">
+        <div><div class="t">Worth a look</div><div class="s">Updates on your saves</div></div>
+        <span class="chev">${IC.chev}</span>
+      </div>
+      <div class="hrow">${['sneaker','phones','watch'].map(hcard).join('')}</div>
+    </div>` : ''}
+    <div class="sec">
+      <div class="sec-head" style="cursor:default">
+        <div><div class="t">Daily Edit</div><div class="s">From your chats with Migoo</div></div>
+      </div>
+      <div class="grid"><div class="gcol">${c1.join('')}</div><div class="gcol">${c2.join('')}</div></div>
+    </div>
+  </div>`;
+};
+
+/* 会话统一发生在第一个 tab(Migoo 助理);Shop 里的问/对比/追问=**切 tab** 而非下钻,
+   所以会话页顶部无返回箭头,回 Shop 靠底部 tabbar */
+const fbar = (active='shop') => `
+  <div class="tabbar">
+    <div class="tab${active==='migoo'?' on':''}" ${active==='migoo'?'':'onclick="openAssistant()"'}><img class="logo" src="${A}migoo-logo.png"></div>
+    <div class="tab" onclick="toast('→ Tasks tab (out of demo scope)')">${IC.tabTasks}</div>
+    <div class="tab" onclick="toast('→ Agents tab (out of demo scope)')">${IC.tabAgents}</div>
+    <div class="tab${active==='shop'?' on':''}" ${active==='shop'?'':'onclick="closeChat()"'}>${IC.tabShop}</div>
+    <div class="tab" onclick="toast('→ Me tab (out of demo scope)')">${IC.tabMe}</div>
+  </div>`;
+
+/* ---------- PDP renderers ---------- */
+function stars(full, half=false){ let s=''; for(let i=0;i<full;i++) s+=IC.star(); if(half) s+=IC.starHalf; return s; }
+function varGroupHTML(v){
+  return `<div class="var-group">
+    <div class="var-label">${v.label} ${IC.chevR}</div>
+    <div class="vchips">${v.options.map(o=>`<div class="vchip${o.sel?' sel':''}${o.dis?' dis':''}">${o.t}</div>`).join('')}</div>
+  </div>`;
+}
+const BRAND = { Walmart:'brand-walmart.png', Amazon:'brand-amazon.png', Ebay:'brand-ebay.svg' };
+const brandBadge = (src) => `<div class="offer-logo">${BRAND[src]?`<img src="${A}${BRAND[src]}" alt="${src}">`:''}</div>`;
+function offerRow(o){
+  return `<div class="offer-row">
+    <div class="offer-left">${brandBadge(o.src)}
+      <div><div class="offer-price">$${o.price}</div>
+        <div class="offer-sub"><span class="rating">${IC.star()} <span>${o.rating||'4.5'}</span></span><span class="vbar"></span><span>View in ${o.src} ${IC.arrowUR}</span></div>
+      </div>
+    </div>
+    <div class="buy-btn">Buy</div>
+  </div>`;
+}
+const offersHTML = (offers) => `<div class="offers">${offers.map((o,i)=>(i?'<div class="offer-line"></div>':'')+offerRow(o)).join('')}</div>`;
+function reviewItem(r){
+  const media = (r.media&&r.media.length) ? `<div class="rev-media">${r.media.map(m=>`<img class="m" src="${A}${m.src}" alt="">`).join('')}</div>` : '';
+  return `<div class="rev-item">
+    <div><div class="rev-name">${r.name}</div>
+      <div class="rev-stars">${stars(r.full!=null?r.full:5, r.half)}<span class="vbar"></span><span class="src">${r.src}</span></div></div>
+    ${r.text?`<div class="rev-text">${r.text}</div>`:''}
+    ${media}
+  </div>`;
+}
+const reviewsHTML = (reviews) => `<div class="reviews">
+  <div class="rev-head"><span class="t">What People are Saying</span>${IC.chevHead}</div>
+  ${reviews.map((r,i)=>(i?'<div class="rev-line"></div>':'')+reviewItem(r)).join('')}
+</div>`;
+const detailsHTML = (details, desc) => `<div class="details">
+  <h3>Details</h3>
+  ${details.map(([k,v])=>`<div class="spec-row"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}
+  ${desc?`<p class="desc">${desc}</p>`:''}
+</div>`;
+
+function pdpHTML(id){
+  const p = P[id], d = PDPD[id];
+  return `
+    <div class="pdp-body">
+      <div class="pdp-hero">
+        <div class="sheet-grabber"></div>
+        <div class="pdp-close" onclick="closePDP()">${IC.close}</div>
+        <div class="pdp-watch" id="pdpSave" onclick="event.stopPropagation();toggleSave('${id}')">${IC.heart(saved.has(id))} ${saved.has(id)?'Saved':'Save'}</div>
+        <img src="${d.hero.startsWith('assets/')?d.hero:A+d.hero}" alt="">
+        <div class="indicator">1/${d.gallery||12}</div>
+      </div>
+      <div style="height:16px"></div>
+      <div class="pdp-pad">
+        <div class="pdp-price">$${d.price}</div>
+        <div class="pdp-subnote">${d.sub}</div>
+        <div class="pdp-title">${p.brand} ${p.nm}</div>
+      </div>
+      ${p.why ? `<div class="pdp-why">${p.why}</div>` : ''}
+      <ul class="ai-bullets">${d.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>
+      ${p.scene ? `<div class="pdp-scene" onclick="openGenSheet()">See it in a scene ›</div>` : ''}
+      ${p.tryon ? `<div class="pdp-scene" onclick="openTryOn('${id}')">Try it on — with your character ›</div>` : ''}
+      <div style="height:16px"></div>
+      ${d.variants.map(varGroupHTML).join('')}
+      <div style="height:16px"></div>
+      <div class="section-divider"></div>
+      ${offersHTML(d.offers)}
+      <div class="section-divider"></div>
+      ${reviewsHTML(d.reviews)}
+      <div class="section-divider"></div>
+      ${detailsHTML(d.details, d.desc)}
+    </div>
+    <div class="pdp-dock">
+      <div class="ask-migoo" onclick="askMigooPDP()"><img class="ask-logo" src="${A}migoo-logo.png" alt=""><span>Ask Migoo</span></div>
+      <div class="buy-main" onclick="toast('In-app checkout — Migoo fulfils & attributes')">Buy at ${d.buy.src} · $${d.buy.price} ${IC.arrowUR}</div>
+    </div>
+    <div class="home-indicator"></div>`;
+}
+
+/* ---------- PDP bottom sheet(half ↔ full 手势,移植) ---------- */
+let sheetDrag = null;
+let currentPdpId = null;
+function openPDP(id){
+  if (!PDPD[id]) { toast('No PDP for this item'); return; }
+  currentPdpId = id;
+  const ov = document.getElementById('pdp');
+  ov.innerHTML = pdpHTML(id);
+  ov.classList.remove('full');
+  document.getElementById('pdpBackdrop').classList.add('show');
+  ov.classList.add('open');
+  attachSheetDrag(ov);
+}
+function closePDP(){
+  const ov = document.getElementById('pdp');
+  ov.classList.remove('open','full');
+  document.getElementById('pdpBackdrop').classList.remove('show');
+}
+function askMigooPDP(){ const id = currentPdpId; closePDP(); if (id) setTimeout(()=>openSheet(id), 180); }
+function attachSheetDrag(ov){
+  ['.sheet-grabber','.pdp-hero'].forEach(sel=>{
+    const el = ov.querySelector(sel);
+    if (el) el.addEventListener('pointerdown', sheetPointerDown);
+  });
+  const body = ov.querySelector('.pdp-body');
+  if (body) body.addEventListener('scroll', ()=>{
+    if (!ov.classList.contains('full') && body.scrollTop > 6) ov.classList.add('full');
+  }, { passive:true });
+}
+function sheetPointerDown(e){
+  if (e.target.closest('.pdp-close') || e.target.closest('.pdp-watch')) return;
+  const ov = document.getElementById('pdp');
+  const phone = ov.closest('.phone');
+  sheetDrag = { y:e.clientY, halfTop:Math.round(phone.clientHeight*0.10), full:ov.classList.contains('full') };
+  ov.classList.add('dragging');
+  window.addEventListener('pointermove', sheetPointerMove);
+  window.addEventListener('pointerup', sheetPointerUp);
+}
+function sheetPointerMove(e){
+  if (!sheetDrag) return;
+  const ov = document.getElementById('pdp');
+  const dy = e.clientY - sheetDrag.y;
+  const base = sheetDrag.full ? 0 : sheetDrag.halfTop;
+  let top = Math.max(0, base + dy);
+  if (top <= sheetDrag.halfTop){ ov.style.top = top+'px'; ov.style.transform = 'translateY(0)'; }
+  else { ov.style.top = sheetDrag.halfTop+'px'; ov.style.transform = 'translateY('+(top-sheetDrag.halfTop)+'px)'; }
+}
+function sheetPointerUp(e){
+  if (!sheetDrag) return;
+  const ov = document.getElementById('pdp');
+  const dy = e.clientY - sheetDrag.y;
+  ov.classList.remove('dragging');
+  ov.style.top = ''; ov.style.transform = '';
+  if (!sheetDrag.full){
+    if (dy < -40) ov.classList.add('full');
+    else if (dy > 70) closePDP();
+  } else { if (dy > 60) ov.classList.remove('full'); }
+  sheetDrag = null;
+  window.removeEventListener('pointermove', sheetPointerMove);
+  window.removeEventListener('pointerup', sheetPointerUp);
+}
+
+/* ============================================================
+   Likes 委托台(事件与首页同源)
+   ============================================================ */
+const LK_MDL = { sneaker:'Crimson · US 9', watch:'Midnight · 45mm · Sport', phones:'Silver',
+  tote:'English Saddle · Large', backpack:'Navy · 20L', sunglasses:'Polarized · 55mm',
+  bottle:'Olive · 17oz', sneaker2:'Ale Brown · US 9', chair:'Black · set of 2',
+  chair2:'White · counter height', chair3:'Ivory · velvet', camera:'White' };
+
+function lkCard(tagCls, tagTxt, pid, priceHTML, noteHTML, btns){
+  const p = P[pid];
+  return `<div class="lk-card lk-reveal">
+    <div><span class="lk-tag ${tagCls}">${tagTxt}</span></div>
+    <div class="lk-hd tappable" onclick="openPDP('${pid}')">
+      <img src="${p.img}" alt="">
+      <div class="bd">
+        <div class="ttl">${p.brand} ${p.nm}</div>
+        <div class="mdl" onclick="event.stopPropagation();lkToast('切换规格 — demo')">${LK_MDL[pid]} <span class="lk-chv">›</span></div>
+        <div class="prc lk-mono">${priceHTML}</div>
+      </div>
+    </div>
+    <div class="lk-note ${noteHTML[0]}">${noteHTML[1]}</div>
+    <div class="lk-acts">${btns}
+      <button class="lk-kebab" onclick="lkMenu(this,event)" aria-label="More">⋯</button>
+      <div class="lk-menu">
+        <div class="mi" onclick="closeLikes();openSheet('${pid}')">Ask Migoo about this…</div>
+        <div class="mi danger" onclick="lkToast('取消收藏,停止监控 — demo')">Remove from Likes</div>
+      </div>
+    </div>
+  </div>`;
+}
+function lkRow(pid){
+  const p = P[pid];
+  return `<div class="lk-row tappable" onclick="openPDP('${pid}')">
+    <img src="${p.img}" alt="">
+    <div class="bd">
+      <div class="t">${p.brand} ${p.nm}</div>
+      <div class="m" onclick="event.stopPropagation();lkToast('切换规格 — demo')">${LK_MDL[pid]} <span class="lk-chv">›</span></div>
+      <div class="p lk-mono">$${p.pr}</div>
+    </div>
+    <button class="lk-rowmore" onclick="lkMenu(this,event)" aria-label="More">⋯</button>
+    <div class="lk-menu"><div class="mi danger" onclick="lkToast('取消收藏,停止监控 — demo')">Remove from Likes</div></div>
+  </div>`;
+}
+function lkSubtitle(){
+  if (likesState === 'quiet') return '<span class="lk-mono lk-ink" style="font-weight:600">Watching all 8</span> · all steady';
+  return '8 saves · checked just now';
+}
+function lkBodyHTML(){
+  return likesState === 'quiet' ? lkBodyQuiet() : lkBodyActive();
+}
+function lkBodyActive(){
+  return `
+      <div class="lk-fhead lk-reveal">Worth a look · 3</div>
+      ${lkCard('scarce','LOW STOCK','watch','$329',
+        ['scarcebg','Only <span class="lk-mono" style="color:var(--lk-scarce)">4 left</span> — went <span class="lk-mono lk-ink">9→6→4</span> over our last 3 checks.'],
+        `<button class="lk-btn pri" onclick="event.stopPropagation();toast('In-app checkout — Migoo fulfils & attributes')">Buy now</button>
+         <button class="lk-btn" onclick="event.stopPropagation();sheetId='watch';sendQ('Find me a similar smartwatch in stock')">Find similar</button>`)}
+      ${lkCard('inkt','PRICE ↓','phones','$449<span class="lk-delta lk-mono lk-ink">↓$100</span>',
+        ['inkbg','Lowest since you saved it (<span class="lk-mono lk-ink">Jul 12</span>) — every check this week equal or lower.'],
+        `<button class="lk-btn pri" onclick="event.stopPropagation();toast('In-app checkout — Migoo fulfils & attributes')">Buy now</button>
+         <button class="lk-btn" onclick="event.stopPropagation();sheetId='phones';sendQ('Find these cheaper somewhere else')">Find it cheaper</button>`)}
+      ${lkCard('deal','TARGET HIT','sneaker','$89',
+        ['goodbg','Hit your <b>$89 target</b> this morning — you set it when you saved (<span class="lk-mono lk-ink">Jul 18</span>).'],
+        `<button class="lk-btn pri" onclick="event.stopPropagation();toast('In-app checkout — Migoo fulfils & attributes')">Buy now</button>
+         <button class="lk-btn" onclick="event.stopPropagation();lkToast('Still watching — I\\'ll ping you if it drops more')">Keep watching</button>`)}
+      <div class="lk-sec lk-reveal"><span class="st">Other saves</span></div>
+      ${['tote','backpack','sunglasses','bottle','sneaker2'].map(lkRow).join('')}
+      <div style="height:20px"></div>`;
+}
+function lkBodyQuiet(){
+  return `
+      <div style="height:10px"></div>
+      ${['sneaker','watch','phones','tote','backpack','sunglasses','bottle','sneaker2'].map(lkRow).join('')}
+      <div style="height:20px"></div>`;
+}
+function likesTab(){
+  return `<div class="likes-overlay" id="likesTab">
+    ${statusbar()}
+    <div class="lk-header">
+      <span style="position:absolute;left:16px;top:2px;font-size:24px;font-weight:300;line-height:32px;cursor:pointer" onclick="closeLikes()">‹</span>
+      <div class="t">Likes</div>
+      <div class="s" id="lkSub"><span class="lk-pdot"></span><span id="lkSubText">${lkSubtitle()}</span></div>
+      <button class="more" onclick="lkNavMenu(event)" aria-label="More">⋯</button>
+      <div class="lk-navmenu" id="lkNavMenu"><div class="mi" onclick="lkToast('批量管理(多选删除) — demo')">Manage saves…</div></div>
+    </div>
+    <div class="lk-prog" id="lkProg"><i id="lkBar"></i></div>
+    <div class="lk-body" id="lkBody">${lkBodyHTML()}</div>
+    ${fbar()}
+    <div class="lk-toast" id="lkToast"></div>
+  </div>`;
+}
+let lkScanned = false, lkScanT = [];
+function renderLikesBody(){
+  const body = document.getElementById('lkBody');
+  const st = document.getElementById('lkSubText');
+  if (body) body.innerHTML = lkBodyHTML();
+  if (st) st.innerHTML = lkSubtitle();
+}
+function openLikes(){
+  renderLikesBody();
+  document.getElementById('likesTab').classList.add('show');
+  if (!lkScanned) lkRunScan();
+}
+function closeLikes(){
+  const el = document.getElementById('likesTab');
+  if (el) el.classList.remove('show');
+  lkCloseMenus();
+}
+function lkRunScan(){
+  lkScanned = true;
+  const sub = document.getElementById('lkSub'), st = document.getElementById('lkSubText');
+  const prog = document.getElementById('lkProg'), bar = document.getElementById('lkBar');
+  const body = document.getElementById('lkBody');
+  sub.classList.add('scanning'); prog.classList.add('show'); bar.style.width='8%';
+  body.style.opacity='0';
+  st.textContent='checking your 8 saves…';
+  lkScanT.push(setTimeout(()=>{ st.textContent='checking stock…'; bar.style.width='58%'; },650));
+  lkScanT.push(setTimeout(()=>{ bar.style.width='100%'; },1150));
+  lkScanT.push(setTimeout(()=>{
+    sub.classList.remove('scanning'); prog.classList.remove('show'); bar.style.width='0';
+    body.style.opacity='';
+    st.innerHTML=lkSubtitle();
+  },1500));
+}
+function lkCloseMenus(){ document.querySelectorAll('.lk-menu.open,.lk-navmenu.open').forEach(m=>m.classList.remove('open')); }
+function lkMenu(btn,e){ e.stopPropagation(); const m=btn.parentElement.querySelector('.lk-menu'); const was=m.classList.contains('open'); lkCloseMenus(); if(!was)m.classList.add('open'); }
+function lkNavMenu(e){ e.stopPropagation(); const m=document.getElementById('lkNavMenu'); const was=m.classList.contains('open'); lkCloseMenus(); if(!was)m.classList.add('open'); }
+document.addEventListener('click', e=>{ if(!e.target.closest('.lk-acts') && !e.target.closest('.lk-header') && !e.target.closest('.lk-row')) lkCloseMenus(); });
+let lkToastT;
+function lkToast(msg){
+  const t=document.getElementById('lkToast'); if(!t) return;
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(lkToastT); lkToastT=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+/* ---------- 商品 ✦ ---------- */
+/* 点商品 ✦ = 唤起 composer 并引用该商品,与顶部输入框共用一套 UI(见 openFocus)。
+   sheet 现在只剩展示型用途(试穿预览),不再承载输入。 */
+function openSheet(id) { openFocus(null, id); }
+
+/* 试穿预览:服饰类能力,用"我的角色"资产;商品保真+不美化本人 */
+function openTryOn(id) {
+  const p = P[id];
+  closeFocus();
+  document.getElementById('sheet').innerHTML = `
+    <img src="${p.img}" style="width:100%;aspect-ratio:1/0.72;object-fit:cover;border-radius:16px;display:block">
+    <div style="margin-top:12px">
+      <div style="font-family:var(--serif);font-size:17px;font-weight:600;color:var(--black)">On you — using the photo you saved as your character</div>
+      <div style="font-size:12.5px;color:var(--text-65);margin-top:3px">Style preview, not a fit guarantee · product photo untouched · no retouching of you</div>
+    </div>
+    <div class="pills">
+      <button class="spill" onclick="closeSheet();openPDP('${id}')">VIEW PRODUCT</button>
+      <button class="spill" onclick="toast('Saved to your project — 接创作管线(P1)')">SAVE TO MY CREATION</button>
+    </div>`;
+  document.getElementById('scrim').classList.add('show');
+  document.getElementById('sheet').classList.add('show');
+  document.getElementById('sheet').classList.remove('kb');
+  kbdShow(false);
+}
+
+function closeSheet() {
+  document.getElementById('sheet').classList.remove('show','kb');
+  document.getElementById('scrim').classList.remove('show');
+  kbdShow(false);
+}
+
+/* ---------- chat (会话追问,同商品追问逻辑) ---------- */
+/* ============================================================
+   模拟键盘 + composer 聚焦态
+   规则:chips 点击=键入输入框(不发送);只有用户点发送才跳 tab1 会话
+   ============================================================ */
+const KROWS = [['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L'],['⇧','Z','X','C','V','B','N','M','⌫']];
+const kbdHTML = () => `
+  ${KROWS.map((r,i)=>`<div class="krow${i===2?' last':''}">${r.map(k=>
+    `<div class="k${(k==='⇧'||k==='⌫')?' wide':''}">${k}</div>`).join('')}</div>`).join('')}
+  <div class="krow last"><div class="k wide" style="max-width:44px;font-size:15px">123</div><div class="k" style="max-width:38px;font-size:17px">☺</div><div class="k space">space</div><div class="k go">Go</div></div>
+  <div class="khome"></div>`;
+function kbdShow(v){ document.getElementById('kbd').classList.toggle('show', v); }
+
+const CF_CHIPS = ['Packing for Tokyo?','Compare two picks','Is this a good price?','Gift ideas','Best budget pick','Find me a dupe'];
+/* 引用了具体商品时换一组"对这件东西"的 query;尺码/试穿只对服饰类出 */
+const CF_CHIPS_PROD = ['More like this','Find it cheaper','Is this a good price?'];
+const CF_CHIPS_WEAR = ['What size should I get?'];
+const IC_X = '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+let cfValue = '';
+let cfProd = null;                                     /* 当前引用的商品 id */
+function cfRender(){
+  const t = document.getElementById('cfText');
+  if (!t) return;
+  t.className = 'cf-text' + (cfValue ? '' : ' ph');
+  /* 聚焦即有光标:空态时光标在 placeholder 之前(iOS 原生行为) */
+  t.innerHTML = cfValue
+    ? `${cfValue}<span class="caret"></span>`
+    : `<span class="caret lead"></span>${cfProd ? 'Ask about this…' : 'What can I help you?'}`;
+  document.getElementById('cfSend').classList.toggle('off', !cfValue);
+}
+/* 通用 composer 与商品 ✦ 走同一个函数 —— 点 ✦ 本质就是"唤起输入框 + 引用这件商品 + 给几条 query" */
+function openFocus(prefill, prodId){
+  cfValue = prefill || '';
+  cfProd  = prodId || null;
+  const p = cfProd ? P[cfProd] : null;
+  /* 能力型 chip(试穿)直接执行,query 型 chip 键入不发送 —— 视觉同构,措辞区分(动词 vs 问句) */
+  const chips = p
+    ? (p.tryon ? [{t:'Try it on', act:`openTryOn('${cfProd}')`}] : [])
+        .concat(CF_CHIPS_PROD.map(t=>({t})), p.tryon ? CF_CHIPS_WEAR.map(t=>({t})) : [])
+    : CF_CHIPS.map(t=>({t}));
+  document.getElementById('cfocus').innerHTML = `
+    <div class="cf-scrim" onclick="closeFocus()"></div>
+    <div class="cf-dock">
+      <div class="cf-chips">${chips.map(c=>
+        `<span class="cf-chip" onclick="${c.act || `cfType('${c.t.replace(/'/g,"\\'")}')`}">${c.t}</span>`).join('')}</div>
+      <div class="cf-input">
+        ${p ? `<div class="cf-quote">
+          <img src="${p.img}">
+          <div class="qi"><div class="qb">${p.brand}</div><div class="qn">${p.nm}</div></div>
+          <span class="qx" onclick="cfUnquote()">${IC_X}</span>
+        </div>` : ''}
+        <div class="cf-text ph" id="cfText"></div>
+        <div class="cf-row">
+          <span class="ic">${IC.plus}</span><span class="sp3"></span>
+          <span class="ic">${IC.mic}</span>
+          <span class="cf-send off" id="cfSend" onclick="cfSend()">${IC.upSm}</span>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('cfocus').classList.add('show');
+  kbdShow(true);
+  cfRender();
+}
+function cfType(t){ cfValue = t; cfRender(); }        /* chip → 键入,不发送 */
+function cfUnquote(){ openFocus(cfValue, null); }     /* 去掉引用 → 退回通用 composer */
+function closeFocus(){
+  document.getElementById('cfocus').classList.remove('show');
+  kbdShow(false);
+  cfProd = null;
+}
+function cfSend(){                                     /* 用户主动发送 → 跳 tab1 会话 */
+  if (!cfValue) return;
+  const q = cfValue, ctx = cfProd;
+  closeFocus();
+  sheetId = ctx;                                       /* 带上引用商品作为追问上下文 */
+  setTimeout(()=>sendQ(q), 120);
+}
+
+/* ---------- 会话页组件(全站会话统一走这里) ---------- */
+const prow2 = (id) => { const p=P[id]; return `
+  <div class="prow2" onclick="closeChat();openPDP('${id}')">
+    <img src="${p.img}">
+    <div><div class="pn">${p.brand} ${p.nm}</div><div class="pp">$${p.pr}</div></div>
+  </div>`; };
+const plist = (ids) => ids.length ? `<div class="plist">${ids.map(prow2).join('')}</div>` : '';
+/* 会话内双列网格:橱窗类回答用它,兼顾"视觉陈列"与"可对话" */
+const pgrid = (ids) => {
+  const c1=[], c2=[];
+  ids.forEach((id,i)=>{ const p=P[id];
+    (i%2===0?c1:c2).push(`<div class="pgc" onclick="closeChat();openPDP('${id}')">
+      <img src="${p.img}"><div class="pgb"><div class="pn">${p.brand} ${p.nm}</div><div class="pp">$${p.pr}</div></div></div>`);
+  });
+  return `<div class="pgrid"><div class="pgcol">${c1.join('')}</div><div class="pgcol">${c2.join('')}</div></div>`;
+};
+const pbig = (id) => { const p=P[id]; return `
+  <div class="pbig" onclick="closeChat();openPDP('${id}')">
+    <img src="${p.img}">
+    <div class="pb">
+      <div class="pn">${p.brand} ${p.nm}</div>
+      <div class="pp">$${p.pr}</div>
+      <div class="pbuy">Buy now · in-app checkout ${IC.arrowUR}</div>
+    </div>
+  </div>`; };
+const bubbleA = (html) => `<div class="ma"><div class="b">${html}</div></div>`;
+/* 带引用的用户气泡:从 ✦ 进来时把引用的商品也带进会话,否则用户看不出 AI 在回答哪一件 */
+const bubbleU = (t, refId) => {
+  const p = refId ? P[refId] : null;
+  return `<div class="mu">${p ? `<div class="uref"><img src="${p.img}"><span>${p.brand} ${p.nm}</span></div>` : ''}<span class="b">${t}</span></div>`;
+};
+function chatShell(bodyHTML) {
+  document.getElementById('chat').innerHTML = `
+    <div class="chead">
+      <div class="ct">Migoo</div><div class="cs">Generated by AI</div>
+      <span class="cdoc" onclick="toast('会话历史 — demo')">${IC.doc}</span>
+    </div>
+    <div class="cbody">${bodyHTML}</div>
+    <div class="cdock"><div class="cask"><span class="sp2">Anything on your mind?</span>${IC.mic}${IC.plus}</div></div>
+    ${fbar('migoo')}`;
+  document.getElementById('chat').classList.add('show');
+}
+/* ============================================================
+   会话统一时序:query 先出 → 思考 2s → 逐段流式打出 → 富内容淡入
+   所有"点击卡进会话"的入口都走 chatFlow,不再一次性 render 全部内容
+   ============================================================ */
+let flowT = [];
+function flowStop(){ flowT.forEach(clearTimeout); flowT = []; }
+function chatScrollEnd(){ const b = document.querySelector('#chat .cbody'); if (b) b.scrollTop = b.scrollHeight; }
+/* 逐字打出 HTML。进度由 performance.now() 决定而非"每帧一个字":
+   定时器被节流时按真实经过时间一次补齐,总时长恒定,不会卡在开头。
+   标签不算可见字符,但截断位置始终落在完整标签之后,避免打到一半的属性被渲染。 */
+const TYPE_CPS = 78;                                   /* 每秒字符数 */
+function typeHTML(el, html, done){
+  const cuts = [];                                     /* cuts[n-1] = 显示 n 个可见字符时的截断长度 */
+  for (let i = 0; i < html.length; ) {
+    const c = html[i];
+    if (c === '<')      { const j = html.indexOf('>', i); i = j < 0 ? html.length : j + 1; }
+    else if (c === '&') { const j = html.indexOf(';', i); i = (j > 0 && j - i < 8) ? j + 1 : i + 1; cuts.push(i); }
+    else                { i++; cuts.push(i); }
+  }
+  const total = cuts.length;
+  if (!total) { el.innerHTML = html; done && done(); return; }
+  const t0 = performance.now();
+  const step = () => {
+    const n = Math.min(total, Math.floor((performance.now() - t0) / 1000 * TYPE_CPS));
+    if (n >= total) { el.innerHTML = html; chatScrollEnd(); done && done(); return; }
+    el.innerHTML = html.slice(0, n ? cuts[n-1] : 0) + '<span class="tcur"></span>';
+    chatScrollEnd();
+    flowT.push(setTimeout(step, 16));
+  };
+  step();
+}
+/* pre = 直接呈现的上文(历史消息/时间戳);segs = [{t:文字, rich:富内容}] */
+function chatFlow(pre, userHTML, segs){
+  flowStop();
+  chatShell((pre || '') + (userHTML || '') +
+    `<div class="ma" id="ctyping"><div class="b tping"><i></i><i></i><i></i></div></div>`);
+  chatScrollEnd();
+  const body = document.querySelector('#chat .cbody');
+  const runSeg = (i) => {
+    if (i >= segs.length) { document.getElementById('ctyping')?.remove(); return; }
+    const s = segs[i];
+    const el = document.createElement('div');
+    el.className = 'ma';
+    el.innerHTML = '<div class="b"></div>';
+    body.insertBefore(el, document.getElementById('ctyping'));
+    typeHTML(el.querySelector('.b'), s.t, () => {
+      if (s.rich) {
+        const r = document.createElement('div');
+        r.className = 'crich';
+        r.innerHTML = s.rich;
+        el.querySelector('.b').appendChild(r);
+        chatScrollEnd();
+      }
+      if (i + 1 < segs.length) flowT.push(setTimeout(()=>runSeg(i+1), 620));
+      else document.getElementById('ctyping')?.remove();
+    });
+  };
+  flowT.push(setTimeout(()=>{
+    document.getElementById('ctyping')?.remove();
+    runSeg(0);
+  }, 2000));
+}
+
+function replyFor(q, id) {
+  const low = q.toLowerCase();
+  /* 无商品上下文(首页 composer 发出) */
+  if (!id) {
+    if (low.includes('pack') || low.includes('tokyo'))
+      return { text: `October in Tokyo runs 12–20°C — layers, not a coat. You already saved the tote, so for the flight I'd add a personal-item bag and something that keeps tea hot on train days:`, ids: ['backpack','bottle'] };
+    if (low.includes('compare'))
+      return { text: `Point me at any two and I'll line up the specs. The pair you were stuck on yesterday:`, ids: ['keenz','doona'] };
+    if (low.includes('good price') || low.includes('price'))
+      return { text: `Two of your saves moved this week — both are at their lowest since you saved them:`, ids: ['phones','sneaker'] };
+    if (low.includes('gift'))
+      return { text: `Your mom's birthday is May 4, and you said she wears classic scents. These two are safe without being boring:`, ids: ['perfume','candle'] };
+    if (low.includes('budget'))
+      return { text: `Under $40 and genuinely worth owning — I'd buy both of these myself:`, ids: ['bottle','mug'] };
+    if (low.includes('dupe'))
+      return { text: `Tell me which one to match. From what you've saved, these two have the closest honest alternatives:`, ids: ['sunglasses','tote'] };
+    return { text: `On it. From what you've told me before, here's where I'd start:`, ids: ['backpack','bottle'] };
+  }
+  /* 有商品上下文(✦ 浮层发出) */
+  const p = P[id];
+  if (low.includes('more like'))
+    return { text: `In the same lane as the ${p.nm} — two worth a look:`, ids: SIMILAR[id] };
+  if (low.includes('cheaper') || low.includes('lower') || low.includes('price'))
+    return { text: `Best I can see right now: <code>$${Math.round(p.pr*0.9)}</code> at Walmart, same colorway, in stock. I can watch it and ping you under <code>$${Math.round(p.pr*0.8)}</code>.`, ids: [] };
+  return { text: `On it — from what you told me before, here's my read on “${q}” for the ${p.nm}:`, ids: SIMILAR[id].slice(0,2) };
+}
+function sendQ(q) {
+  const id = sheetId;
+  closeSheet();
+  const r = replyFor(q, id);
+  chatFlow('', bubbleU(q, id), [{ t: r.text, rich: plist(r.ids) }]);
+}
+function openChatFree() { sheetId = 'backpack'; sendQ('What should I pack for Tokyo in October?'); }
+function chatQuery(q) {
+  chatFlow('', bubbleU(q), [
+    { t: `You're flying in October, so fold size decides it — the Keenz folds to cabin size at 13.6 lb, the Doona doesn't fold small at all.`,
+      rich: plist(['keenz','doona']) },
+    { t: `If the flight is the hard part, I'd take the Keenz:`, rich: pbig('keenz') }
+  ]);
+}
+function closeChat() { flowStop(); document.getElementById('chat').classList.remove('show'); }
+/* 橱窗卡 → 会话(不是预生产的落地页):
+   合集是生成的,生成延迟在会话里是天经地义的"等回答",在页面里则是糟糕的加载;
+   会话内用 pgrid 保住视觉陈列,底部输入框天然就是 refine 通道 */
+function chatWindow() {
+  chatFlow('', bubbleU('Show me that late-night desk setup'), [
+    { t: `You said your work runs late — so I built the desk around that. Warm light, quiet keys, nothing that glares at 1 a.m.`,
+      rich: pgrid(['lamp','keyboard','candle','plant']) },
+    { t: `Say the word if something's already yours and I'll swap it out.` }
+  ]);
+}
+/* 从 Shop 点 Migoo tab → 切到助理 tab(会话的常驻家) */
+function openAssistant() {
+  chatShell(
+    `<div class="cts">Today</div>` +
+    bubbleA(`Morning. Two of your saves moved overnight — the AirPods Max hit its lowest since you saved it, and the Nike Free is at your $89 target.` + plist(['phones','sneaker']))
+  );
+}
+
+/* ---------- 对比卡 → 会话对比(compare-bubble) ---------- */
+function chatCompare() {
+  chatFlow('', bubbleU('Compare the Keenz Air Plus and the Doona'), [
+    { t: `Short version: <b>Keenz for your October flight, Doona if the car is daily life.</b>`,
+      rich: `<table class="ctb">
+          <tr><td class="k"></td><td><b>Keenz Air Plus</b></td><td><b>Doona</b></td></tr>
+          <tr class="bf"><td class="k">Best for</td><td><span class="bft">Flying</span></td><td><span class="bft">Car days</span></td></tr>
+          <tr><td class="k">Price</td><td><span class="w">$349</span></td><td>$549</td></tr>
+          <tr><td class="k">Weight</td><td><span class="w">13.6 lb</span></td><td>17.2 lb</td></tr>
+          <tr><td class="k">Fold</td><td><span class="w">Cabin size</span></td><td>Doesn't fold</td></tr>
+          <tr><td class="k">Car seat</td><td>Separate</td><td><span class="w">Built-in</span></td></tr>
+        </table>` + plist(['keenz','doona']) }
+  ]);
+}
+
+/* ---------- 接续卡 → 回到昨天的会话 ---------- */
+/* 昨天的对话是历史,直接呈现;今天用户重新问一句,Migoo 才流式作答 */
+function chatContinue() {
+  chatFlow(
+    `<div class="cts">Yesterday · 9:12 PM</div>` +
+    bubbleU('Dining chairs for a small apartment, under $150') +
+    bubbleA(`Three that fit a small space and stay under budget:` + plist(['chair','chair2','chair3'])) +
+    `<div class="cts">Today</div>`,
+    bubbleU('Which one should I get?'),
+    [{ t: `You didn't land on one. If it helps: <b>the Svelti</b> — the padded seat is what you'll notice at hour two, and it fits a 32" table without crowding.`,
+       rich: pbig('chair') }]
+  );
+}
+
+/* ---------- 策展流页(橱窗卡/运营卡落地) ---------- */
+const FLOWS = {
+  desk:  { t:'Late-night desk reset', s:'From your chat — you said late-night work runs', ids:['lamp','keyboard','chair','candle','mug','plant'], refine:'Tell me to swap anything ›' },
+  deals: { t:'Deals worth a look', s:'This week · free shipping over $35', ids:['speaker','mug','bottle','candle'], refine:'' },
+};
+function openFlow(key) {
+  const f = FLOWS[key];
+  const c1=[], c2=[];
+  f.ids.forEach((id,i)=>(i%2===0?c1:c2).push(gcard(id)));
+  document.getElementById('flow').innerHTML = `
+    <div class="fhead"><span class="fback" onclick="closeFlow()">${IC.back}</span>
+      <div><div class="ft">${f.t}</div><div class="fs">${f.s}</div></div></div>
+    <div class="fbody">
+      <div class="grid" style="padding:0"><div class="gcol">${c1.join('')}</div><div class="gcol">${c2.join('')}</div></div>
+      ${f.refine ? `<div class="frefine" onclick="toast('Refine — 一句话调整这条流(P1 接会话)')">${f.refine}</div>` : ''}
+    </div>`;
+  document.getElementById('flow').classList.add('show');
+}
+function closeFlow() { document.getElementById('flow').classList.remove('show'); }
+
+/* ---------- 生成预览浮层(生成预览卡落地) ---------- */
+function openGenSheet() {
+  document.getElementById('sheet').innerHTML = `
+    <img src="${A}prod-lamp.jpg" style="width:100%;aspect-ratio:1/0.72;object-fit:cover;border-radius:16px;display:block">
+    <div style="margin-top:12px">
+      <div style="font-family:var(--serif);font-size:17px;font-weight:600;color:var(--black)">The Lumen, on your desk</div>
+      <div style="font-size:12.5px;color:var(--text-65);margin-top:3px">Preview only — the product photo is untouched</div>
+    </div>
+    <div class="pills">
+      <button class="spill" onclick="closeSheet();openPDP('lamp')">VIEW PRODUCT</button>
+      <button class="spill" onclick="toast('Saved to your project — 接创作管线(P1)')">PUT IN MY CREATION</button>
+    </div>`;
+  document.getElementById('scrim').classList.add('show');
+  document.getElementById('sheet').classList.add('show');
+}
+
+/* ---------- shared ---------- */
+function toggleSave(id) {
+  if (saved.has(id)) { saved.delete(id); toast('Removed from Likes'); }
+  else { saved.add(id); toast('Saved · I’ll watch price & stock for you'); }
+  const pdpOpen = document.getElementById('pdp')?.classList.contains('open');
+  if (pdpOpen) {
+    const pill = document.getElementById('pdpSave');
+    if (pill) pill.innerHTML = IC.heart(saved.has(id)) + ' ' + (saved.has(id)?'Saved':'Save');
+    document.querySelectorAll('#h-'+id).forEach(h=>h.innerHTML = IC.heart(saved.has(id)));
+  } else {
+    render();
+  }
+}
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 1900);
+}
+function render() {
+  document.getElementById('phone').innerHTML = statusbar() + home() + fbar() +
+    `<div class="scrim" id="scrim" onclick="closeSheet()"></div>
+     <div class="sheet" id="sheet"></div>
+     <div class="flow" id="flow"></div>
+     ${likesTab()}
+     <div class="pdp-backdrop" id="pdpBackdrop" onclick="closePDP()"></div>
+     <div class="pdp-overlay" id="pdp"></div>
+     <div class="chat" id="chat"></div>
+     <div class="cfocus" id="cfocus"></div>
+     <div class="kbd" id="kbd">${kbdHTML()}</div>
+     <div class="toast" id="toast"></div>`;
+}
+render();
+</script>
+</body>
+</html>
