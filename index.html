@@ -118,7 +118,10 @@
     padding: 14px 14px 16px; cursor: pointer; display: flex; flex-direction: column; gap: 11px; }
   .qcard::before { content: "\201C"; position: absolute; left: 11px; top: 2px;
     font-family: var(--serif); font-size: 42px; line-height: 1; color: rgba(8,16,33,.10); }
-  /* serif 19 = 卡内唯一主体时(问句卡);serif 15 = 其下还有图组/双列时(橱窗/接续) */
+  /* 插卡主体字号两档,由"卡内有没有图"决定:
+       A 档 19/600 —— 无图,字要独自撑住整张卡(问句卡)
+       B 档 17/500 —— 有图分担视觉重量(对比卡 / 橱窗卡 / 接续卡)
+     唯一例外:接续卡用 400,因为那是引用用户的原话,不是 Migoo 在说话 */
   .qcard .q { font-family: var(--serif); font-size: 19px; line-height: 1.22; font-weight: 600;
     color: var(--black); margin-top: 22px; }
   .qcard .go { font-size: 12.5px; font-weight: 600; color: var(--brand); }
@@ -127,7 +130,7 @@
   .wcard2 { background: var(--migoo-say); border-radius: 14px;
     padding: 12px 12px 13px; cursor: pointer; }
   .wcard2 .eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: 0.8px; color: var(--grey-99); }
-  .wcard2 .wt { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--black); margin-top: 3px; line-height: 1.28; }
+  .wcard2 .wt { font-family: var(--serif); font-size: 17px; font-weight: 500; color: var(--black); margin-top: 4px; line-height: 1.26; }
   .wcard2 .wimgs { display: flex; gap: 6px; margin-top: 10px; }
   .wcard2 .wimgs img { width: calc(50% - 3px); aspect-ratio: 1/1; object-fit: cover; border-radius: 9px; background: #F3F4F6; }
   .wcard2 .wopen { font-size: 12.5px; font-weight: 600; color: var(--brand); margin-top: 10px; }
