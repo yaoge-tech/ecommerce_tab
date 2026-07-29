@@ -14,6 +14,10 @@
     --text-40:    rgba(0,0,0,0.40);
     --grey-99:    #999999;
     --chip-bg:    #F3F4F6;
+    /* Migoo 说话的底色。全站一条规则:白=货 · 灰=Migoo 在说话 · 蓝=你说的话。
+       会话 AI 气泡与流内插卡共用它 —— 插卡就是"Migoo 在流里插了句话",
+       点进去是同一段对话,底色一致这件事不需要任何文案解释。 */
+    --migoo-say:  #F2F3F7;
     --line-09:    rgba(0,0,0,0.09);
     --line-06:    rgba(0,0,0,0.06);
     --ink:        #33507A;
@@ -107,16 +111,22 @@
     display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
   /* ---------- 流内插卡:问题卡 / 橱窗卡(与 item 卡同构) ---------- */
-  .qcard { background: var(--chip-bg); border: 1px solid var(--line-06); border-radius: 14px;
-    padding: 16px 14px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 11px; }
-  /* serif 17 = 卡内唯一主体时(问句卡);serif 15 = 其下还有图组/双列时(橱窗/接续) */
-  .qcard .q { font-family: var(--serif); font-size: 17px; line-height: 1.28; font-weight: 600; color: var(--black); }
+  /* 问句卡是全流唯一没有图的卡,靠排版立住:引号 + 放大的问句。
+     引号一眼说明"这是一句问话",比字体本身直接;绝对定位以避开 flex 流。
+     不用异色底 —— 底色已被 --migoo-say 占用为语义,颜色不能再兼做强调。 */
+  .qcard { background: var(--migoo-say); border-radius: 14px; position: relative;
+    padding: 14px 14px 16px; cursor: pointer; display: flex; flex-direction: column; gap: 11px; }
+  .qcard::before { content: "\201C"; position: absolute; left: 11px; top: 2px;
+    font-family: var(--serif); font-size: 42px; line-height: 1; color: rgba(8,16,33,.10); }
+  /* serif 19 = 卡内唯一主体时(问句卡);serif 15 = 其下还有图组/双列时(橱窗/接续) */
+  .qcard .q { font-family: var(--serif); font-size: 19px; line-height: 1.22; font-weight: 600;
+    color: var(--black); margin-top: 22px; }
   .qcard .go { font-size: 12.5px; font-weight: 600; color: var(--brand); }
   /* 与商品卡同族:白底细边,不用品牌色标记生成物(同构插卡范式;
      个性化靠眉题+内容构成表达,不靠底色——与"个性化 chip 特殊皮肤被否"同一条原则) */
-  .wcard2 { background: #fff; border: 1px solid var(--line-09); border-radius: 14px;
-    padding: 12px 12px 13px; cursor: pointer; box-shadow: 0 1px 2px rgba(8,16,33,0.04); }
-  .wcard2 .eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: 0.8px; color: var(--ink); }
+  .wcard2 { background: var(--migoo-say); border-radius: 14px;
+    padding: 12px 12px 13px; cursor: pointer; }
+  .wcard2 .eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: 0.8px; color: var(--grey-99); }
   .wcard2 .wt { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--black); margin-top: 3px; line-height: 1.28; }
   .wcard2 .wimgs { display: flex; gap: 6px; margin-top: 10px; }
   .wcard2 .wimgs img { width: calc(50% - 3px); aspect-ratio: 1/1; object-fit: cover; border-radius: 9px; background: #F3F4F6; }
@@ -130,23 +140,30 @@
     border-radius: 9px; background: var(--brand); color: #fff; font-size: 10.5px; font-weight: 700;
     line-height: 17px; text-align: center; }
 
-  /* 对比卡 */
-  .ccard { background: #fff; border: 1px solid var(--line-06); border-radius: 14px; padding: 12px; cursor: pointer;
-    box-shadow: 0 1px 2px rgba(8,16,33,0.04); }
-  .ccard .eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: 0.8px; color: var(--grey-99); }
-  .ccard .cimgs { display: flex; gap: 8px; margin-top: 10px; position: relative; align-items: flex-start; }
+  /* 对比卡:与问句卡同一族 —— 引号 + 问句在上,商品退为佐证。
+     区别在问的是什么:问句卡问品类(还没有候选),对比卡问"这两个哪个"(已有候选)。 */
+  .ccard { background: var(--migoo-say); border-radius: 14px; padding: 14px 14px 16px;
+    cursor: pointer; position: relative; }
+  .ccard::before { content: "\201C"; position: absolute; left: 11px; top: 2px;
+    font-family: var(--serif); font-size: 42px; line-height: 1; color: rgba(8,16,33,.10); }
+  /* 17/500 而非问句卡的 19/600:下面还有两张图分担视觉重量,字不必扛满 */
+  .ccard .q { font-family: var(--serif); font-size: 17px; line-height: 1.26; font-weight: 500;
+    color: var(--black); margin-top: 21px; }
+  .ccard .cimgs { display: flex; gap: 8px; margin-top: 13px; position: relative; align-items: flex-start; }
   .ccard .cside { width: calc(50% - 4px); }
   .ccard .cside img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: 9px; background: #F3F4F6; display: block; }
-  .ccard .cside .cn { font-size: 11.5px; line-height: 1.35; color: var(--text-87); margin-top: 6px;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .ccard .cside .cp { font-size: 13px; font-weight: 700; color: var(--black); margin-top: 2px; }
-  .ccard .vs { position: absolute; left: 50%; top: 34%; transform: translate(-50%,-50%);
+  /* 不放价格 —— 价格是决策信息,属于会话和 PDP;这张卡只负责唤起"还没选"。
+     去掉价格后商品名成为唯一标识,故提到 12px/500/墨色,并压到单行 */
+  .ccard .cside .cn { font-size: 12px; font-weight: 500; line-height: 1.3; color: var(--black); margin-top: 7px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* 37% ≈ 图片垂直中心(图 1:1,其下还有商品名一行) */
+  .ccard .vs { position: absolute; left: 50%; top: 37%; transform: translate(-50%,-50%);
     background: #fff; color: var(--black); font-size: 9.5px; font-weight: 800; letter-spacing: .3px;
     border-radius: 999px; padding: 4px 7px; box-shadow: 0 1px 5px rgba(0,0,0,.16); }
-  .ccard .go { font-size: 12.5px; font-weight: 600; color: var(--brand); margin-top: 11px;
-    border-top: 0.5px solid var(--line-06); padding-top: 9px; }
+  /* 无分隔线 —— 与问句卡一致,问句已经统领全卡,不需要再切一刀 */
+  .ccard .go { font-size: 12.5px; font-weight: 600; color: var(--brand); margin-top: 12px; }
   /* 接续卡 */
-  .contcard { background: var(--chip-bg); border: 1px solid var(--line-06); border-radius: 14px;
+  .contcard { background: var(--migoo-say); border-radius: 14px;
     padding: 14px; cursor: pointer; }
   .contcard .eyebrow { font-size: 9.5px; font-weight: 700; letter-spacing: 0.8px; color: var(--grey-99); }
   /* 定稿 4 层:眉题(固定短语,不含时间)/ serif 引文 / 缩略图组(纯视觉)/ CTA(回去继续聊) */
@@ -237,7 +254,7 @@
   .mu .b { background: var(--brand); color: #fff; border-radius: 20px; padding: 10px 15px;
     font-size: 15.5px; line-height: 1.4; max-width: 74%; letter-spacing: -.2px; }
   .ma { padding: 5px 0; display: flex; }
-  .ma .b { background: #F2F3F7; border-radius: 20px; padding: 13px 15px; max-width: 88%;
+  .ma .b { background: var(--migoo-say); border-radius: 20px; padding: 13px 15px; max-width: 88%;
     font-size: 15.5px; line-height: 1.45; color: var(--text-87); letter-spacing: -.2px; }
   .ma .b code { font-family: var(--mono); font-size: 13.5px; color: var(--ink); background: none; }
   /* 思考中(query 发出后的 2s) */
@@ -561,6 +578,9 @@ const P = {
   chair:   { brand:'Article', nm:'Svelti Dining Chair — Black', pr:129, rt:'4.5', sold:'420', img:A+'prod-chair.jpg' },
   chair2:  { brand:'IKEA',    nm:'NORRÅKER Bar Stool — White', pr:89,  rt:'4.4', sold:'760', img:A+'prod-chair2.jpg' },
   chair3:  { brand:'Article', nm:'Chantel Accent Chair — Ivory', pr:149, rt:'4.6', sold:'310', img:A+'prod-chair3.jpg' },
+  /* 接续卡"继续找"带回的新结果 —— 只在会话里出现,不进首页流 */
+  chair4:  { brand:'Floyd',   nm:'Oak Dining Chair — Natural', pr:139, rt:'4.7', sold:'180', img:A+'prod-chair4.jpg' },
+  chair5:  { brand:'Burrow',  nm:'Camden Dining Chair — Olive', pr:145, rt:'4.5', sold:'240', img:A+'prod-chair5.jpg' },
   keenz:   { brand:'Keenz',  nm:'Air Plus Compact Stroller', pr:349, rt:'4.8', sold:'1.2k', img:A+'table-prod2.png',
              why:'From your Tokyo-trip chat' },
   doona:   { brand:'Doona',  nm:'Car Seat & Stroller — Nitro Black', pr:549, rt:'4.7', sold:'980', img:A+'prod-stroller-doona.jpg' },
@@ -817,29 +837,27 @@ const secHead = (t, s) => `
 const qcard = (q) => `
   <div class="qcard" onclick="chatQuery('${q.replace(/'/g,"\\'")}')">
     <div class="q">${q}</div>
-    <div class="go">Ask ›</div>
   </div>`;
 const wcard = () => `
   <div class="wcard2" onclick="chatWindow()">
     <div class="eyebrow">FROM YOUR CHATS</div>
     <div class="wt">Late-night desk reset</div>
     <div class="wimgs"><img src="${A}prod-lamp.jpg"><img src="${A}prod-keyboard.jpg"></div>
-    <div class="wopen">Open ›</div>
   </div>`;
 /* 对比卡:行为触发(同 session 看过两个同类,且都没下单)
-   这张卡不在卡上给结论 —— 它只唤起"未决"这个状态,把人送进会话,由会话完成对比。
-   眉题与接续卡构成一族,是漏斗上的两级未完成态:
-     STILL LOOKING?  = 聊了一半没找到(接续卡)
-     STILL DECIDING? = 找到两个没选定(对比卡) */
+   不在卡上给结论 —— 只把问题摆出来,人进会话由会话作答。
+   与问句卡同构(引号 + 问句 + CTA),区别是问的对象:
+     问句卡 = 品类级困惑,还没有候选  →「Which stroller for city + travel?」
+     对比卡 = 已有两个具体候选       →「Keenz or Doona for the October flight?」
+   问句取代了原来的 STILL DECIDING? 眉题:它本身就说明了"还没选"。 */
 const ccard = () => `
   <div class="ccard" onclick="chatCompare()">
-    <div class="eyebrow">STILL DECIDING?</div>
+    <div class="q">Which one for your October flight?</div>
     <div class="cimgs">
-      <div class="cside"><img src="${P.keenz.img}"><div class="cn">Keenz Air Plus</div><div class="cp">$349</div></div>
-      <div class="cside"><img src="${P.doona.img}"><div class="cn">Doona Car Seat</div><div class="cp">$549</div></div>
-      <span class="vs">VS</span>
+      <div class="cside"><img src="${P.keenz.img}"><div class="cn">Keenz Air</div></div>
+      <div class="cside"><img src="${P.doona.img}"><div class="cn">Doona Nitro</div></div>
+      <span class="vs">PK</span>
     </div>
-    <div class="go">Which one fits your trip? ›</div>
   </div>`;
 /* 接续卡:上次会话未收口的决策(非事件——事件归事件卡,一个故事只出现一次) */
 /* 眉题用固定短语不含时间(Google Discover "You asked to see" 范式):
@@ -849,22 +867,24 @@ const contcard = () => `
     <div class="eyebrow">STILL LOOKING?</div>
     <div class="qx">“Dining chairs for a small apartment, under $150”</div>
     <div class="thumbs">${['chair','chair2','chair3'].map(id=>`<img src="${P[id].img}">`).join('')}</div>
-    <div class="go">Continue this chat ›</div>
   </div>`;
 /* 试穿(Try it on):服饰类能力,入口 = ✦ composer chip + PDP 动作 */
 
 const home = () => {
   /* 首页商品零重复:Worth a look=sneaker/phones/watch;插卡内商品=keenz+doona(对比)/lamp+keyboard(橱窗)/chair(接续);
-     以下 12 件只在流内出现一次 */
+     以下 12 件只在流内出现一次。
+     插卡排布规则:cells 按 i%2 分列,故 index 差 2 = 同列相邻、差 1 = 左右并排。
+     四张插卡放在 3 / 6 / 11 / 14 —— 两两间隔 ≥3,同列内各隔 3 个商品卡,
+     且不与首屏前两坑重合(问句卡最早出现在右列第 2 位)。 */
   const cells = [
     gcard('tote'),      gcard('sunglasses'),
     gcard('backpack'),  qcard('Which stroller for city + travel?'),
-    gcard('bottle'),    wcard(),
-    gcard('sneaker2'),  gcard('perfume'),
+    gcard('bottle'),    gcard('perfume'),
     ccard(),            gcard('speaker'),
-    gcard('mug'),       gcard('candle'),
-    gcard('plant'),     contcard(),
-    gcard('camera'),    gcard('wallet'),
+    gcard('sneaker2'),  gcard('mug'),
+    gcard('candle'),    wcard(),
+    gcard('plant'),     gcard('camera'),
+    contcard(),         gcard('wallet'),
   ];
   const c1=[], c2=[];
   cells.forEach((h,i)=>(i%2===0?c1:c2).push(h));
@@ -885,14 +905,14 @@ const home = () => {
     ${HAS_EVENTS ? `
     <div class="sec">
       <div class="sec-head" onclick="openLikes()">
-        <div><div class="t">Worth a look</div><div class="s">Updates on your saves</div></div>
+        <div><div class="t">Updates from your likes</div></div>
         <span class="chev">${IC.chev}</span>
       </div>
       <div class="hrow">${['sneaker','phones','watch'].map(hcard).join('')}</div>
     </div>` : ''}
     <div class="sec">
       <div class="sec-head" style="cursor:default">
-        <div><div class="t">Daily Edit</div><div class="s">From your chats with Migoo</div></div>
+        <div><div class="t">Daily Picks</div><div class="s">From your chats with Migoo</div></div>
       </div>
       <div class="grid"><div class="gcol">${c1.join('')}</div><div class="gcol">${c2.join('')}</div></div>
     </div>
@@ -1514,9 +1534,10 @@ function chatContinue() {
     bubbleU('Dining chairs for a small apartment, under $150') +
     bubbleA(`Three that fit a small space and stay under budget:` + plist(['chair','chair2','chair3'])) +
     `<div class="cts">Today</div>`,
-    bubbleU('Which one should I get?'),
-    [{ t: `You didn't land on one. If it helps: <b>the Svelti</b> — the padded seat is what you'll notice at hour two, and it fits a 32" table without crowding.`,
-       rich: pbig('chair') }]
+    bubbleU('Keep looking — dining chairs for a small apartment, under $150'),
+    [{ t: `Went back out for you. Two more under $150 that fit a 32" table — both new since you looked:`,
+       rich: plist(['chair4','chair5']) },
+     { t: `Say the word and I'll narrow it by seat depth or how it handles a hard floor.` }]
   );
 }
 
