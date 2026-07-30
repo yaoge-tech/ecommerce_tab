@@ -54,8 +54,10 @@
   .screen-body::-webkit-scrollbar { width: 0; }
 
   /* ---------- greeting + ask ---------- */
+  /* 问候语用 "we" 而非 "you":you shopping 是把人当买家,
+     we looking 把 Migoo 放进这件事里 —— 一个纯购物网站说不出这个 we。 */
   .greet { font-family: var(--serif); font-size: 32px; line-height: 1.16; font-weight: 600;
-    letter-spacing: -0.4px; color: var(--black); text-align: center; padding: 34px 36px 0; }
+    letter-spacing: -0.4px; color: var(--black); text-align: center; padding: 22px 36px 0; }
   .ask { margin: 22px 16px 6px; height: 52px; border-radius: 26px; background: var(--chip-bg);
     display: flex; align-items: center; padding: 0 16px 0 20px; cursor: text; gap: 14px; }
   /* placeholder 轮播:一条只能说一件事,轮播才说得清"你可以怎么说"。
@@ -70,9 +72,13 @@
   /* Ask 下的 query 推荐 chips:能力外露 + 个性化 query */
   .askchips { display: flex; gap: 7px; overflow-x: auto; padding: 10px 16px 0; }
   .askchips::-webkit-scrollbar { height: 0; }
+  /* 圆角 10px 而非全圆:全圆 pill 在这一排是"标签/筛选"的读法,
+     这里要的是"能力入口"—— 方一点更像可点的按钮,也与卡片圆角同族。 */
   .achip { flex: 0 0 auto; font-size: 12.5px; color: var(--text-65); background: #fff;
-    border: 1px solid var(--line-09); border-radius: 999px; padding: 7px 12px;
+    border: 1px solid var(--line-09); border-radius: 10px; padding: 7px 12px;
     cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+  /* 能力 chip 的 icon:比文字浅一档,是区分记号不是装饰重点 */
+  .achip .ci { display: flex; color: var(--text-40); }
 
   /* ---------- sections ---------- */
   .sec { margin-top: 26px; }
@@ -219,9 +225,9 @@
   .tab.on img.logo { filter: none; }
 
   /* ---------- 试穿预览浮层 ---------- */
-  .scrim { position: absolute; inset: 0; background: rgba(8,16,33,0.42); z-index: 86; display: none; }
+  .scrim { position: absolute; inset: 0; background: rgba(8,16,33,0.42); z-index: 93; display: none; }
   .scrim.show { display: block; }
-  .sheet { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 87;
+  .sheet { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 94;
     background: #fff; border-radius: 28px; padding: 20px 18px 16px;
     transform: translateY(140%); visibility: hidden;
     transition: transform .28s cubic-bezier(.32,.72,0,1), visibility 0s linear .28s;
@@ -334,9 +340,11 @@
   .pdp-close { position: absolute; top: 71px; left: 16px; z-index: 20; width: 32px; height: 32px; border-radius: 50%;
     background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center;
     box-shadow: 0 1px 4px rgba(0,0,0,0.12); cursor: pointer; }
-  .pdp-watch { position: absolute; top: 71px; right: 16px; z-index: 20; height: 32px; padding: 0 12px; border-radius: 999px;
-    background: rgba(255,255,255,0.9); display: flex; align-items: center; gap: 6px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.12); font-size: 12px; font-weight: 600; color: #111; cursor: pointer; }
+  /* 只留图标,与左上角 pdp-close 对称成一对圆形按钮 —— 收藏与否靠心形填充表达,
+     不必写字;点击后的承诺由 toast 说(Saved · I'll watch price & stock) */
+  .pdp-watch { position: absolute; top: 71px; right: 16px; z-index: 20; width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12); cursor: pointer; }
   .pdp-pad { padding: 0 16px; }
   .pdp-price { font-size: 24px; font-weight: 700; color: #000; line-height: 1.4; }
   .pdp-subnote { font-size: 12px; color: var(--text-65); margin-top: 2px; }
@@ -394,14 +402,18 @@
   .ask-migoo span { font-size: 12px; color: var(--text-65); }
   .buy-main { flex: 1; height: 48px; border-radius: 12px; background: var(--brand); color: #fff;
     font-size: 16px; font-weight: 510; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
+  /* PDP 层级高于会话页(.chat 90)—— PDP 是"在当前页上唤起的一层",
+     不是一个要先离开当前页才能到达的地方。层级低于会话时,从会话点商品就只能
+     先 closeChat() 再开 PDP,用户被弹回电商 tab,退出 PDP 后原来的对话也没了。
+     试穿 sheet(93/94)与 composer(95)仍在 PDP 之上,它们是 PDP 内部唤起的东西。 */
   .pdp-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.32);
-    opacity: 0; pointer-events: none; transition: opacity .3s ease; z-index: 82; }
+    opacity: 0; pointer-events: none; transition: opacity .3s ease; z-index: 91; }
   .pdp-backdrop.show { opacity: 1; pointer-events: auto; }
   .pdp-overlay { position: absolute; left: 0; right: 0; bottom: 0; top: 10%;
     background: #fff; display: flex; flex-direction: column; overflow: hidden;
     border-radius: 18px 18px 44px 44px; transform: translateY(102%);
     transition: transform .38s cubic-bezier(.32,.72,0,1), top .32s cubic-bezier(.32,.72,0,1), border-radius .3s ease;
-    z-index: 85; box-shadow: 0 -10px 34px rgba(0,0,0,0.16); }
+    z-index: 92; box-shadow: 0 -10px 34px rgba(0,0,0,0.16); }
   .pdp-overlay.open { transform: translateY(0); }
   .pdp-overlay.full { top: 0; border-radius: 44px; }
   .pdp-overlay.dragging { transition: none; }
@@ -454,6 +466,28 @@
   .lk-acts{display:flex;gap:6px;margin-top:10px;align-items:center;}
   .lk-btn{font-family:var(--sf);font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid #DCDFE4;background:#fff;color:var(--text-87);}
   .lk-btn.pri{background:var(--brand);border-color:var(--brand);color:#fff;}
+  /* 全部收藏区:卡型与更新卡完全相同,但把视觉重量收回去。
+     Updates 那三张是"有事发生了,现在该动手",蓝色实心按钮是这个信号;
+     这一区八张什么也没发生,再来八个实心蓝,蓝就不再是信号,只剩底噪 ——
+     整页读起来像八条待办,而它其实是一个货架。
+     收法:蓝退成浅色底(与 composer 能力标签同一种淡蓝,不引入新色)、
+     行距压紧、图放大一档 —— 让眼睛落在货上,不落在按钮上。 */
+  .lk-card.menuup{z-index:30;}
+  .lk-card.quiet{padding:11px 12px;margin-top:8px;}
+  .lk-card.quiet .lk-hd{margin-top:0;align-items:flex-start;}
+  .lk-card.quiet .lk-hd img{width:70px;height:70px;border-radius:12px;}
+  .lk-card.quiet .lk-hd .prc{margin-top:5px;}
+  .lk-card.quiet .lk-acts{margin-top:7px;gap:5px;}
+  .lk-card.quiet .lk-btn{font-size:11px;padding:5px 10px;}
+  .lk-card.quiet .lk-btn.pri{background:rgba(0,122,255,.10);border-color:transparent;color:var(--brand);}
+  /* 已设的线:价格后面一段灰色元数据,不可点,和上面规格行同一档。
+     它是这件东西的一个事实,不是控件 —— 之前做成蓝色可点文字有两个毛病:
+     和同色同形的 Buy now 药丸读成一对按钮;而且"点一段文字去改设置"
+     本身不是一个能被认出来的手势。改设置归 ⋯ 菜单,那是这张卡放选项的地方。 */
+  .lk-target{margin-left:7px;font-family:var(--sf);font-size:11.5px;font-weight:500;
+    letter-spacing:-.1px;color:var(--text-40);}
+  .lk-card.quiet .lk-kebab{height:24px;}
+  .lk-card.quiet .lk-menu{bottom:auto;top:100%;right:0;}
   .lk-kebab{margin-left:auto;width:30px;height:26px;border-radius:8px;border:none;background:transparent;color:var(--text-40);font-size:15px;cursor:pointer;line-height:1;}
   .lk-menu{position:absolute;right:10px;bottom:44px;background:#fff;border:.5px solid var(--line-09);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.14);padding:4px;z-index:20;display:none;min-width:180px;}
   .lk-menu.open{display:block;}
@@ -461,15 +495,6 @@
   .lk-menu .mi.danger{color:#E8442B;}
   .lk-sec{padding:15px 16px 4px;border-top:8px solid var(--section-gap);margin-top:14px;}
   .lk-sec .st{font-size:13px;font-weight:700;color:var(--black);}
-  .lk-row{display:flex;gap:12px;align-items:center;padding:11px 16px;position:relative;}
-  .lk-rowmore{flex:none;width:30px;height:30px;border:none;background:transparent;color:var(--text-40);font-size:16px;cursor:pointer;line-height:1;border-radius:8px;}
-  .lk-row .lk-menu{top:40px;bottom:auto;right:12px;}
-  .lk-row + .lk-row{border-top:.5px solid var(--line-06);}
-  .lk-row img{width:54px;height:54px;border-radius:11px;object-fit:cover;flex-shrink:0;}
-  .lk-row .bd{flex:1;min-width:0;}
-  .lk-row .t{font-size:13px;font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-87);}
-  .lk-row .m{font-size:11.5px;color:var(--text-40);margin-top:3px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .lk-row .p{font-size:13.5px;font-weight:700;margin-top:4px;color:var(--black);}
   .lk-chv{color:rgba(0,0,0,.28);}
   .lk-reveal{opacity:0;transform:translateY(8px);animation:lkrise .4s ease forwards;}
   @keyframes lkrise{to{opacity:1;transform:none;}}
@@ -499,11 +524,36 @@
   .cfocus .cf-scrim { position: absolute; inset: 0; background: rgba(255,255,255,.72);
     backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
   .cf-dock { position: absolute; left: 0; right: 0; bottom: 291px; padding: 0 12px 10px; }
+  /* 裸建议行没有自己的底,直接压在虚化的商品图上会花(尤其压到红色商品卡)。
+     只在这一态给 dock 加一层向上渐隐的白 —— 行落在近白底上,又不至于变成一块硬白板。
+     query chips 态自带白色 pill,不需要这层,故用 .fade 限定。 */
+  .cf-dock.fade { padding-top: 44px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 0, #fff 44px); }
   .cf-chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 2px 10px; }
   .cf-chips::-webkit-scrollbar { height: 0; }
   .cf-chip { flex: 0 0 auto; font-size: 13.5px; color: var(--text-87); background: #fff;
-    border: 1px solid var(--line-09); border-radius: 999px; padding: 9px 15px; cursor: pointer;
+    border: 1px solid var(--line-09); border-radius: 12px; padding: 9px 15px; cursor: pointer;
     white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+  /* 能力 chip 上的 icon */
+  .cf-chip { display: inline-flex; align-items: center; gap: 6px; }
+  .cf-chip .ci { display: flex; color: var(--text-40); }
+  /* 能力的二级推荐 query:裸行 + 行末 ↘,不做成白卡也不加分隔线 ——
+     这一层是"可以这么说"的候选,不是一份需要框起来的清单;
+     裸行浮在 scrim 上,视觉重量低于下方输入框,主次不会打架。
+     整句四五十字符,横排 chip 只能露一半,故一行一条竖排。 */
+  .cf-sugs { padding: 0 8px 10px; }
+  .cf-sug { display: flex; align-items: center; gap: 12px; padding: 9px 6px; cursor: pointer;
+    font-size: 15px; color: var(--text-87); letter-spacing: -.2px; }
+  .cf-sug .st { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cf-sug .sa { flex-shrink: 0; display: flex; color: var(--text-40); }
+  /* 能力标签:与商品引用条同一个位置、同一个"可摘"手势,只是挂的是范围而不是对象。
+     用蓝系浅底 —— 它是一个正在生效的状态,不是一件静态附件,需要与灰底的商品引用区分开。 */
+  .cf-tag { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px;
+    background: rgba(0,122,255,.10); color: var(--brand); border-radius: 9px;
+    padding: 5px 7px 5px 9px; font-size: 12.5px; font-weight: 600; letter-spacing: -.1px; }
+  .cf-tag .ci { display: flex; }
+  .cf-tag .tx { display: flex; align-items: center; cursor: pointer; opacity: .75; margin-left: 1px; }
+  .cf-tag .tx svg { width: 13px; height: 13px; }
   .cf-input { background: #fff; border-radius: 20px; padding: 14px 14px 10px;
     box-shadow: 0 2px 14px rgba(8,16,33,.10), 0 0 0 0.5px rgba(0,0,0,.05); }
   /* 商品引用条:点商品 ✦ = 唤起同一个输入框,只是预先引用了这件商品(附件范式) */
@@ -537,6 +587,9 @@
     border-radius: 999px; padding: 9px 16px; z-index: 95; opacity: 0; pointer-events: none;
     transition: all .25s ease; white-space: nowrap; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.has-act { pointer-events: auto; padding-right: 8px; }
+  .toast .tact { margin-left: 12px; padding: 3px 9px; border-radius: 999px;
+    background: rgba(255,255,255,.16); color: #fff; font-weight: 600; cursor: pointer; }
 
   /* ---------- side notes ---------- */
 </style>
@@ -553,6 +606,7 @@
 <div style="display:flex;justify-content:center;gap:8px;margin:-8px 0 22px">
   <button class="tglbtn on" id="tgl-opt1" onclick="setDemoState('opt1')">Option 1</button>
   <button class="tglbtn" id="tgl-opt2" onclick="setDemoState('opt2')">Option 2</button>
+  <button class="tglbtn" id="tgl-opt3" onclick="setDemoState('opt3')">Option 3</button>
 </div>
 
 <div class="stage">
@@ -630,7 +684,7 @@ const SIMILAR = {
 const saved = new Set(['sneaker','watch','phones','tote','backpack','sunglasses','bottle','sneaker2']);
 /* 收藏夹更新事件。三态:有事件=完整区 / 有收藏无事件=一行履约条 / 无收藏=整区隐藏 */
 const SAVE_EVENTS = { sneaker:'↓ to $89 — your target', phones:'↓$100 since you saved', watch:'Low stock · 4 left' };
-/* opt2:收藏更新不再单独占一区,直接分发进双列流。
+/* MIX_UPDATES 态:收藏更新不单独占一区,直接分发进双列流。
    事件行必须同时说清"变了什么"和"对你意味着什么" —— 只说降价是通知,说到目标价才是理由。
    buy 只在利益点足以支撑立即下单时为 true(到价/大幅降),让按钮的出现本身成为强度信号;
    库存类只提示稀缺,不催单。 */
@@ -642,26 +696,44 @@ const SAVE_EVENTS = { sneaker:'↓ to $89 — your target', phones:'↓$100 sinc
    紧迫性高于降价(降价还能再等,售罄不能),反而更需要立即行动的入口。
    只有无行动价值的中性更新(如商品改版说明)才置 false。 */
 const SAVED_UPDATES = {
-  sneaker: { ev:'$20 off — now at the price you set', buy:true },
-  phones:  { ev:'$100 off since you saved',           buy:true },
-  watch:   { ev:'Only 4 left in your size',           buy:true },
+  /* 两类监控靠事件行文案自行区分,不靠角标:
+       "the target you set"  → 用户定的条件达成(autotask 触发)
+       "since you saved"     → Migoo 自己发现的变化
+     角标的职责恒定为身份(这是你收藏的),不兼做事件类型 ——
+     否则与事件行重复,且把注意力引到一个不携带新信息的元素上。 */
+  sneaker: { ev:'Hit $89 — the target you set', buy:true },
+  phones:  { ev:'$100 off since you saved',     buy:true },
+  watch:   { ev:'Only 4 left in your size',     buy:true },
 };
 /* 流内配额:最多 3 张。收藏 20 件、8 件有更新时,全铺进流会把双列变成促销墙,
    而且散在流里反而更难看全 —— 分发解决的是"偶遇",不解决"集中清点"。
    超出的更新只走 ♡ 徽标计数 + Likes 页的 Updates 区,那里才是清点的地方。 */
 const FEED_UPDATE_QUOTA = 3;
-/* 两个方案并排对照,共用同一份数据,差异只写在 IS_OPT1 的分支里:
-     opt1 = 收藏更新混入双列流,不设顶部区(主方案,默认)
-     opt2 = 收藏更新收在顶部独立区
-   代码里的名字与界面按钮保持一致 —— 曾出现过 option2 其实指界面上的 Option 1,
-   两套命名对不上,读代码时极易搞反。
+/* 三个方案并排对照,共用同一份数据,差异只落在两个开关上:
+     USE_CAPS    = chips 是"能力两层"(能力 → 整句建议),否则是六条现成 query
+     MIX_UPDATES = 收藏更新混入双列流,否则收在顶部独立区
+
+   Option 1 = 能力 chips + 混入流(主方案,默认)
+   Option 2 = query chips + 混入流
+   Option 3 = query chips + 顶部独立区
+
+   开关按行为命名,不按选项编号命名 —— 编号是会变的(这三个方案已经整体
+   重排过一次),叫 IS_OPT1 的东西一旦编号一换就全是错的,而且这个错不报错。
+   要改编号只动下面这张表和按钮文案,分支代码一行都不用碰。
    "无更新"态已从 demo 移除,故不再需要 HAS_EVENTS 开关。 */
-let IS_OPT1 = true;
+const DEMO = {
+  opt1: { caps:true,  mix:true  },
+  opt2: { caps:false, mix:true  },
+  opt3: { caps:false, mix:false },
+};
+let USE_CAPS = true;
+let MIX_UPDATES = true;
 let likesState = 'opt1';
 function setDemoState(s) {
   likesState = s;
-  IS_OPT1 = (s === 'opt1');
-  ['opt1','opt2'].forEach(k => {
+  USE_CAPS = DEMO[s].caps;
+  MIX_UPDATES = DEMO[s].mix;
+  ['opt1','opt2','opt3'].forEach(k => {
     const b = document.getElementById('tgl-'+k);
     if (b) b.classList.toggle('on', k === s);
   });
@@ -886,7 +958,7 @@ const hcard = (id) => { const p=P[id]; return `
   </div>`; };
 const gcard = (id) => `<div class="gcard" onclick="openPDP('${id}')">${imgw(id)}${cap(id,true)}</div>`;
 
-/* opt2 收藏更新卡:复用商品卡的全部排版,不引入新字号 ——
+/* 收藏更新卡:复用商品卡的全部排版,不引入新字号 ——
    它本来就是货(白底),只是多了一层"你收藏过 + 现在变了"。
    ♥ 是与普通推荐理由行的唯一区分符:两者共用 .why 的字号与色值,
    若再加底色或边框就会变成第五种卡型,与刚统一的插卡语言打架。 */
@@ -950,8 +1022,8 @@ const home = () => {
      插卡排布规则:cells 按 i%2 分列,故 index 差 2 = 同列相邻、差 1 = 左右并排。
      四张插卡放在 3 / 6 / 11 / 14 —— 两两间隔 ≥3,同列内各隔 3 个商品卡,
      且不与首屏前两坑重合(问句卡最早出现在右列第 2 位)。 */
-  const cells = IS_OPT1 ? [
-    /* opt2:顶部不设独立入口区,收藏更新直接进流(配额见 FEED_UPDATE_QUOTA)。
+  const cells = MIX_UPDATES ? [
+    /* MIX_UPDATES 态:顶部不设独立入口区,收藏更新直接进流(配额见 FEED_UPDATE_QUOTA)。
        四张 query 卡覆盖四种 attachment 形态,顺序上尽量拉开。 */
     scard('sneaker'),   gcard('tote'),
     gcard('backpack'),  qcard('stroller'),
@@ -1006,15 +1078,17 @@ const home = () => {
     <div class="lk-corner" onclick="openLikes()">
       ${IC.heartHead}<span class="badge">3</span>
     </div>
-    <div class="greet">What are you shopping for today?</div>
+    <div class="greet">What are we looking for today?</div>
     <div class="ask" onclick="openFocus()">
       <span class="ph"><span class="phroll" id="phroll">${PH_ROLL.concat(PH_ROLL[0]).map(t=>`<span>${t}</span>`).join('')}</span></span>
       <span class="aic">${IC.mic}</span><span class="aic">${IC.plus}</span>
     </div>
     <div class="askchips">
-      ${CF_CHIPS.map(t=>`<span class="achip" onclick="openFocus('${t.replace(/'/g,"\\'")}')">${t}</span>`).join('')}
+      ${USE_CAPS
+        ? CAP_CHIPS.map(c=>`<span class="achip" onclick="openCap('${c.k}')"><span class="ci">${CAP_IC[c.k]}</span>${c.t}</span>`).join('')
+        : CF_CHIPS.map(t=>`<span class="achip" onclick="openFocus('${cfEsc(t)}')">${t}</span>`).join('')}
     </div>
-    ${!IS_OPT1 ? `
+    ${!MIX_UPDATES ? `
     <div class="sec">
       <div class="sec-head" onclick="openLikes()">
         <div><div class="t">Updates from your likes</div></div>
@@ -1089,7 +1163,7 @@ function pdpHTML(id){
       <div class="pdp-hero">
         <div class="sheet-grabber"></div>
         <div class="pdp-close" onclick="closePDP()">${IC.close}</div>
-        <div class="pdp-watch" id="pdpSave" onclick="event.stopPropagation();toggleSave('${id}')">${IC.heart(saved.has(id))} ${saved.has(id)?'Saved':'Save'}</div>
+        <div class="pdp-watch" id="pdpSave" onclick="event.stopPropagation();toggleSave('${id}')" aria-label="${saved.has(id)?'Saved':'Save'}">${IC.heart(saved.has(id))}</div>
         <img src="${d.hero.startsWith('assets/')?d.hero:A+d.hero}" alt="">
         <div class="indicator">1/${d.gallery||12}</div>
       </div>
@@ -1192,43 +1266,112 @@ const LK_MDL = { sneaker:'Crimson · US 9', watch:'Midnight · 45mm · Sport', p
   bottle:'Olive · 17oz', sneaker2:'Ale Brown · US 9', chair:'Black · set of 2',
   chair2:'White · counter height', chair3:'Ivory · velvet', camera:'White' };
 
+/* 一个卡型走到底:眉题与事件行都是可选的。
+   没发生变化的收藏 = 同一张卡少了这两样,而不是换成另一种排版 ——
+   同一件东西不该因为"这次没事发生"就变个样子,否则用户要认两套卡。 */
 function lkCard(tagCls, tagTxt, pid, priceHTML, noteHTML, btns){
   const p = P[pid];
-  return `<div class="lk-card lk-reveal">
-    <div><span class="lk-tag ${tagCls}">${tagTxt}</span></div>
+  const quiet = !tagTxt && !noteHTML;      /* 无事发生 → 同卡型,低重量 */
+  /* 有事发生时动作独占一行(它是这张卡的结论,该有分量);
+     没事发生时动作跟在价格后面 —— 同样两个按钮,不再是一条横贯的工具条,
+     卡从 122px 掉到 ~90px,八张排下来才像货架不像待办清单。 */
+  /* 动作区整体拦截冒泡:quiet 卡把它放进了 .bd,而 .bd 在带 openPDP 的 .lk-hd 里,
+     不拦的话点 ⋯ 菜单里的任何一项都会连带把 PDP 打开。
+     拦在容器上而不是逐个按钮上 —— 以后往菜单里加项就不会漏。 */
+  const acts = `<div class="lk-acts" onclick="event.stopPropagation()">${btns}
+      <button class="lk-kebab" onclick="lkMenu(this,event)" aria-label="More">⋯</button>
+      <div class="lk-menu">
+        ${ALERTS[pid] !== undefined ? `
+        <div class="mi" onclick="offAlert('${pid}')">Clear target price</div>` : ''}
+        <div class="mi" onclick="openSheet('${pid}')">Ask Migoo about this…</div>
+        <div class="mi danger" onclick="lkToast('取消收藏,停止监控 — demo')">Remove from Likes</div>
+      </div>
+    </div>`;
+  return `<div class="lk-card lk-reveal${quiet ? ' quiet' : ''}">
+    ${tagTxt ? `<div><span class="lk-tag ${tagCls}">${tagTxt}</span></div>` : ''}
     <div class="lk-hd tappable" onclick="openPDP('${pid}')">
       <img src="${p.img}" alt="">
       <div class="bd">
         <div class="ttl">${p.brand} ${p.nm}</div>
         <div class="mdl" onclick="event.stopPropagation();lkToast('切换规格 — demo')">${LK_MDL[pid]} <span class="lk-chv">›</span></div>
         <div class="prc lk-mono">${priceHTML}</div>
+        ${quiet ? acts : ''}
       </div>
     </div>
-    <div class="lk-note ${noteHTML[0]}">${noteHTML[1]}</div>
-    <div class="lk-acts">${btns}
-      <button class="lk-kebab" onclick="lkMenu(this,event)" aria-label="More">⋯</button>
-      <div class="lk-menu">
-        <div class="mi" onclick="closeLikes();openSheet('${pid}')">Ask Migoo about this…</div>
-        <div class="mi danger" onclick="lkToast('取消收藏,停止监控 — demo')">Remove from Likes</div>
-      </div>
-    </div>
+    ${noteHTML ? `<div class="lk-note ${noteHTML[0]}">${noteHTML[1]}</div>` : ''}
+    ${quiet ? '' : acts}
   </div>`;
 }
+/* ============================================================
+   价格提醒 —— 它不是一个新对象,是收藏的一个属性
+   ------------------------------------------------------------
+   Migoo 收藏后本来就在盯价,并且会自己判断什么值得说(历史最低之类)。
+   那用户为什么还要自己划一条线?只有一个理由:降噪 ——
+   "我只有到 150 才买,别的时候别烦我。"
+   所以这个功能的价值是让 Migoo 闭嘴,不是让它提醒。文案必须照这个写:
+     ✅ I'll only ping you at $299        —— 只在那时候烦你
+     ❌ I'll watch it for you             —— 收藏时已经说过,重复
+   之前四轮文案改不好,是因为改的是"我会盯着",而盯着早就是默认的。
+
+   设完之后只有三处变化,不新增任何可管理对象:
+     1. 会话里复述一次(唯一一次显式确认)
+     2. 卡上价格后面多一句灰色的 · Target $299(事实,与价格同类),
+        按钮从 Set target price 换成 Adjust target(同一个位置换状态)
+     3. 条件达成时这件东西升到 Updates 区,事件行说明是你自己划的线
+   清除放在 ⋯ 菜单里 —— 卡面留常用的(改),菜单收不常用且带破坏性的(清)。
+   它不进 autotask 列表 —— 到价了也只是告诉你,不动手。
+   按上一版画的线,只有"到价直接帮我买"才配一个可撤销可审计的条目。 */
+/* 预置两条:sneaker 是 Updates 区那张 TARGET HIT 卡的来路;
+   tote 用来展示"已设但还没触发"长什么样(价格后挂标签,按钮位空出来)。 */
+const ALERTS = { sneaker: 89, tote: 150 };
+const alertLow = (pid) => Math.round(P[pid].pr * 0.91);
+const alertLow2 = (pid) => Math.round(P[pid].pr * 0.85);
+/* 已设的线跟在价格后面,不占按钮位 —— 它是这件东西的一个事实(和价格同类),
+   不是一个动作,所以不做成可点的控件,只是一句灰色元数据。 */
+const priceTag = (pid, priceHTML) => priceHTML + (ALERTS[pid] !== undefined
+  ? `<span class="lk-target">· Target $${ALERTS[pid]}</span>` : '');
+/* 已设就不再出这个按钮 —— 位置让给别的动作,状态由价格后面那枚标签承担 */
+/* 措辞统一到 target 一个词:眉题是 TARGET HIT、价格后是 · Target $150,
+   按钮再叫 price alert 就是同一件事三个名字。
+   而且 alert 这个词不准 —— Migoo 收藏后本来就会提醒(历史最低之类),
+   用户在这里做的不是"打开提醒",是把提醒收窄到自己那条线上。
+   target 既说清了那条线,又和已有的两处对上。 */
+const alertBtn = (pid) => ALERTS[pid] !== undefined
+  ? `<button class="lk-btn" onclick="event.stopPropagation();moveAlert('${pid}')">Adjust target</button>`
+  : `<button class="lk-btn" onclick="event.stopPropagation();askAlert('${pid}')">Set target price</button>`;
+/* 设线不问一轮 —— Migoo 手里有价格历史,直接提一条线,连同数字一起说出去。
+   之前先问"你要盯多少"再给几个候选,得为此造一套气泡内快捷回答;
+   那个组件产品里没有,而且这一问本来就不必:助理该先给建议,不该先出考题。
+   要改就直接说另一个数,会话本身就是调整入口,不需要额外控件。 */
+function askAlert(pid){
+  const n = alertLow(pid);
+  ALERTS[pid] = n; renderLikesBody();
+  sheetId = pid; sendQ(`Tell me if it drops below $${n}`);
+}
+function moveAlert(pid){
+  const n = alertLow2(pid);
+  ALERTS[pid] = n; renderLikesBody();
+  sheetId = pid; sendQ(`Make it $${n} instead`);
+}
+function offAlert(pid){
+  delete ALERTS[pid]; renderLikesBody();
+  lkToast('Target cleared — still watching it for you');
+}
+/* 全部收藏里的一张卡:无眉题、无事件行,其余与更新卡完全相同。
+   第二个按钮是"给这件东西定一个我自己的条件" —— 默认的盯价由 Migoo 判断
+   什么算值得说,这个按钮才是用户自己划线。它不弹表单,而是进会话把条件说清楚,
+   条件是自然语言的("降到 150 或者出新色就叫我"),不是一个数字输入框。 */
 function lkRow(pid){
   const p = P[pid];
-  return `<div class="lk-row tappable" onclick="openPDP('${pid}')">
-    <img src="${p.img}" alt="">
-    <div class="bd">
-      <div class="t">${p.brand} ${p.nm}</div>
-      <div class="m" onclick="event.stopPropagation();lkToast('切换规格 — demo')">${LK_MDL[pid]} <span class="lk-chv">›</span></div>
-      <div class="p lk-mono">$${p.pr}</div>
-    </div>
-    <button class="lk-rowmore" onclick="lkMenu(this,event)" aria-label="More">⋯</button>
-    <div class="lk-menu"><div class="mi danger" onclick="lkToast('取消收藏,停止监控 — demo')">Remove from Likes</div></div>
-  </div>`;
+  return lkCard(null, null, pid, priceTag(pid, `$${p.pr}`), null,
+    `<button class="lk-btn pri" onclick="event.stopPropagation();toast('In-app checkout — Migoo fulfils &amp; attributes')">Buy now</button>
+     ${alertBtn(pid)}`);
 }
+/* 副标题说"有几件值得看",不说"刚检查过" ——
+   检查是 Migoo 的工序,用户不关心;有几件值得看才是这一页的结论,
+   而且它和下面 Updates · 3 对得上,读者第一眼就知道往哪儿看。 */
 function lkSubtitle(){
-  return '8 saves · checked just now';
+  return '8 saves · 3 worth a look';
 }
 function lkBodyHTML(){
   return lkBodyActive();
@@ -1236,19 +1379,27 @@ function lkBodyHTML(){
 function lkBodyActive(){
   return `
       <div class="lk-fhead lk-reveal">Updates · 3</div>
-      ${lkCard('scarce','LOW STOCK','watch','$329',
+      ${lkCard('scarce','LOW STOCK','watch',priceTag('watch','$329'),
         ['scarcebg','Only <span class="lk-mono" style="color:var(--lk-scarce)">4 left</span> — went <span class="lk-mono lk-ink">9→6→4</span> over our last 3 checks.'],
         `<button class="lk-btn pri" onclick="event.stopPropagation();toast('In-app checkout — Migoo fulfils & attributes')">Buy now</button>
          <button class="lk-btn" onclick="event.stopPropagation();sheetId='watch';sendQ('Find me a similar smartwatch in stock')">Find similar</button>`)}
-      ${lkCard('inkt','PRICE ↓','phones','$449<span class="lk-delta lk-mono lk-ink">↓$100</span>',
+      ${lkCard('inkt','PRICE ↓','phones',priceTag('phones','$449<span class="lk-delta lk-mono lk-ink">↓$100</span>'),
         ['inkbg','Lowest since you saved it (<span class="lk-mono lk-ink">Jul 12</span>) — every check this week equal or lower.'],
         `<button class="lk-btn pri" onclick="event.stopPropagation();toast('In-app checkout — Migoo fulfils & attributes')">Buy now</button>
-         <button class="lk-btn" onclick="event.stopPropagation();sheetId='phones';sendQ('Find these cheaper somewhere else')">Find it cheaper</button>`)}
-      ${lkCard('deal','TARGET HIT','sneaker','$89',
-        ['goodbg','Hit your <b>$89 target</b> this morning — you set it when you saved (<span class="lk-mono lk-ink">Jul 18</span>).'],
+         ${alertBtn('phones')}`)}
+      ${/* 价格后照常挂 Target —— 规则不开例外,而且这张卡上"现价 = 你的线"
+           两个数并排,恰好就是这张卡要说的事。
+           事件行相应地不再复述那个数字,只说发生了什么、什么时候定的。 */''}
+      ${lkCard('deal','TARGET HIT','sneaker',priceTag('sneaker','$89'),
+        ['goodbg','Hit your target this morning — you set it when you saved (<span class="lk-mono lk-ink">Jul 18</span>).'],
         `<button class="lk-btn pri" onclick="event.stopPropagation();toast('In-app checkout — Migoo fulfils & attributes')">Buy now</button>
-         <button class="lk-btn" onclick="event.stopPropagation();lkToast('Still watching — I\\'ll ping you if it drops more')">Keep watching</button>`)}
-      <div class="lk-sec lk-reveal"><span class="st">Other saves</span></div>
+         ${/* 不放 Will it drop more? —— 它和 Adjust target 在这张卡上是同一个念头
+              ("还会跌吗 → 那我要不要改条件"),而后者更具体、更可执行;
+              三个按钮也会把这一行挤成两行。 */''}
+         ${alertBtn('sneaker')}`)}
+      <div class="lk-sec lk-reveal"><span class="st">All Liked Products</span></div>
+      ${/* 不重复上面 Updates 里的三件 —— 同一张脸在一屏里出现两次,
+           用户第一反应是"我收藏了两个?"。整页 3 + 5 = 8,与副标题的 8 saves 对得上。 */''}
       ${['tote','backpack','sunglasses','bottle','sneaker2'].map(lkRow).join('')}
       <div style="height:20px"></div>`;
 }
@@ -1280,6 +1431,9 @@ function openLikes(){
   document.getElementById('likesTab').classList.add('show');
   if (!lkScanned) lkRunScan();
 }
+/* Likes 是一页,PDP 是压在页上的一层 —— 从 PDP 里跳过去必须先把这层收掉,
+   否则 Likes 在 z-index 75 打开,被 92 的 PDP 整个盖住,看起来就是"点了没反应"。 */
+function goLikes(){ closePDP(); closeSheet(); openLikes(); }
 function closeLikes(){
   const el = document.getElementById('likesTab');
   if (el) el.classList.remove('show');
@@ -1301,10 +1455,17 @@ function lkRunScan(){
     st.innerHTML=lkSubtitle();
   },1500));
 }
-function lkCloseMenus(){ document.querySelectorAll('.lk-menu.open,.lk-navmenu.open').forEach(m=>m.classList.remove('open')); }
-function lkMenu(btn,e){ e.stopPropagation(); const m=btn.parentElement.querySelector('.lk-menu'); const was=m.classList.contains('open'); lkCloseMenus(); if(!was)m.classList.add('open'); }
+/* 菜单向下展开会压到下一张卡上,而卡片之间只按 DOM 顺序叠放 ——
+   后面的卡会盖住前面这张卡里弹出的菜单(文字穿透过来)。
+   菜单自己的 z-index 没用:它被关在本卡的层叠上下文里。
+   所以开菜单时把整张卡抬起来,关掉时放回去。 */
+function lkCloseMenus(){
+  document.querySelectorAll('.lk-menu.open,.lk-navmenu.open').forEach(m=>m.classList.remove('open'));
+  document.querySelectorAll('.lk-card.menuup').forEach(c=>c.classList.remove('menuup'));
+}
+function lkMenu(btn,e){ e.stopPropagation(); const m=btn.parentElement.querySelector('.lk-menu'); const was=m.classList.contains('open'); lkCloseMenus(); if(!was){ m.classList.add('open'); m.closest('.lk-card')?.classList.add('menuup'); } }
 function lkNavMenu(e){ e.stopPropagation(); const m=document.getElementById('lkNavMenu'); const was=m.classList.contains('open'); lkCloseMenus(); if(!was)m.classList.add('open'); }
-document.addEventListener('click', e=>{ if(!e.target.closest('.lk-acts') && !e.target.closest('.lk-header') && !e.target.closest('.lk-row')) lkCloseMenus(); });
+document.addEventListener('click', e=>{ if(!e.target.closest('.lk-acts') && !e.target.closest('.lk-header') && !e.target.closest('.lk-card')) lkCloseMenus(); });
 let lkToastT;
 function lkToast(msg){
   const t=document.getElementById('lkToast'); if(!t) return;
@@ -1386,12 +1547,77 @@ function phStart(){
 }
 
 const CF_CHIPS = ['Packing for Tokyo?','Compare two picks','Is this a good price?','Gift ideas','Best budget pick','Find me a dupe'];
+
+/* ============================================================
+   USE_CAPS:chips 从"现成 query"升为"能力入口"(两层)
+   ------------------------------------------------------------
+   关掉 USE_CAPS 时 chips 是六条具体问句 —— 一条 chip 只说得清一件事,
+   六个位子被六个偶然的例子占满,用户读到的是"这六件事我能问",
+   而不是"你能让我做什么"。
+   打开后这一排换成能力:第一层是能力(Outfit ideas / Compare / …),
+   第二层才是该能力下的具体 query。好处:
+     · 能力名稳定、可穷举,这一排就成了能力清单本身(skills 外露)
+     · 具体 query 想换随时换,不占能力的位置
+   标签用用户自己会说的话,不追求语法一致。曾经强推过"动词起头"这条格式规则,
+   结果逼出 Get a verdict / Check a price 这种设计师英语 —— 形式整齐,
+   但没人这么说话。判断标准只有一条:一个人站在货架前会不会这么问自己。
+   Outfit ideas / Good price? 是会的,Get a verdict 不是。
+   也别做成购物频道的分类(Comparison / Gifts / Reviews 那种名词读法)。
+
+   选中后能力不写进输入框,而是作为一枚可摘的标签挂在输入框里 ——
+   与商品引用(cf-quote)同一个附件范式:框里挂着什么,就在什么范围内问。
+   标签自带 × 可摘,摘掉即退回能力这一层,所以不需要"再点一次取消"这种隐形操作。
+   placeholder 随能力换,替代原来预填起手式的作用 —— 标签已经说了是对比,
+   输入框再写一遍 "Compare " 是同一句话说两遍。
+
+   排序按"要不要先有个商品在手":
+     Outfit / Gift 从零就能点(还没看上任何东西时也用得上),放前面;
+     Compare / Good price? 都预设你手里已经有候选,放后面。
+   首屏没有上下文,灵感类在前。 */
+const CAP_CHIPS = [
+  /* 穿搭这一格是垂类,但仍然守得住这一排的规矩 ——
+     它有要补的东西(什么场合),落点还是输入框。
+     换掉的 Worth it? 问题不在垂不垂,在于它太抽象:
+     "值不值"要先知道拿什么跟什么比,读到的人得先想一步才知道能问什么。
+     注意这不等于可以放 Beauty / Home 这类光秃秃的品类 ——
+     那些没有要补的东西,点下去只能给一屏货,和这一排的落点不是一回事。 */
+  { k:'outfit',  t:'Outfit ideas', ph:'For what occasion?',
+    qs:['What to wear with these Nike Free RNs',
+        'Outfit for a summer wedding, under $200',
+        'Work outfits that aren’t a suit'] },
+  { k:'gift',    t:'Gift ideas',   ph:'Who’s it for?',
+    qs:['A gift for my mom, under $50',
+        'Birthday gift for a 6-year-old who’s into dinosaurs',
+        'Housewarming gift that isn’t a candle'] },
+  { k:'compare', t:'Compare',      ph:'Which two?',
+    qs:['Compare the Keenz Air and the Doona Nitro',
+        'Which of my two saved strollers packs smaller?',
+        'AirPods Pro vs Sony XM5 for a long flight'] },
+  { k:'price',   t:'Good price?',  ph:'Which one?',
+    qs:['Is $89 a good price for the Nike Free RN?',
+        'Has this tote ever been cheaper than $178?',
+        'Should I wait for a sale on the watch?'] },
+];
+const CAP = Object.fromEntries(CAP_CHIPS.map(c => [c.k, c]));
+/* 每个能力一枚 icon —— 这一排与"现成 query"那一排形状相同(都是圆角 pill),
+   靠 icon 区分:带 icon 的是能力(点开还有下一层),纯文字的是一句现成的话(点了就进框)。 */
+const CAP_IC = {
+  compare:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 5.4h9.4M9 3l2.4 2.4L9 7.8M14 10.6H4.6M7 8.2l-2.4 2.4L7 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  /* 衣架:穿搭最直白的记号,比 T 恤图形更不容易被读成某一件单品 */
+  outfit:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 6.1V5.5a1.55 1.55 0 111.55-1.55" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8 6.1L2 10.5c-.7.5-.35 1.6.5 1.6h11c.85 0 1.2-1.1.5-1.6z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>',
+  price:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8.9 2.1H13.4a.5.5 0 01.5.5v4.5l-6.5 6.5a1.2 1.2 0 01-1.7 0L2.4 10.3a1.2 1.2 0 010-1.7z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="10.6" cy="4.9" r="1.05" fill="currentColor"/></svg>',
+  gift:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2.6 5.6h10.8v2.2H2.6zM3.6 7.8h8.8v5.6H3.6zM8 5.6v7.8" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 5.6C6 5.6 4.7 5.1 4.7 4S6.4 2.4 8 5.6zM8 5.6c2 0 3.3-.5 3.3-1.6S9.6 2.4 8 5.6z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>',
+};
+/* 建议行末尾的 ↘:指向下方的输入框 —— 点这一条不是发送,是把它放进框里再改。 */
+const IC_INS = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M4.5 4.5l7 7M11.5 7.4v4.1H7.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 /* 引用了具体商品时换一组"对这件东西"的 query;尺码/试穿只对服饰类出 */
 const CF_CHIPS_PROD = ['More like this','Find it cheaper','Is this a good price?'];
 const CF_CHIPS_WEAR = ['What size should I get?'];
 const IC_X = '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 let cfValue = '';
 let cfProd = null;                                     /* 当前引用的商品 id */
+let cfCap  = null;                                     /* 当前选中的能力 chip(仅 USE_CAPS 态) */
+const cfEsc = s => s.replace(/'/g, "\\'");
 function cfRender(){
   const t = document.getElementById('cfText');
   if (!t) return;
@@ -1399,25 +1625,42 @@ function cfRender(){
   /* 聚焦即有光标:空态时光标在 placeholder 之前(iOS 原生行为) */
   t.innerHTML = cfValue
     ? `${cfValue}<span class="caret"></span>`
-    : `<span class="caret lead"></span>${cfProd ? 'Ask about this…' : PH_ROLL[0]}`;
+    : `<span class="caret lead"></span>${cfProd ? 'Ask about this…' : (cfCap ? CAP[cfCap].ph : PH_ROLL[0])}`;
   document.getElementById('cfSend').classList.toggle('off', !cfValue);
 }
 /* 通用 composer 与商品 ✦ 走同一个函数 —— 点 ✦ 本质就是"唤起输入框 + 引用这件商品 + 给几条 query" */
-function openFocus(prefill, prodId){
+function openFocus(prefill, prodId, capKey){
   cfValue = prefill || '';
   cfProd  = prodId || null;
+  cfCap   = capKey || null;
   const p = cfProd ? P[cfProd] : null;
   /* 能力型 chip(试穿)直接执行,query 型 chip 键入不发送 —— 视觉同构,措辞区分(动词 vs 问句) */
   const chips = p
     ? (p.tryon ? [{t:'Try it on', act:`openTryOn('${cfProd}')`}] : [])
         .concat(CF_CHIPS_PROD.map(t=>({t})), p.tryon ? CF_CHIPS_WEAR.map(t=>({t})) : [])
     : CF_CHIPS.map(t=>({t}));
+  /* USE_CAPS 且无商品引用时走两层。选中能力后这一排换成该能力的整句建议 ——
+     能力已经以标签形式挂在输入框里,再留一排 chips 就是同一件事占两处。
+     引用了具体商品时不换 —— 那时上下文已经收窄到这件东西,再摆一遍全局能力是噪音。 */
+  const cap = (USE_CAPS && !p && cfCap) ? CAP[cfCap] : null;
+  const dockTop = cap
+    ? `<div class="cf-sugs">${cap.qs.map(q=>
+         `<div class="cf-sug" onclick="cfType('${cfEsc(q)}')">
+            <span class="st">${q}</span><span class="sa">${IC_INS}</span></div>`).join('')}</div>`
+    : (USE_CAPS && !p)
+      ? `<div class="cf-chips">${CAP_CHIPS.map(c=>
+           `<span class="cf-chip" onclick="openCap('${c.k}')"><span class="ci">${CAP_IC[c.k]}</span>${c.t}</span>`).join('')}</div>`
+      : `<div class="cf-chips">${chips.map(c=>
+           `<span class="cf-chip" onclick="${c.act || `cfType('${cfEsc(c.t)}')`}">${c.t}</span>`).join('')}</div>`;
   document.getElementById('cfocus').innerHTML = `
     <div class="cf-scrim" onclick="closeFocus()"></div>
-    <div class="cf-dock">
-      <div class="cf-chips">${chips.map(c=>
-        `<span class="cf-chip" onclick="${c.act || `cfType('${c.t.replace(/'/g,"\\'")}')`}">${c.t}</span>`).join('')}</div>
+    <div class="cf-dock${cap ? ' fade' : ''}">
+      ${dockTop}
       <div class="cf-input">
+        ${cap ? `<div class="cf-tag">
+          <span class="ci">${CAP_IC[cap.k]}</span>${cap.t}
+          <span class="tx" onclick="cfDropCap()">${IC_X}</span>
+        </div>` : ''}
         ${p ? `<div class="cf-quote">
           <img src="${p.img}">
           <div class="qi"><div class="qb">${p.brand}</div><div class="qn">${p.nm}</div></div>
@@ -1435,12 +1678,17 @@ function openFocus(prefill, prodId){
   kbdShow(true);
   cfRender();
 }
-function cfType(t){ cfValue = t; cfRender(); }        /* chip → 键入,不发送 */
+function cfType(t){ cfValue = t; cfRender(); }        /* chip / 建议 → 键入,不发送 */
+/* 能力 chip → 挂标签 + 换成该能力的整句建议;输入框留空等用户自己说或点一条建议 */
+function openCap(k){ openFocus('', null, k); }
+/* 摘掉能力标签 → 退回能力那一层,已打的字保留(与 cfUnquote 一致) */
+function cfDropCap(){ openFocus(cfValue, null, null); }
 function cfUnquote(){ openFocus(cfValue, null); }     /* 去掉引用 → 退回通用 composer */
 function closeFocus(){
   document.getElementById('cfocus').classList.remove('show');
   kbdShow(false);
   cfProd = null;
+  cfCap = null;
 }
 function cfSend(){                                     /* 用户主动发送 → 跳 tab1 会话 */
   if (!cfValue) return;
@@ -1452,7 +1700,7 @@ function cfSend(){                                     /* 用户主动发送 →
 
 /* ---------- 会话页组件(全站会话统一走这里) ---------- */
 const prow2 = (id) => { const p=P[id]; return `
-  <div class="prow2" onclick="closeChat();openPDP('${id}')">
+  <div class="prow2" onclick="openPDP('${id}')">
     <img src="${p.img}">
     <div><div class="pn">${p.brand} ${p.nm}</div><div class="pp">$${p.pr}</div></div>
   </div>`; };
@@ -1461,13 +1709,13 @@ const plist = (ids) => ids.length ? `<div class="plist">${ids.map(prow2).join(''
 const pgrid = (ids) => {
   const c1=[], c2=[];
   ids.forEach((id,i)=>{ const p=P[id];
-    (i%2===0?c1:c2).push(`<div class="pgc" onclick="closeChat();openPDP('${id}')">
+    (i%2===0?c1:c2).push(`<div class="pgc" onclick="openPDP('${id}')">
       <img src="${p.img}"><div class="pgb"><div class="pn">${p.brand} ${p.nm}</div><div class="pp">$${p.pr}</div></div></div>`);
   });
   return `<div class="pgrid"><div class="pgcol">${c1.join('')}</div><div class="pgcol">${c2.join('')}</div></div>`;
 };
 const pbig = (id) => { const p=P[id]; return `
-  <div class="pbig" onclick="closeChat();openPDP('${id}')">
+  <div class="pbig" onclick="openPDP('${id}')">
     <img src="${p.img}">
     <div class="pb">
       <div class="pn">${p.brand} ${p.nm}</div>
@@ -1485,7 +1733,7 @@ const bubbleU = (t, ids, img) => {
   return `<div class="mu">` +
     (one ? `<div class="uref"><img src="${one.img}"><span>${one.brand} ${one.nm}</span></div>` : '') +
     (list.length > 1 ? `<div class="uatt">${list.map(id =>
-       `<img src="${P[id].img}" onclick="event.stopPropagation();closeChat();openPDP('${id}')">`).join('')}</div>` : '') +
+       `<img src="${P[id].img}" onclick="event.stopPropagation();openPDP('${id}')">`).join('')}</div>` : '') +
     (img ? `<div class="uatt one"><img src="${A}${img}"></div>` : '') +
     `<span class="b">${t}</span></div>`;
 };
@@ -1583,6 +1831,13 @@ function replyFor(q, id) {
   }
   /* 有商品上下文(✦ 浮层发出) */
   const p = P[id];
+  /* 价格提醒:先给参照(现价 + 收藏以来的最低),再问要盯哪条线。
+     不问"你要设多少"就直接给输入框 —— 用户没有参照就填不出数,
+     这也是上一版数字键盘方案真正卡住的地方。 */
+  if (low.includes('drops below'))
+    return { text: `Done — I’ll only ping you at <code>$${ALERTS[id]}</code>. It’s <code>$${p.pr}</code> today and the lowest I’ve seen since you saved it is <code>$${alertLow(id)}</code>, so that line is realistic. Tell me another number any time.`, ids: [] };
+  if (low.includes('instead'))
+    return { text: `Moved — <code>$${ALERTS[id]}</code> it is. That’s below anything I’ve seen this year, so it may sit a while. I’ll stay quiet until then.`, ids: [] };
   if (low.includes('more like'))
     return { text: `In the same lane as the ${p.nm} — two worth a look:`, ids: SIMILAR[id] };
   if (low.includes('cheaper') || low.includes('lower') || low.includes('price'))
@@ -1683,24 +1938,36 @@ function openGenSheet() {
 
 /* ---------- shared ---------- */
 function toggleSave(id) {
-  if (saved.has(id)) { saved.delete(id); toast('Removed from Likes'); }
-  else { saved.add(id); toast('Saved · I’ll watch price & stock for you'); }
+  const on = !saved.has(id);
+  if (on) saved.add(id); else saved.delete(id);
   const pdpOpen = document.getElementById('pdp')?.classList.contains('open');
   if (pdpOpen) {
     const pill = document.getElementById('pdpSave');
-    if (pill) pill.innerHTML = IC.heart(saved.has(id)) + ' ' + (saved.has(id)?'Saved':'Save');
-    document.querySelectorAll('#h-'+id).forEach(h=>h.innerHTML = IC.heart(saved.has(id)));
+    if (pill) { pill.innerHTML = IC.heart(on); pill.setAttribute('aria-label', on?'Saved':'Save'); }
+    document.querySelectorAll('#h-'+id).forEach(h=>h.innerHTML = IC.heart(on));
   } else {
     render();
   }
+  /* toast 必须在 render 之后 —— render() 会重建整个 phone(含 #toast 节点),
+     先弹就会被当场抹掉。这条从流里点收藏时一直没显示过,只是以前没人点得着;
+     现在 toast 带入口,入口还没来得及点就没了,才暴露出来。
+     文案:收藏是"这个我在意",盯价是它自带的结果 —— 只在这里说一次,之后不再提。
+     带一个去 Likes 的入口:承诺说完就该有地方看见它。 */
+  if (on) toast('Saved, I’ll watch price and stock for you', {t:'View Likes', fn:'goLikes()'});
+  else toast('Removed from Likes');
 }
 let toastTimer;
-function toast(msg) {
+/* act = {t:文案, fn:点击执行的表达式}。带动作时停留久一点 ——
+   一条能点的 toast 如果按普通时长消失,等于给了个够不着的入口。 */
+function toast(msg, act) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
+  t.innerHTML = msg + (act ? `<span class="tact" onclick="hideToast();${act.fn}">${act.t}</span>` : '');
+  t.classList.toggle('has-act', !!act);
+  t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>t.classList.remove('show'), 1900);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), act ? 4200 : 1900);
 }
+function hideToast(){ clearTimeout(toastTimer); document.getElementById('toast')?.classList.remove('show'); }
 function render() {
   document.getElementById('phone').innerHTML = statusbar() + home() + fbar() +
     `<div class="scrim" id="scrim" onclick="closeSheet()"></div>
