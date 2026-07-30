@@ -99,6 +99,21 @@
   .why { margin-top: 4px; font-size: 11.5px; line-height: 1.35; color: var(--ink);
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .why.ev { -webkit-line-clamp: 1; font-weight: 600; }
+  /* 身份标识移到图上角标(见 .ltag)—— 图先被看到,不必等读到文字才知道这是自己收藏的。
+     故事件行不再带 ♥,专职说"变了什么 + 对你意味着什么",与身份分工。 */
+  .scard .why.ev { -webkit-line-clamp: 2; }
+  /* 左上角:与左下角 ✦ 分居两角互不遮挡;白底毛玻璃在深浅商品图上都能读 */
+  .imgw .ltag { position: absolute; left: 8px; top: 8px; display: flex; align-items: center; gap: 3.5px;
+    background: rgba(255,255,255,.94); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    border-radius: 7px; padding: 4px 7px 4px 6px; box-shadow: 0 1px 3px rgba(8,16,33,.10);
+    font-size: 9.5px; font-weight: 700; letter-spacing: .1px; color: var(--black); }
+  .imgw .ltag svg { flex-shrink: 0; color: var(--brand); }
+  /* Buy now:与"整卡可点=看详情"是两个不同动作,所以按钮成立(插卡去掉 CTA 是因为动作相同)。
+     用浅蓝底而非实心 —— 三张 scard 散在 19 坑里,实测同屏碰不到两张,不会连成按钮矩阵。 */
+  .buynow { display: block; width: 100%; margin-top: 9px; height: 32px; border: none; border-radius: 9px;
+    background: rgba(0,122,255,.10); color: var(--brand); font-family: var(--sf);
+    font-size: 12.5px; font-weight: 700; letter-spacing: -.1px; cursor: pointer; }
+  .buynow:active { background: rgba(0,122,255,.18); }
   .pdp-why { margin: 10px 16px 0; font-size: 12.5px; line-height: 1.4; color: var(--ink);
     background: rgba(51,80,122,0.06); border-radius: 8px; padding: 6px 10px;
     display: flex; align-items: center; gap: 6px; }
@@ -539,6 +554,7 @@
 <div style="display:flex;justify-content:center;gap:8px;margin:-8px 0 22px">
   <button class="tglbtn on" id="tgl-active" onclick="setDemoState('active')">收藏有更新</button>
   <button class="tglbtn" id="tgl-quiet" onclick="setDemoState('quiet')">收藏夹无商品更新</button>
+  <button class="tglbtn" id="tgl-option2" onclick="setDemoState('option2')">Option 2</button>
 </div>
 
 <div class="stage">
@@ -555,7 +571,7 @@ const P = {
   phones:  { brand:'Apple',  nm:'AirPods Max — Silver',      pr:449, rt:'4.7', sold:'3.4k', img:A+'prod-headphones.jpg' },
   /* —— 流内商品卡 —— */
   tote:    { brand:'Madewell', nm:'Transport Tote — English Saddle', pr:178, rt:'4.7', sold:'620', img:A+'table-prod1a.png', tryon:true,
-             why:'Like the totes you saved' },
+             why:'Fits a 13\" laptop — you asked about that' },
   backpack:{ brand:'Level8', nm:'Atlas Laptop Backpack 20L', pr:79,  rt:'4.8', sold:'1.9k', img:A+'prod-backpack.jpg',
              why:'From your Tokyo-trip chat — fits as a personal item' },
   sunglasses:{ brand:'Ray-Ban', nm:'New Wayfarer — Polarized', pr:188, rt:'4.8', sold:'2.7k', img:A+'prod-sunglasses.jpg', tryon:true,
@@ -581,6 +597,14 @@ const P = {
   chair:   { brand:'Article', nm:'Svelti Dining Chair — Black', pr:129, rt:'4.5', sold:'420', img:A+'prod-chair.jpg' },
   chair2:  { brand:'IKEA',    nm:'NORRÅKER Bar Stool — White', pr:89,  rt:'4.4', sold:'760', img:A+'prod-chair2.jpg' },
   chair3:  { brand:'Article', nm:'Chantel Accent Chair — Ivory', pr:149, rt:'4.6', sold:'310', img:A+'prod-chair3.jpg' },
+  /* 理由行一律避开 saved / liked 字样 —— 那两个词已归收藏更新卡专用,
+     推荐理由若也用,滑动时会与"你收藏的有更新"混成一件事 */
+  moka:    { brand:'Bialetti', nm:'Moka Express — 6 Cup', pr:42, rt:'4.7', sold:'8.4k', img:A+'prod-moka.jpg',
+             why:'For the slow mornings you mentioned' },
+  vase:    { brand:'Ferm Living', nm:'Hourglass Vase — Cream', pr:68, rt:'4.6', sold:'520', img:A+'prod-vase.jpg',
+             why:'For the shelf you said looks bare' },
+  throwbl: { brand:'Pendleton', nm:'Eco-Wise Wool Throw — Mustard', pr:98, rt:'4.8', sold:'1.9k', img:A+'prod-throw.jpg',
+             why:'Your desk gets cold after midnight' },
   /* 接续卡"继续找"带回的新结果 —— 只在会话里出现,不进首页流 */
   chair4:  { brand:'Floyd',   nm:'Oak Dining Chair — Natural', pr:139, rt:'4.7', sold:'180', img:A+'prod-chair4.jpg' },
   chair5:  { brand:'Burrow',  nm:'Camden Dining Chair — Olive', pr:145, rt:'4.5', sold:'240', img:A+'prod-chair5.jpg' },
@@ -603,12 +627,32 @@ const SIMILAR = {
 const saved = new Set(['sneaker','watch','phones','tote','backpack','sunglasses','bottle','sneaker2']);
 /* 收藏夹更新事件。三态:有事件=完整区 / 有收藏无事件=一行履约条 / 无收藏=整区隐藏 */
 const SAVE_EVENTS = { sneaker:'↓ to $89 — your target', phones:'↓$100 since you saved', watch:'Low stock · 4 left' };
+/* opt2:收藏更新不再单独占一区,直接分发进双列流。
+   事件行必须同时说清"变了什么"和"对你意味着什么" —— 只说降价是通知,说到目标价才是理由。
+   buy 只在利益点足以支撑立即下单时为 true(到价/大幅降),让按钮的出现本身成为强度信号;
+   库存类只提示稀缺,不催单。 */
+/* 事件行不复述价格行已有的数字 —— 那是这行唯一的表达机会,要用来说
+   "相对你保存时变了什么"(降幅/库存)和"对你意味着什么"(到价/快没了)。
+
+   buy 默认为 true:收藏本身就是购买意向,任何更新都是决策触发点。
+   曾按"降价才给按钮、库存不催单"来做,是错的 —— 低库存是时间压力,
+   紧迫性高于降价(降价还能再等,售罄不能),反而更需要立即行动的入口。
+   只有无行动价值的中性更新(如商品改版说明)才置 false。 */
+const SAVED_UPDATES = {
+  sneaker: { ev:'$20 off — now at the price you set', buy:true },
+  phones:  { ev:'$100 off since you saved',           buy:true },
+  watch:   { ev:'Only 4 left in your size',           buy:true },
+};
 let HAS_EVENTS = true;
-let likesState = 'active';          /* active / quiet,与 HAS_EVENTS 同源 */
+/* active / quiet / option2。option2 = active 的副本,用来并排试新方案,
+   两边共用同一份数据,差异只写在 IS_OPT2 的分支里,便于直接对照。 */
+let IS_OPT2 = false;
+let likesState = 'active';
 function setDemoState(s) {
   likesState = s;
-  HAS_EVENTS = (s === 'active');
-  ['active','quiet'].forEach(k => {
+  HAS_EVENTS = (s !== 'quiet');
+  IS_OPT2 = (s === 'option2');
+  ['active','quiet','option2'].forEach(k => {
     const b = document.getElementById('tgl-'+k);
     if (b) b.classList.toggle('on', k === s);
   });
@@ -799,6 +843,8 @@ const IC = {
   spark: '<svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M7 0l1.3 4.2L12.5 5.5 8.3 6.8 7 11 5.7 6.8 1.5 5.5 5.7 4.2 7 0z" fill="#007AFF"/><path d="M11.5 9.5l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6.6-1.9z" fill="#007AFF" opacity="0.65"/></svg>',
   sparkSm: '<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 0l1.4 4.6L12 6 7.4 7.4 6 12 4.6 7.4 0 6l4.6-1.4L6 0z" fill="#33507A"/></svg>',
   heartHead: '<svg width="22" height="20" viewBox="0 0 20 18" fill="none"><path d="M10 17S1 11.6 1 5.9C1 3 3.2 1 5.7 1 7.5 1 9.1 2 10 3.5 10.9 2 12.5 1 14.3 1 16.8 1 19 3 19 5.9 19 11.6 10 17 10 17z" stroke="#1C1C1E" stroke-width="1.7" stroke-linejoin="round"/></svg>',
+  /* 实心小心形,currentColor 继承事件行文字色 —— 收藏更新卡与普通推荐卡的唯一区分符 */
+  heartSm: '<svg width="10.5" height="9.5" viewBox="0 0 20 18" fill="none"><path d="M10 17S1 11.6 1 5.9C1 3 3.2 1 5.7 1 7.5 1 9.1 2 10 3.5 10.9 2 12.5 1 14.3 1 16.8 1 19 3 19 5.9 19 11.6 10 17 10 17z" fill="currentColor"/></svg>',
   tabTasks: '<svg class="tabfill" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 8.27726C1.5 5.11417 4.06419 2.54999 7.22727 2.54999H16.7727C19.9358 2.54999 22.5 5.11418 22.5 8.27726V15.7227C22.5 18.8858 19.9358 21.45 16.7727 21.45H7.22727C4.06419 21.45 1.5 18.8858 1.5 15.7227V8.27726Z" fill="currentColor"/><path d="M7.6 12.3l3 3 5.8-6.1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   tabAgents: '<svg class="tabfill" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 8.27726C1.5 5.11417 4.06419 2.54999 7.22727 2.54999H16.7727C19.9358 2.54999 22.5 5.11418 22.5 8.27726V15.7227C22.5 18.8858 19.9358 21.45 16.7727 21.45H7.22727C4.06419 21.45 1.5 18.8858 1.5 15.7227V8.27726Z" fill="currentColor"/><path d="M15.7158 8.16773C16.2302 7.84549 16.9096 8.00031 17.2324 8.51441C17.5548 9.02873 17.3987 9.70804 16.8848 10.031L13.9863 11.8494L16.8848 13.6677C17.3987 13.9907 17.5548 14.67 17.2324 15.1843C16.9096 15.6986 16.2303 15.8534 15.7158 15.531L12.4766 13.4988C11.2607 12.7355 11.2606 10.9632 12.4766 10.2L15.7158 8.16773ZM8.59961 8.54956C9.207 8.54963 9.6991 9.0418 9.69922 9.64917V14.0496C9.69901 14.6569 9.20694 15.1491 8.59961 15.1492C7.99232 15.1491 7.50021 14.6568 7.5 14.0496V9.64917C7.50012 9.04183 7.99227 8.54968 8.59961 8.54956Z" fill="white"/></svg>',
   tabShop: '<svg class="tabfill" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 1.5A4.5 4.5 0 007.5 6v1.05H5.31a1.8 1.8 0 00-1.79 1.62l-1 10A2.5 2.5 0 005.01 21.45h13.98a2.5 2.5 0 002.49-2.78l-1-10a1.8 1.8 0 00-1.79-1.62H16.5V6A4.5 4.5 0 0012 1.5zm-2.5 5.55V6a2.5 2.5 0 015 0v1.05h-5z" fill="currentColor"/></svg>',
@@ -814,9 +860,10 @@ const cap = (id, showWhy) => { const p=P[id]; return `
     ${(showWhy && p.why) ? `<div class="why">${p.why}</div>` : ''}
   </div>`; };
 
-const imgw = (id) => { const p=P[id]; return `
+const imgw = (id, liked) => { const p=P[id]; return `
   <div class="imgw">
     <img src="${p.img}" alt="">
+    ${liked ? `<div class="ltag">${IC.heartSm}<span>You liked</span></div>` : ''}
     <div class="sparkb" onclick="event.stopPropagation();openSheet('${id}')">${IC.spark}</div>
   </div>`; };
 
@@ -829,6 +876,20 @@ const hcard = (id) => { const p=P[id]; return `
     </div>
   </div>`; };
 const gcard = (id) => `<div class="gcard" onclick="openPDP('${id}')">${imgw(id)}${cap(id,true)}</div>`;
+
+/* opt2 收藏更新卡:复用商品卡的全部排版,不引入新字号 ——
+   它本来就是货(白底),只是多了一层"你收藏过 + 现在变了"。
+   ♥ 是与普通推荐理由行的唯一区分符:两者共用 .why 的字号与色值,
+   若再加底色或边框就会变成第五种卡型,与刚统一的插卡语言打架。 */
+const scard = (id) => { const p=P[id], u=SAVED_UPDATES[id]; return `
+  <div class="gcard scard" onclick="openPDP('${id}')">${imgw(id, true)}
+    <div class="cap">
+      <div class="ttl">${p.brand} ${p.nm}</div>
+      <div class="pr">$${p.pr}</div>
+      <div class="why ev">${u.ev}</div>
+      ${u.buy ? `<button class="buynow" onclick="event.stopPropagation();toast('Buy now · ${p.brand} — 站内闭环下单')">Buy now</button>` : ''}
+    </div>
+  </div>`; };
 
 const secHead = (t, s) => `
   <div class="sec-head" onclick="toast('Section landing — full flow (P1)')">
@@ -879,18 +940,54 @@ const home = () => {
      插卡排布规则:cells 按 i%2 分列,故 index 差 2 = 同列相邻、差 1 = 左右并排。
      四张插卡放在 3 / 6 / 11 / 14 —— 两两间隔 ≥3,同列内各隔 3 个商品卡,
      且不与首屏前两坑重合(问句卡最早出现在右列第 2 位)。 */
-  const cells = [
+  const cells = IS_OPT2 ? [
+    /* opt2:顶部不设独立入口区,sneaker/phones/watch 三件收藏更新直接进流。
+       19 坑,7 张特殊卡放在 0/3/6/9/12/15/18(等差 3,不同列相邻也不左右并排)。
+       关键:两种特殊卡必须交错落在两列 —— 若 scard 全占偶数坑、插卡全占奇数坑,
+       左右会形成"我收藏的 / AI 卡片"的列分工,且 scard 高出普通卡近 70px,
+       会把对列插卡整个撞上。故 scard 取 0(左)/9(右)/12(左),插卡取 3/6/15/18。 */
+    scard('sneaker'),   gcard('tote'),
+    gcard('backpack'),  qcard('Which stroller for city + travel?'),
+    gcard('sunglasses'),gcard('perfume'),
+    ccard(),            gcard('speaker'),
+    gcard('bottle'),    scard('phones'),
+    gcard('sneaker2'),  gcard('mug'),
+    scard('watch'),     gcard('candle'),
+    gcard('moka'),      wcard(),
+    gcard('camera'),    gcard('vase'),
+    gcard('plant'),     gcard('throwbl'),
+    contcard(),         gcard('wallet'),
+  ] : [
     gcard('tote'),      gcard('sunglasses'),
     gcard('backpack'),  qcard('Which stroller for city + travel?'),
     gcard('bottle'),    gcard('perfume'),
     ccard(),            gcard('speaker'),
     gcard('sneaker2'),  gcard('mug'),
-    gcard('candle'),    wcard(),
+    gcard('moka'),      wcard(),
+    gcard('candle'),    gcard('vase'),
     gcard('plant'),     gcard('camera'),
-    contcard(),         gcard('wallet'),
+    contcard(),         gcard('throwbl'),
+    gcard('wallet'),
   ];
-  const c1=[], c2=[];
-  cells.forEach((h,i)=>(i%2===0?c1:c2).push(h));
+  /* 分列按累计高度贪心,而非奇偶交替 —— 后者不看高度,一旦某列多分到两张 scard(337px)
+     就会比对列长出近 400px,尾部露出一大片空白。
+     高度取各卡型的实测值,只用于分列决策,不影响渲染。 */
+  const CARD_H = { scard:337, gcard:296, qcard:122, ccard:199, wcard2:166, contcard:156 };
+  const cellType = (html) => {
+    const m = html.match(/class="(?:gcard )?(scard|gcard|qcard|ccard|wcard2|contcard)/);
+    return m ? m[1] : 'gcard';
+  };
+  /* 纯按高度贪心会把矮插卡全塞进同一列(它们不容易把该列顶高),导致特殊卡同列相邻。
+     故加一条让位规则:若首选列的末尾已是特殊卡,本张特殊卡改投另一列。
+     高度平衡稍作牺牲,换来特殊卡在两列里始终隔着商品卡。 */
+  const c1=[], c2=[], last=[null,null]; let h1=0, h2=0;
+  cells.forEach(html => {
+    const t = cellType(html), h = (CARD_H[t] || 296) + 10;   /* +10 = grid 行间距 */
+    let k = h1 <= h2 ? 0 : 1;
+    if (t !== 'gcard' && last[k] && last[k] !== 'gcard') k = 1 - k;
+    if (k === 0) { c1.push(html); h1 += h; } else { c2.push(html); h2 += h; }
+    last[k] = t;
+  });
   return `
   <div class="screen-body" id="sb">
     <div class="lk-corner" onclick="openLikes()">
@@ -905,7 +1002,7 @@ const home = () => {
       ${(HAS_EVENTS ? CF_CHIPS : CF_CHIPS.slice(1))
         .map(t=>`<span class="achip" onclick="openFocus('${t.replace(/'/g,"\\'")}')">${t}</span>`).join('')}
     </div>
-    ${HAS_EVENTS ? `
+    ${(HAS_EVENTS && !IS_OPT2) ? `
     <div class="sec">
       <div class="sec-head" onclick="openLikes()">
         <div><div class="t">Updates from your likes</div></div>
@@ -915,7 +1012,7 @@ const home = () => {
     </div>` : ''}
     <div class="sec">
       <div class="sec-head" style="cursor:default">
-        <div><div class="t">Daily Picks</div><div class="s">From your chats with Migoo</div></div>
+        <div><div class="t">Daily Picks</div>${IS_OPT2 ? '' : '<div class="s">From your chats with Migoo</div>'}</div>
       </div>
       <div class="grid"><div class="gcol">${c1.join('')}</div><div class="gcol">${c2.join('')}</div></div>
     </div>
