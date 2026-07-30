@@ -57,7 +57,7 @@
   /* 问候语用 "we" 而非 "you":you shopping 是把人当买家,
      we looking 把 Migoo 放进这件事里 —— 一个纯购物网站说不出这个 we。 */
   .greet { font-family: var(--serif); font-size: 32px; line-height: 1.16; font-weight: 600;
-    letter-spacing: -0.4px; color: var(--black); text-align: center; padding: 22px 36px 0; }
+    letter-spacing: -0.4px; color: var(--black); text-align: center; padding: 14px 36px 0; }
   .ask { margin: 22px 16px 6px; height: 52px; border-radius: 26px; background: var(--chip-bg);
     display: flex; align-items: center; padding: 0 16px 0 20px; cursor: text; gap: 14px; }
   /* placeholder 轮播:一条只能说一件事,轮播才说得清"你可以怎么说"。
@@ -72,11 +72,25 @@
   /* Ask 下的 query 推荐 chips:能力外露 + 个性化 query */
   .askchips { display: flex; gap: 7px; overflow-x: auto; padding: 10px 16px 0; }
   .askchips::-webkit-scrollbar { height: 0; }
-  /* 圆角 10px 而非全圆:全圆 pill 在这一排是"标签/筛选"的读法,
-     这里要的是"能力入口"—— 方一点更像可点的按钮,也与卡片圆角同族。 */
+  /* 收尾块 + 右缘渐隐,只在这一排真的放不下时才加(见 markScrollable):
+     · 收尾块 —— 横向滚动容器的右 padding 不作数,滑到底最后一枚会贴死在边上
+     · 渐隐   —— 把硬切说成"右边还有",否则看起来像渲染坏了
+     无条件加是错的:尾块自己就占 16px+7px 间距,足以把一排本来放得下的
+     chips 顶出 23px 溢出,于是最后一枚被自己造出来的渐隐淡掉半截。 */
+  .askchips.scrollable::after { content: ''; flex: 0 0 16px; }
+  .askchips.scrollable { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent); }
+  /* 圆角按内容分,不按位置分:
+       全圆 pill = 一句现成的话(它就是一句话的形状,和会话气泡同族)
+       方一点   = 一个能力入口(点开还有下一层,更像按钮)
+     所以整句 query 的 chips 保持 999px,只有能力 chips 收成 10px。 */
   .achip { flex: 0 0 auto; font-size: 12.5px; color: var(--text-65); background: #fff;
-    border: 1px solid var(--line-09); border-radius: 10px; padding: 7px 12px;
+    border: 1px solid var(--line-09); border-radius: 999px; padding: 7px 12px;
     cursor: pointer; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; }
+  /* 类名不能叫 .cap —— 本文件里 .cap 已经是商品卡的文字区(padding:8px 2px 0),
+     而它声明在 .achip 之后、特异度相同,会把 chip 的内边距整个盖掉,
+     把 chip 压成 25px 高的扁块。同名不同物是这种 bug 的唯一来源。 */
+  .achip.capchip { border-radius: 10px; }
   /* 能力 chip 的 icon:比文字浅一档,是区分记号不是装饰重点 */
   .achip .ci { display: flex; color: var(--text-40); }
 
@@ -532,10 +546,11 @@
   .cf-chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 2px 10px; }
   .cf-chips::-webkit-scrollbar { height: 0; }
   .cf-chip { flex: 0 0 auto; font-size: 13.5px; color: var(--text-87); background: #fff;
-    border: 1px solid var(--line-09); border-radius: 12px; padding: 9px 15px; cursor: pointer;
+    border: 1px solid var(--line-09); border-radius: 999px; padding: 9px 15px; cursor: pointer;
     white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
-  /* 能力 chip 上的 icon */
+  /* 能力 chip:方一点 + 带 icon,与整句 query 的全圆 pill 区分(同 .achip.cap) */
   .cf-chip { display: inline-flex; align-items: center; gap: 6px; }
+  .cf-chip.capchip { border-radius: 12px; }
   .cf-chip .ci { display: flex; color: var(--text-40); }
   /* 能力的二级推荐 query:裸行 + 行末 ↘,不做成白卡也不加分隔线 ——
      这一层是"可以这么说"的候选,不是一份需要框起来的清单;
@@ -602,12 +617,21 @@
 <style>
   .tglbtn{font-family:var(--sf);font-size:13px;font-weight:600;border-radius:999px;padding:7px 16px;cursor:pointer;border:1px solid rgba(0,0,0,0.09);background:#fff;color:#374151;}
   .tglbtn.on{background:#081021;border-color:#081021;color:#fff;}
+  .tglbtn.sub{font-size:12px;padding:5px 13px;color:#6B7280;}
+  .tglbtn.sub.on{background:#4B5563;border-color:#4B5563;color:#fff;}
 </style>
-<div style="display:flex;justify-content:center;gap:8px;margin:-8px 0 22px">
-  <button class="tglbtn on" id="tgl-opt1" onclick="setDemoState('opt1')">Option 1</button>
-  <button class="tglbtn" id="tgl-opt2" onclick="setDemoState('opt2')">Option 2</button>
-  <button class="tglbtn" id="tgl-opt3" onclick="setDemoState('opt3')">Option 3</button>
+<!-- 一级只放"看哪一版",备选方案收进 Backup —— 三个并排会让人以为
+     它们是三个平级候选,实际上主方案只有一个,Option 2/3 是留档的对照。
+     主方案不叫 "Option 1":它不是候选之一,就是这次要看的东西。 -->
+<div style="display:flex;justify-content:center;gap:8px;margin:-8px 0 0">
+  <button class="tglbtn on" id="tgl-opt1" onclick="setDemoState('opt1')">Demo</button>
+  <button class="tglbtn" id="tgl-backup" onclick="setDemoState(lastBackup)">Backup</button>
 </div>
+<div id="backupRow" style="display:none;justify-content:center;gap:6px;margin:9px 0 0">
+  <button class="tglbtn sub" id="tgl-opt2" onclick="setDemoState('opt2')">Option 2</button>
+  <button class="tglbtn sub" id="tgl-opt3" onclick="setDemoState('opt3')">Option 3</button>
+</div>
+<div style="height:22px"></div>
 
 <div class="stage">
   <div class="phone" id="phone"></div>
@@ -713,9 +737,9 @@ const FEED_UPDATE_QUOTA = 3;
      USE_CAPS    = chips 是"能力两层"(能力 → 整句建议),否则是六条现成 query
      MIX_UPDATES = 收藏更新混入双列流,否则收在顶部独立区
 
-   Option 1 = 能力 chips + 混入流(主方案,默认)
-   Option 2 = query chips + 混入流
-   Option 3 = query chips + 顶部独立区
+   Demo(opt1)     = 能力 chips + 混入流(主方案,默认)
+   Backup/Option 2 = query chips + 混入流
+   Backup/Option 3 = query chips + 顶部独立区
 
    开关按行为命名,不按选项编号命名 —— 编号是会变的(这三个方案已经整体
    重排过一次),叫 IS_OPT1 的东西一旦编号一换就全是错的,而且这个错不报错。
@@ -729,14 +753,19 @@ const DEMO = {
 let USE_CAPS = true;
 let MIX_UPDATES = true;
 let likesState = 'opt1';
+let lastBackup = 'opt2';          /* 点 Backup 回到上次看的那一版 */
 function setDemoState(s) {
   likesState = s;
   USE_CAPS = DEMO[s].caps;
   MIX_UPDATES = DEMO[s].mix;
+  if (s !== 'opt1') lastBackup = s;
   ['opt1','opt2','opt3'].forEach(k => {
     const b = document.getElementById('tgl-'+k);
     if (b) b.classList.toggle('on', k === s);
   });
+  document.getElementById('tgl-backup')?.classList.toggle('on', s !== 'opt1');
+  const br = document.getElementById('backupRow');
+  if (br) br.style.display = s === 'opt1' ? 'none' : 'flex';
   const wasOpen = document.getElementById('likesTab')?.classList.contains('show');
   render();
   if (wasOpen) { lkScanned = true; openLikes(); }
@@ -1085,7 +1114,7 @@ const home = () => {
     </div>
     <div class="askchips">
       ${USE_CAPS
-        ? CAP_CHIPS.map(c=>`<span class="achip" onclick="openCap('${c.k}')"><span class="ci">${CAP_IC[c.k]}</span>${c.t}</span>`).join('')
+        ? CAP_CHIPS.map(c=>`<span class="achip capchip" onclick="openCap('${c.k}')"><span class="ci">${CAP_IC[c.k]}</span>${c.t}</span>`).join('')
         : CF_CHIPS.map(t=>`<span class="achip" onclick="openFocus('${cfEsc(t)}')">${t}</span>`).join('')}
     </div>
     ${!MIX_UPDATES ? `
@@ -1649,7 +1678,7 @@ function openFocus(prefill, prodId, capKey){
             <span class="st">${q}</span><span class="sa">${IC_INS}</span></div>`).join('')}</div>`
     : (USE_CAPS && !p)
       ? `<div class="cf-chips">${CAP_CHIPS.map(c=>
-           `<span class="cf-chip" onclick="openCap('${c.k}')"><span class="ci">${CAP_IC[c.k]}</span>${c.t}</span>`).join('')}</div>`
+           `<span class="cf-chip capchip" onclick="openCap('${c.k}')"><span class="ci">${CAP_IC[c.k]}</span>${c.t}</span>`).join('')}</div>`
       : `<div class="cf-chips">${chips.map(c=>
            `<span class="cf-chip" onclick="${c.act || `cfType('${cfEsc(c.t)}')`}">${c.t}</span>`).join('')}</div>`;
   document.getElementById('cfocus').innerHTML = `
@@ -1968,6 +1997,20 @@ function toast(msg, act) {
   toastTimer = setTimeout(()=>t.classList.remove('show'), act ? 4200 : 1900);
 }
 function hideToast(){ clearTimeout(toastTimer); document.getElementById('toast')?.classList.remove('show'); }
+/* 量完再决定要不要滚动装饰 —— chips 内容随方案变(4 枚能力 / 6 条 query),
+   放不放得下不能写死在 CSS 里。 */
+function markScrollable(){
+  const r = document.querySelector('.askchips');
+  if (!r) return;
+  r.classList.remove('scrollable');
+  const cs = r.querySelectorAll('.achip');
+  if (!cs.length) return;
+  /* 判据是"最后一枚有没有被切到",不是 scrollWidth —— 容器的右 padding 也算进
+     scrollWidth,四枚能力 chip 因此虚报 6px 溢出,据此加渐隐就会把一枚
+     完整可见的 chip 淡掉半截(看起来像渲染坏了)。 */
+  const last = cs[cs.length - 1].getBoundingClientRect();
+  if (last.right > r.getBoundingClientRect().right + 0.5) r.classList.add('scrollable');
+}
 function render() {
   document.getElementById('phone').innerHTML = statusbar() + home() + fbar() +
     `<div class="scrim" id="scrim" onclick="closeSheet()"></div>
@@ -1981,6 +2024,7 @@ function render() {
      <div class="kbd" id="kbd">${kbdHTML()}</div>
      <div class="toast" id="toast"></div>`;
   phStart();
+  markScrollable();
 }
 render();
 </script>
