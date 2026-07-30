@@ -172,7 +172,7 @@
     border-radius: 6px; padding: 3.5px 6px; box-shadow: 0 1px 3px rgba(8,16,33,.10);
     font-size: 8.5px; font-weight: 700; letter-spacing: .5px; color: var(--black); }
 
-  /* Likes 常驻角标入口(quiet=安静图标,有事件=蓝色计数徽标) */
+  /* Likes 常驻角标入口 */
   .screen-body { position: relative; }
   .lk-corner { position: absolute; top: 8px; right: 14px; width: 38px; height: 38px; z-index: 20;
     display: flex; align-items: center; justify-content: center; cursor: pointer; }
@@ -551,9 +551,8 @@
   .tglbtn.on{background:#081021;border-color:#081021;color:#fff;}
 </style>
 <div style="display:flex;justify-content:center;gap:8px;margin:-8px 0 22px">
-  <button class="tglbtn on" id="tgl-active" onclick="setDemoState('active')">有更新 · 顶部独立区</button>
-  <button class="tglbtn" id="tgl-option2" onclick="setDemoState('option2')">有更新 · 混入双列流</button>
-  <button class="tglbtn" id="tgl-quiet" onclick="setDemoState('quiet')">无更新</button>
+  <button class="tglbtn on" id="tgl-opt1" onclick="setDemoState('opt1')">Option 1</button>
+  <button class="tglbtn" id="tgl-opt2" onclick="setDemoState('opt2')">Option 2</button>
 </div>
 
 <div class="stage">
@@ -651,16 +650,18 @@ const SAVED_UPDATES = {
    而且散在流里反而更难看全 —— 分发解决的是"偶遇",不解决"集中清点"。
    超出的更新只走 ♡ 徽标计数 + Likes 页的 Updates 区,那里才是清点的地方。 */
 const FEED_UPDATE_QUOTA = 3;
-let HAS_EVENTS = true;
-/* active / quiet / option2。option2 = active 的副本,用来并排试新方案,
-   两边共用同一份数据,差异只写在 IS_OPT2 的分支里,便于直接对照。 */
-let IS_OPT2 = false;
-let likesState = 'active';
+/* 两个方案并排对照,共用同一份数据,差异只写在 IS_OPT1 的分支里:
+     opt1 = 收藏更新混入双列流,不设顶部区(主方案,默认)
+     opt2 = 收藏更新收在顶部独立区
+   代码里的名字与界面按钮保持一致 —— 曾出现过 option2 其实指界面上的 Option 1,
+   两套命名对不上,读代码时极易搞反。
+   "无更新"态已从 demo 移除,故不再需要 HAS_EVENTS 开关。 */
+let IS_OPT1 = true;
+let likesState = 'opt1';
 function setDemoState(s) {
   likesState = s;
-  HAS_EVENTS = (s !== 'quiet');
-  IS_OPT2 = (s === 'option2');
-  ['active','quiet','option2'].forEach(k => {
+  IS_OPT1 = (s === 'opt1');
+  ['opt1','opt2'].forEach(k => {
     const b = document.getElementById('tgl-'+k);
     if (b) b.classList.toggle('on', k === s);
   });
@@ -668,7 +669,7 @@ function setDemoState(s) {
   render();
   if (wasOpen) { lkScanned = true; openLikes(); }
 }
-function setEvents(v) { setDemoState(v ? 'active' : 'quiet'); }
+
 let sheetId = null;
 
 /* ---------- PDP data(价格与卡片对齐) ---------- */
@@ -949,7 +950,7 @@ const home = () => {
      插卡排布规则:cells 按 i%2 分列,故 index 差 2 = 同列相邻、差 1 = 左右并排。
      四张插卡放在 3 / 6 / 11 / 14 —— 两两间隔 ≥3,同列内各隔 3 个商品卡,
      且不与首屏前两坑重合(问句卡最早出现在右列第 2 位)。 */
-  const cells = IS_OPT2 ? [
+  const cells = IS_OPT1 ? [
     /* opt2:顶部不设独立入口区,收藏更新直接进流(配额见 FEED_UPDATE_QUOTA)。
        四张 query 卡覆盖四种 attachment 形态,顺序上尽量拉开。 */
     scard('sneaker'),   gcard('tote'),
@@ -1003,7 +1004,7 @@ const home = () => {
   return `
   <div class="screen-body" id="sb">
     <div class="lk-corner" onclick="openLikes()">
-      ${IC.heartHead}${HAS_EVENTS ? '<span class="badge">3</span>' : ''}
+      ${IC.heartHead}<span class="badge">3</span>
     </div>
     <div class="greet">What are you shopping for today?</div>
     <div class="ask" onclick="openFocus()">
@@ -1011,10 +1012,9 @@ const home = () => {
       <span class="aic">${IC.mic}</span><span class="aic">${IC.plus}</span>
     </div>
     <div class="askchips">
-      ${(HAS_EVENTS ? CF_CHIPS : CF_CHIPS.slice(1))
-        .map(t=>`<span class="achip" onclick="openFocus('${t.replace(/'/g,"\\'")}')">${t}</span>`).join('')}
+      ${CF_CHIPS.map(t=>`<span class="achip" onclick="openFocus('${t.replace(/'/g,"\\'")}')">${t}</span>`).join('')}
     </div>
-    ${(HAS_EVENTS && !IS_OPT2) ? `
+    ${!IS_OPT1 ? `
     <div class="sec">
       <div class="sec-head" onclick="openLikes()">
         <div><div class="t">Updates from your likes</div></div>
@@ -1024,7 +1024,7 @@ const home = () => {
     </div>` : ''}
     <div class="sec">
       <div class="sec-head" style="cursor:default">
-        <div><div class="t">Daily Picks</div>${IS_OPT2 ? '' : '<div class="s">From your chats with Migoo</div>'}</div>
+        <div><div class="t">Daily Picks</div></div>
       </div>
       <div class="grid"><div class="gcol">${c1.join('')}</div><div class="gcol">${c2.join('')}</div></div>
     </div>
@@ -1228,11 +1228,10 @@ function lkRow(pid){
   </div>`;
 }
 function lkSubtitle(){
-  if (likesState === 'quiet') return '<span class="lk-mono lk-ink" style="font-weight:600">Watching all 8</span> · all steady';
   return '8 saves · checked just now';
 }
 function lkBodyHTML(){
-  return likesState === 'quiet' ? lkBodyQuiet() : lkBodyActive();
+  return lkBodyActive();
 }
 function lkBodyActive(){
   return `
@@ -1251,12 +1250,6 @@ function lkBodyActive(){
          <button class="lk-btn" onclick="event.stopPropagation();lkToast('Still watching — I\\'ll ping you if it drops more')">Keep watching</button>`)}
       <div class="lk-sec lk-reveal"><span class="st">Other saves</span></div>
       ${['tote','backpack','sunglasses','bottle','sneaker2'].map(lkRow).join('')}
-      <div style="height:20px"></div>`;
-}
-function lkBodyQuiet(){
-  return `
-      <div style="height:10px"></div>
-      ${['sneaker','watch','phones','tote','backpack','sunglasses','bottle','sneaker2'].map(lkRow).join('')}
       <div style="height:20px"></div>`;
 }
 function likesTab(){
