@@ -264,8 +264,6 @@
      有没有,才是要不要点进去的分界。 */
   .lk-corner .dot { position: absolute; top: 3px; right: 2px; width: 8px; height: 8px;
     border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 2px #fff; }
-  .lk-seg .sg .sdot { display: inline-block; width: 6px; height: 6px; border-radius: 50%;
-    background: var(--brand); margin-left: 5px; vertical-align: 1.5px; }
 
   /* PDP 内能力动作(场景预览/试穿——生成能力的落点) */
   .pdp-scene { margin: 10px 16px 0; font-size: 13px; font-weight: 600; color: var(--brand); cursor: pointer; }
@@ -903,6 +901,7 @@
   .cf-chips.rows2 { display: block; }
   .cf-chips.rows2 .r { display: flex; gap: 8px; width: max-content; }
   .cf-chips.rows2 .r + .r { margin-top: 8px; }
+  .cf-chip.act { color: var(--lk-bad, #D93B3B); }
   /* 能力选中态:能力从"输入框里的一枚标签"升格成这一段的抬头 ——
      它此刻是整个 dock 的范围,不只是输入框的一个附件。× 摘掉即退回空态。 */
   .dk-cap { display: flex; align-items: center; gap: 7px; padding: 13px 0 10px;
@@ -989,6 +988,7 @@
 <div style="display:flex;justify-content:center;gap:8px;margin:-8px 0 0">
   <button class="tglbtn on" id="tgl-opt1" onclick="setDemoState('opt1')">Demo</button>
   <button class="tglbtn" id="tgl-opt43" onclick="setDemoState('opt43')">Demo 2</button>
+  <button class="tglbtn" id="tgl-opt431" onclick="setDemoState('opt431')">Demo 2-1</button>
   <button class="tglbtn" id="tgl-opt42" onclick="setDemoState('opt42')">Option 4-2</button>
   <button class="tglbtn" id="tgl-backup" onclick="setDemoState(lastBackup)">Backup</button>
 </div>
@@ -1148,6 +1148,10 @@ const DEMO = {
   opt43:{ caps:true,  mix:true,   sheet:true,  agent:true,  watch:true,  dock:true, dockcap:'tag',
           homecomp:true, runsui:true, expand:false, watchcompose:true, quote1:true, pdplean:true,
           likesplit:true },
+  /* Demo 2-1:形状规则从三种降到两种 —— 见 SUG_PILL */
+  opt431:{caps:true,  mix:true,   sheet:true,  agent:true,  watch:true,  dock:true, dockcap:'tag',
+          homecomp:true, runsui:true, expand:false, watchcompose:true, quote1:true, pdplean:true,
+          likesplit:true, sugpill:true },
   opt5: { caps:true,  mix:true,   sheet:true,  agent:false, watch:false },
 };
 let USE_CAPS = true;
@@ -1195,6 +1199,13 @@ let PDP_LEAN = false;
    两者形状不同、位置不同,不会被读成同一类开关的两个。
    创建 auto-task 不再有专用按钮 —— 它本来就是一句话,归 Ask。 */
 let LIKE_SPLIT = false;
+/* 形状规则从三种降到两种:
+     方角 + icon = 能力(点开还有下一层)
+     圆 pill     = 一句可以说的话
+   能力选中之后的建议也走 pill —— "裸行"那个第三形态整个消失。
+   裸行的问题是它借用了会话的语法(全宽、左对齐、纯文字紧贴气泡),
+   只靠一个 11px 的 ↘ 撤销;pill 的形状本身就说了"我不是一句被说过的话"。 */
+let SUG_PILL = false;
 let likesState = 'opt1';
 /* 收进 Backup 的历版 —— 一级只留还在推进的那几个。
    加减备选只动这一个数组,setDemoState 里不再有硬编码的 id 比较。 */
@@ -1216,12 +1227,13 @@ function setDemoState(s) {
   QUOTE_ONELINE = !!DEMO[s].quote1;
   PDP_LEAN = !!DEMO[s].pdplean;
   LIKE_SPLIT = !!DEMO[s].likesplit;
+  SUG_PILL = !!DEMO[s].sugpill;
   cthread = [];              /* 换方案等于换一条线程,不要串味 */
   upUnreadN = 3; upUnread = true;   /* 换方案就当没看过,便于反复演示 */
   lkTab = 'updates';
   const isBackup = BACKUP.includes(s);
   if (isBackup) lastBackup = s;
-  ['opt1','opt2','opt3','opt4','opt41','opt42','opt43','opt5'].forEach(k => {
+  ['opt1','opt2','opt3','opt4','opt41','opt42','opt43','opt431','opt5'].forEach(k => {
     const b = document.getElementById('tgl-'+k);
     if (b) b.classList.toggle('on', k === s);
   });
@@ -2096,7 +2108,7 @@ function lkBodyActive(){
        挂上计数就又变回了"筛选出多少条"的读法。 */
     const tabs = AT_RUNS ? `
       <div class="lk-seg lk-reveal">
-        <span class="sg${lkTab==='updates'?' on':''}" onclick="lkSetTab('updates')">Runs${upUnread ? '<i class="sdot"></i>' : ''}</span>
+        <span class="sg${lkTab==='updates'?' on':''}" onclick="lkSetTab('updates')">Runs</span>
         <span class="sg${lkTab==='tasks'?' on':''}" onclick="lkSetTab('tasks')">Tasks</span>
       </div>` : `
       <div class="lk-filter lk-reveal">
@@ -2203,7 +2215,6 @@ let lkScanned = false, lkScanT = [];
    要有一个用户主动的动作,这个点才该退场,否则它从没起过作用。 */
 function lkSetTab(t){
   lkTab = t;
-  if (t === 'updates') lkMarkRead();   /* 明确点了 Runs = 看过了,点当场消失 */
   renderLikesBody();
   /* 换 tab 要回到顶部 —— 两个 tab 内容长度不同,沿用上一个的滚动位置
      会让人落在列表中间,甚至落到内容之外的空白。 */
@@ -2260,20 +2271,19 @@ function goWatchChips(id){ openFocus('', id, null, true); }
      · 离开这一页 —— 默认落地就在 Updates,不点 tab 也已经看过了;
        不在这里兜住,退出去铃铛还挂着 3,等于告诉他"你没看过"。
    清 badge 走 DOM 而不是重渲首页:首页在浮层底下,重渲会重跑瀑布流布局。 */
-/* 两个点,两个时机 —— 它们说的不是同一件事:
-     电商 tab 上那个点 = "这里面有新东西",你进来了就已经知道了,当场清掉。
-     Runs 上那个点 = "新东西在这个面里",它得在你落地之后还看得见,
-     否则它唯一的职责(告诉你该看哪个面)就没机会履行;离开这一页才算看过。
-   这也是为什么不能共用一个布尔:一个在进门时清,一个在出门时清。 */
+/* 未读只在电商 tab 的铃铛上出一个点,进门即清。
+   Runs 段上曾经也挂过一个点(意思是"新东西在这个面里"),删了 ——
+   Runs 本来就是落地默认的那一面,那个点在指着你已经站着的地方,信息量为零,
+   却要为它单开一个布尔和一套"出门才清"的时机。 */
 function clearHomeDot(){
-  upUnreadN = 0;
-  const c = document.querySelector('.lk-corner');
-  c?.querySelector('.badge')?.remove();
-  c?.querySelector('.dot')?.remove();
+  upUnreadN = 0; upUnread = false;
+  /* 不能用 .lk-corner 取第一个 —— 分家之后第一个是 ♡,点挂在后面那枚铃铛上。
+     直接取点本身,不去猜它挂在哪一枚上。 */
+  document.querySelector('.lk-corner .dot')?.remove();
+  document.querySelector('.lk-corner .badge')?.remove();
 }
-function lkMarkRead(){ clearHomeDot(); upUnread = false; }
 function closeLikes(){
-  lkMarkRead();
+  clearHomeDot();
   const el = document.getElementById('likesTab');
   if (el) el.classList.remove('show');
   lkCloseMenus();
@@ -2584,13 +2594,22 @@ function openFocus(prefill, prodId, capKey, watchOnly){
           <span class="cf-send off" id="cfSend" onclick="cfSend()">${IC.upSm}</span>
         </div>
       </div>`;
+    /* SUG_PILL:能力选中后建议也用 pill,单行横滑 —— 和首页那排、商品那排完全同一个排法。
+       砍掉裸行却换来一个"两行横滑"的新布局,等于没赚;这一版要的就是少一种形态。
+       代价是一眼只看得到一条半建议,但它们本来就是"可以这么说"的例子,不是必须读完的菜单 ——
+       真正说清该填什么的是占位符(For what occasion?)。 */
+    const dkTop = (cap && SUG_PILL)
+      ? `<div class="cf-chips">${cap.qs.map(q => { const t = q.t || q;
+          return `<span class="cf-chip${q.act?' act':''}" onclick="${q.act || `cfType('${cfEsc(t)}')`}">${t}</span>`;
+        }).join('')}</div>`
+      : dockTop;
     if (cap && DOCK_CAP === 'panel') {
       openDockComposer(`<div class="dk-panel">
         <div class="dk-cap"><span class="ci">${CAP_IC[cap.k]}</span><b>${cap.t}</b>
           <span class="dx" onclick="cfDropCap()">${IC_X}</span></div>
         ${rows2HTML(cap.qs)}${inputHTML}</div>`, '');
     } else {
-      openDockComposer(dockTop, inputHTML);
+      openDockComposer(dkTop, inputHTML);
     }
     return;
   }
@@ -2623,8 +2642,9 @@ function openFocus(prefill, prodId, capKey, watchOnly){
 /* 两行横滑:按下标奇偶分到两行,两行宽度自然接近,不会一行长一行空。
    每个 chip 各按自己的文字取宽 —— 定宽会在短句后面拖一大截空白。 */
 function rows2HTML(list){
-  const row = a => `<div class="r">${a.map(q=>
-    `<span class="cf-chip" onclick="cfType('${cfEsc(q)}')">${q}</span>`).join('')}</div>`;
+  const row = a => `<div class="r">${a.map(q=>{ const t = q.t || q;
+    return `<span class="cf-chip${q.act?' act':''}" onclick="${q.act || `cfType('${cfEsc(t)}')`}">${t}</span>`;
+  }).join('')}</div>`;
   const r1 = list.filter((_,i)=>i%2===0), r2 = list.filter((_,i)=>i%2===1);
   return `<div class="cf-chips rows2">${row(r1)}${r2.length ? row(r2) : ''}</div>`;
 }
