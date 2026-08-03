@@ -2456,10 +2456,11 @@ const IC_INS = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><pat
 /* 引用了具体商品时换一组"对这件东西"的 query;尺码/试穿只对服饰类出 */
 const CF_CHIPS_PROD = ['More like this','Find it cheaper','Is this a good price?'];
 /* like 分家之后,PDP 上一个 auto-task 的痕迹都没有 —— 创建走 Ask 里这一枚。
-   形状就是普通的圆 pill,不加 icon:这一排全是"关于这件东西你可以问什么",
-   它只是其中一句,不该被打扮成一个另有层级的东西。
-   (点它仍然进条件那一层 —— 那是这句话的自然下一步,不是它的身份。) */
-const CF_CHIP_REMIND = (id) => ({ t:'Remind me when…', act:`openFocus('', '${id}', null, true)` });
+   它就是一句半成品的话:点了把 "Remind me when " 键进输入框,用户自己说完。
+   不再进"能力"那一层(蓝标签 + 一屏条件裸行)—— 形状是句子,行为就该是句子;
+   之前那一层让形状和行为各说各的,而且为了一个条件多铺了一屏。
+   条件不用穷举给他:说不全的部分,agent 收到之后追问一句就够了。 */
+const CF_CHIP_REMIND = () => ({ t:'Remind me when…', act:`cfType('Remind me when ')` });
 const CF_CHIPS_WEAR = ['What size should I get?'];
 /* watch 态下,商品 composer 的 chips 换成四条"到什么时候告诉我" ——
    它们是句子不是选项,点了键入输入框,发出去就是一条任务。
@@ -2531,7 +2532,7 @@ function openFocus(prefill, prodId, capKey, watchOnly){
   const chips = !p ? CF_CHIPS.map(t=>({t}))
     : cfWatch ? watchChips(cfProd).map(t=>({t}))
     : ((p.tryon && !CHAT_DOCK) ? [{t:'Try it on', act:`openTryOn('${cfProd}')`}] : [])
-        .concat(LIKE_SPLIT ? [CF_CHIP_REMIND(cfProd)] : [], CF_CHIPS_PROD.map(t=>({t})), p.tryon ? CF_CHIPS_WEAR.map(t=>({t})) : []);
+        .concat(LIKE_SPLIT ? [CF_CHIP_REMIND()] : [], CF_CHIPS_PROD.map(t=>({t})), p.tryon ? CF_CHIPS_WEAR.map(t=>({t})) : []);
   /* USE_CAPS 且无商品引用时走两层。选中能力后这一排换成该能力的整句建议 ——
      能力已经以标签形式挂在输入框里,再留一排 chips 就是同一件事占两处。
      引用了具体商品时不换 —— 那时上下文已经收窄到这件东西,再摆一遍全局能力是噪音。 */
@@ -2681,7 +2682,9 @@ function cfSend(){                                     /* 用户主动发送 →
   const q = cfValue, ctx = cfProd;
   /* 在 Auto-task 标签下发出去的那一句,就是这条任务成立的时刻 —— 铃铛在这里才变实心。
      铃铛本身不再是开关(它现在是入口),所以状态必须由"说出口"来推进。 */
-  if (cfWatch && ctx) {
+  /* !LIKE_SPLIT 是必须的:分家之后 saved 就是收藏集合,
+     在这里写进去等于"设了个提醒顺手把商品收藏了" —— 正是这一版要拆掉的混淆。 */
+  if (cfWatch && ctx && !LIKE_SPLIT) {
     saved.add(ctx);
     const pill = document.getElementById('pdpSave');
     if (pill) { pill.innerHTML = IC.bell(true); pill.setAttribute('aria-label','Auto-task on'); }
