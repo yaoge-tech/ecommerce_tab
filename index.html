@@ -14,6 +14,9 @@
     --text-40:    rgba(0,0,0,0.40);
     --grey-99:    #999999;
     --chip-bg:    #F3F4F6;
+    /* 被引用的商品块专用底色 —— 比 chip-bg 再浅一档。
+       它在卡里只是"这件东西"的一个记号,不该和卡本身争分量。 */
+    --ref-bg:     #F9FAFB;
     /* Migoo 说话的底色。全站一条规则:白=货 · 灰=Migoo 在说话 · 蓝=你说的话。
        会话 AI 气泡与流内插卡共用它 —— 插卡就是"Migoo 在流里插了句话",
        点进去是同一段对话,底色一致这件事不需要任何文案解释。 */
@@ -58,6 +61,43 @@
      we looking 把 Migoo 放进这件事里 —— 一个纯购物网站说不出这个 we。 */
   .greet { font-family: var(--serif); font-size: 32px; line-height: 1.16; font-weight: 600;
     letter-spacing: -0.4px; color: var(--black); text-align: center; padding: 14px 36px 0; }
+  /* 入口跟着输入框走:输入框在视野里就贴在它左侧,滚走了才浮起来。
+
+     曾经把它收进输入框「里」,那是错的 —— 输入框里的东西,惯例上一律读作
+     标签或状态(搜索放大镜、货币符号、@ 前缀),没有一个是可点的。
+     结果是:碰那块区域的动作意图是"我要打字",却弹出一个会话 ——
+     不是"发现不了",是一个熟悉手势给出了意外结果,更伤。
+     让它最擅长说"这个框属于谁"的位置,恰好是最不像"点我"的位置,不能兼得。
+
+     所以放回框外,但不是之前那版 52px 实心黑圆(全屏最重、黑在色系里没出处)。
+     40px 品牌蓝:在框外实心圆就是按钮,读法没有歧义;体量退到headline之下;
+     蓝是首屏唯一的品牌色块,自然读成"这一屏唯一可交互的强调"。 */
+  .askrow { display: flex; align-items: center; gap: 10px; margin: 22px 16px 6px; }
+  .askrow .ask { flex: 1; min-width: 0; margin: 0; }
+  /* 两枚 agent 头像统一成白底圆:图形缩在圆里,不做满幅裁切。
+     mshop 的标是"Migoo 的脸 + 右下角购物袋",满幅圆裁会削掉袋子那一角,
+     而袋子是它唯一说"电商"的部件。缩进来就都保得住,两个 agent 也同形同大小。
+     图片已抠掉原有的浅灰底并裁到内容外接框,否则白圆里会浮出一个方块。 */
+  .askbot { flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; position: relative;
+    background: #fff; box-shadow: 0 2px 9px rgba(8,16,33,.14); }
+  /* 两个 agent 的标都缩到 76% 站在白圆里 —— 同形、同大小、同留白。
+     它们在界面上是并列的两个 agent,不该一个满幅一个缩进去。 */
+  .askbot img { width: 76%; height: 76%; object-fit: contain; }
+  /* dock 版里点头像和点输入框走的是同一件事,两个并排的可点区域说的是同一句话。
+     并进来 —— 它不再是"另一个入口",而是这个输入框归谁管的标记。
+     不挂 onclick:点击冒泡给 .ask,一个动作只留一处定义。 */
+  /* 头像进框之后,框底不能还是 #F3F4F6 —— 白圆压在上面对比太硬,
+     两个本该是一体的东西看起来像贴上去的。压浅到 #F7F8FA:
+     仍然不是纯白(输入框得看得出是个可写的槽),但白圆坐进去是坐着,不是浮着。 */
+  .ask.withbot { padding-left: 7px; gap: 10px; background: #F7F8FA; }
+  .askbot.inbox { width: 38px; height: 38px; box-shadow: none; cursor: text; }
+  /* 这里曾挂过一个"可续聊"的绿点,删了。三个毛病:
+       · 判断条件是"线程里有内容",第一次用完就永远为真 —— 永远亮着等于没提示
+       · 点这个形状在所有 App 里都读作"有未读",而它只是"有历史",语义借错了
+       · 绿在本文件已经是"价格划算"(--lk-good),同色第三种含义
+     以后若 mshop 会主动往线程里说话,再用右上角 ♡ 那套(蓝底 + 数字),
+     一个"有 N 件新东西"的约定,不要两套。 */
   .ask { margin: 22px 16px 6px; height: 52px; border-radius: 26px; background: var(--chip-bg);
     display: flex; align-items: center; padding: 0 16px 0 20px; cursor: text; gap: 14px; }
   /* placeholder 轮播:一条只能说一件事,轮播才说得清"你可以怎么说"。
@@ -71,6 +111,9 @@
   .ask .aic { display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
   /* Ask 下的 query 推荐 chips:能力外露 + 个性化 query */
   .askchips { display: flex; gap: 7px; overflow-x: auto; padding: 10px 16px 0; }
+  /* 问候语之下给一大段,确立它是统领;块内(chips → 输入框 → 内容)一路收紧 */
+  .askchips.above { padding: 32px 16px 0; }
+  .askchips.above + .askrow { margin-top: 11px; }
   .askchips::-webkit-scrollbar { height: 0; }
   /* 收尾块 + 右缘渐隐,只在这一排真的放不下时才加(见 markScrollable):
      · 收尾块 —— 横向滚动容器的右 padding 不作数,滑到底最后一枚会贴死在边上
@@ -96,6 +139,14 @@
 
   /* ---------- sections ---------- */
   .sec { margin-top: 26px; }
+  /* 这个标题一度被我拿掉,是错的,把弯路记下来:
+     这一页是两段,不是"一个区加一片内容" ——
+       上半主动:告诉我你要什么,我来接(问候语 + chips + 输入框)
+       下半被动:你没说的时候,我给的
+     两种模式、两个命题,第二段必须有名字。拿掉之后底色、细线、渐变都试过,
+     全是在替一个本该由标题承担的职责找替身,一个比一个别扭。
+     该修的只是措辞:"Daily" 是假承诺(这片内容刷一次就换,不是每天一编),
+     换成第一人称、不许频率的说法即可。 */
   .sec-head { display: flex; align-items: center; justify-content: space-between; padding: 0 16px; cursor: pointer; }
   .sec-head .t { font-family: var(--serif); font-size: 21px; font-weight: 600; letter-spacing: -0.2px; color: var(--black); }
   .sec-head .s { font-size: 13px; color: var(--text-65); margin-top: 3px; }
@@ -196,9 +247,25 @@
   .screen-body { position: relative; }
   .lk-corner { position: absolute; top: 8px; right: 14px; width: 38px; height: 38px; z-index: 20;
     display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .lk-corner.lk-corner2 { right: 52px; }
+  /* 两枚角标时,居中的第一行会顶到 ♡ 上(实测只差 6px,且纵向完全重叠)。
+     居中的行不会因为容器变窄而移位,加左右留白没用 —— 只能让出纵向:
+     角标提到 4px,标题从它们下沿开始。代价是顶部比单角标那版低一截,
+     换不挤;这也把角标那一条读成了自己的一行,而不是压在标题肩上。 */
+  /* ♡ 在 DOM 里排在 🔔 前面,用 ~ 把两枚一起提上去 */
+  .lk-corner2, .lk-corner2 ~ .lk-corner { top: 4px; }
+  /* 46px 是按角标的**外框**(4..42)让的,但框里的图形只有 ~16px 高、上下各空一截,
+     图形实际到 31 就结束了。按框让位就在下面白空出一大块 —— 按墨迹让,34 就够。 */
+  .greet.twoicon { padding-top: 34px; }
   .lk-corner .badge { position: absolute; top: 2px; right: 0; min-width: 17px; height: 17px; padding: 0 4px;
     border-radius: 9px; background: var(--brand); color: #fff; font-size: 10.5px; font-weight: 700;
     line-height: 17px; text-align: center; }
+  /* 数字换成点:"还剩几条没读"这个数每读一条就要跳一次,而它对决策没用 ——
+     有没有,才是要不要点进去的分界。 */
+  .lk-corner .dot { position: absolute; top: 3px; right: 2px; width: 8px; height: 8px;
+    border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 2px #fff; }
+  .lk-seg .sg .sdot { display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--brand); margin-left: 5px; vertical-align: 1.5px; }
 
   /* PDP 内能力动作(场景预览/试穿——生成能力的落点) */
   .pdp-scene { margin: 10px 16px 0; font-size: 13px; font-weight: 600; color: var(--brand); cursor: pointer; }
@@ -239,9 +306,9 @@
   .tab.on img.logo { filter: none; }
 
   /* ---------- 试穿预览浮层 ---------- */
-  .scrim { position: absolute; inset: 0; background: rgba(8,16,33,0.42); z-index: 93; display: none; }
+  .scrim { position: absolute; inset: 0; background: rgba(8,16,33,0.42); z-index: 99; display: none; }
   .scrim.show { display: block; }
-  .sheet { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 94;
+  .sheet { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 100;
     background: #fff; border-radius: 28px; padding: 20px 18px 16px;
     transform: translateY(140%); visibility: hidden;
     transition: transform .28s cubic-bezier(.32,.72,0,1), visibility 0s linear .28s;
@@ -261,6 +328,66 @@
      ============================================================ */
   .chat { position: absolute; inset: 0; z-index: 90; background: #fff; display: none; flex-direction: column; }
   .chat.show { display: flex; }
+  /* ============================================================
+     会话浮层(A):同一个 #chat、同一套流式管线,只是挂载方式变了。
+     不另起一个组件 —— 会话是一层,不是另一个地方,这和 PDP 是同一条规则。
+     底边停在 tabbar 之上:tabbar 一直露着,才说得清"你没离开电商 tab"。
+     层级 88 < PDP 91/92:浮层里点商品,PDP 仍然叠在它上面。
+     ============================================================ */
+  /* 盖住 tabbar(模型:模态浮层)。
+     曾经把底边停在 tabbar 之上,想用"tab 还亮着"证明你没离开电商 tab ——
+     但那和浮层自带的遮罩自相矛盾:遮罩说"后面不能碰",露着的 tabbar 说"随时能走",
+     而且此时点 Tasks 会发生什么并没有定义 —— 看得见却行为未定的控件比盖住更糟。
+     "你没离开"由别的东西承载:上方一直露着的、变暗的原页面;关掉回到一模一样的
+     滚动位置;没有 tab 切换的转场。这三条比一条图标带更硬。
+     要退回"边逛边聊"的伴随面板形态,该去掉的是遮罩,不是把 tabbar 让出来。
+
+     overflow:hidden 是必须的 —— .chead 自带白底,不裁的话它会盖住父级的圆角,
+     顶边就成了一条直线(圆角写了却看不见)。 */
+  .chat.sheetmode { inset: auto 0 0 0; top: 11%; z-index: 88; overflow: hidden;
+    border-radius: 20px 20px 0 0; box-shadow: 0 -12px 40px rgba(8,16,33,.16);
+    transform: translateY(100%);
+    transition: transform .34s cubic-bezier(.32,.72,0,1), top .34s cubic-bezier(.32,.72,0,1); }
+  /* 展开 = 同一层变高,不是换一个地方。留 5% 不铺满是有代价意识的:
+     顶上那道变暗的原页面 + 露出来的圆角,是"你还没离开"唯一的证据。
+     铺到 top:0 就没有圆角也没有底页了,它会被读成整页,而整页的返回该回哪里
+     又是另一套语义 —— 那正是这次要拆掉的东西。 */
+  .chat.sheetmode.tall { top: 4%; }
+  .chat.sheetmode.show { display: flex; transform: translateY(0); }
+  .chat.sheetmode.top { z-index: 96; }
+  .chat.sheetmode .chead { padding: 16px 16px 10px; }
+  .chat.sheetmode .cback, .chat.sheetmode .cdoc { top: 14px; }
+  .chat.sheetmode .cbody { padding-bottom: 12px; }
+  /* 盖住 tabbar 后,底部要自己补出 home indicator 的安全区 */
+  .chat.sheetmode .cdock { padding-bottom: 26px; }
+  .chat-scrim { position: absolute; inset: 0; background: rgba(8,16,33,.28);
+    z-index: 87; opacity: 0; pointer-events: none; transition: opacity .3s; }
+  .chat-scrim.show { opacity: 1; pointer-events: auto; }
+  .chat-scrim.top { z-index: 95; }
+  .csheet-grab { position: absolute; top: 7px; left: 50%; transform: translateX(-50%);
+    width: 36px; height: 4px; border-radius: 2px; background: rgba(0,0,0,.16); }
+  /* 浮层头:身份 + 一句它管什么 + 展开到整页的逃生口 */
+  .chat.sheetmode .chead .ct { font-size: 15px; }
+  .cagent { display: flex; align-items: center; justify-content: center; gap: 7px; }
+  .cagent img { width: 20px; height: 20px; border-radius: 6px; }
+  .cagent img { border-radius: 6px; }
+  .cexp { position: absolute; right: 46px; top: 14px; width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-40); }
+  /* 浮起来的状态 = 同一枚头像脱离输入框,不是换一个东西。
+     所以它是放大的 .askbot(46px,同样是圆),不是一条深色带文字的胶囊 ——
+     那条胶囊犯的是和 52px 黑圆一样的错:为一个次要动作做成全屏最重的元素,
+     而且和贴在框里时长得不像同一个对象,读不出"它只是浮起来了"。
+     文字也去掉:身份由头像说,有没有新东西由绿点说,写字是第三次说同一件事。 */
+  .copilot { position: absolute; right: 16px; bottom: 100px; z-index: 60; display: none;
+    width: 46px; height: 46px; border-radius: 50%; cursor: pointer;
+    align-items: center; justify-content: center; position: absolute;
+    background: #fff; box-shadow: 0 8px 24px rgba(8,16,33,.22), 0 0 0 3px rgba(255,255,255,.9); }
+  .copilot.show { display: flex; }
+  .copilot img { width: 76%; height: 76%; object-fit: contain; }
+
+  /* 上文分隔:重开浮层时说明这些是之前聊过的 */
+  .cthread-sep { text-align: center; font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--text-40); padding: 10px 0 6px; }
   .chat .chead { flex-shrink: 0; position: relative; padding: 54px 16px 12px; text-align: center; background: #fff; }
   .chat .chead .ct { font-size: 17px; font-weight: 600; color: var(--black); letter-spacing: -.3px; line-height: 21px; }
   .chat .chead .cs { font-size: 10.5px; color: var(--grey-99); margin-top: 1px; }
@@ -270,6 +397,12 @@
     display: flex; align-items: center; justify-content: center; cursor: pointer; }
   .chat .cbody { flex: 1; overflow-y: auto; padding: 6px 16px 24px; }
   .chat .cbody::-webkit-scrollbar { width: 0; }
+  /* 任务眉题:沿用产品里已有的写法 —— 会话里创建/修改 autotask 时,
+     气泡顶部挂一条 ⏱ Auto-task updated。它不参与打字机,气泡一出现就在,
+     因为"这句话改动了系统状态"是这条消息的属性,不是它说到一半才成立的事。 */
+  .ma .btag { display: flex; align-items: center; gap: 6px; margin-bottom: 7px;
+    font-size: 11.5px; color: var(--text-40); letter-spacing: -.1px; }
+  .ma .btag svg { flex-shrink: 0; }
   .cts { text-align: center; font-size: 12px; color: var(--grey-99); padding: 12px 0 8px; }
   .mu { display: flex; flex-direction: column; align-items: flex-end; padding: 5px 0; }
   /* 引用条贴在气泡上方,右对齐、比气泡窄 —— 是气泡的注脚而非并列内容 */
@@ -414,6 +547,14 @@
     align-items: center; justify-content: center; gap: 4px; flex-shrink: 0; cursor: pointer; }
   .ask-migoo .ask-logo { width: 24px; height: 24px; display: block; }
   .ask-migoo span { font-size: 12px; color: var(--text-65); }
+  /* dock 版:和电商 tab 输入框里那枚同一个东西,就该长成同一个样子 ——
+     40px 白圆 + 图缩到 76%,而不是一个 24px 小图配一行说明。
+     文字去掉:头像本身就是这个 agent 的名字,写 Ask 是同一件事说两遍;
+     原来的 93px 宽也一并收掉,它把 icon 和 Buy 之间撑出了一大块空。 */
+  .ask-migoo.bot { width: 40px; height: 40px; border-radius: 50%; background: #fff;
+    box-shadow: 0 2px 9px rgba(8,16,33,.14); margin-right: 12px; }
+  .ask-migoo.bot .ask-logo { width: 76%; height: 76%; object-fit: contain; }
+  .pdp-dock:has(.ask-migoo.bot) { padding-left: 14px; }
   .buy-main { flex: 1; height: 48px; border-radius: 12px; background: var(--brand); color: #fff;
     font-size: 16px; font-weight: 510; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
   /* PDP 层级高于会话页(.chat 90)—— PDP 是"在当前页上唤起的一层",
@@ -421,13 +562,18 @@
      先 closeChat() 再开 PDP,用户被弹回电商 tab,退出 PDP 后原来的对话也没了。
      试穿 sheet(93/94)与 composer(95)仍在 PDP 之上,它们是 PDP 内部唤起的东西。 */
   .pdp-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.32);
-    opacity: 0; pointer-events: none; transition: opacity .3s ease; z-index: 91; }
+    opacity: 0; pointer-events: none; transition: opacity .3s ease; z-index: 90; }
+  .pdp-backdrop.top { z-index: 97; }
   .pdp-backdrop.show { opacity: 1; pointer-events: auto; }
   .pdp-overlay { position: absolute; left: 0; right: 0; bottom: 0; top: 10%;
     background: #fff; display: flex; flex-direction: column; overflow: hidden;
     border-radius: 18px 18px 44px 44px; transform: translateY(102%);
     transition: transform .38s cubic-bezier(.32,.72,0,1), top .32s cubic-bezier(.32,.72,0,1), border-radius .3s ease;
-    z-index: 92; box-shadow: 0 -10px 34px rgba(0,0,0,0.16); }
+    z-index: 91; box-shadow: 0 -10px 34px rgba(0,0,0,0.16); }
+  /* PDP 与会话浮层谁在上,取决于谁后打开 —— 写死就一定有一个方向是错的:
+     从卡片进会话 → PDP 该压在会话上;从 PDP 里问一句 → 确认该压在 PDP 上。
+     两边各留一个 .top,由 openPDP / chatShell 按当前状态挂。 */
+  .pdp-overlay.top { z-index: 98; }
   .pdp-overlay.open { transform: translateY(0); }
   .pdp-overlay.full { top: 0; border-radius: 44px; }
   .pdp-overlay.dragging { transition: none; }
@@ -442,6 +588,10 @@
      ============================================================ */
   .tappable{cursor:pointer;}
   .likes-overlay{position:absolute;inset:0;z-index:75;background:#fff;display:flex;flex-direction:column;overflow:hidden;opacity:0;pointer-events:none;transition:opacity .25s ease;}
+  /* 收藏列表压在 PDP 之上 —— 它是从 PDP 的 toast 里叫出来的 */
+  .likes-overlay.likelist{z-index:93;}
+  .ll-grid{padding:14px 16px 0;}
+  .ll-empty{padding:60px 16px;text-align:center;font-size:13.5px;color:var(--text-40);}
   .likes-overlay.show{opacity:1;pointer-events:auto;}
   .lk-header{position:relative;padding:4px 16px 10px;text-align:center;border-bottom:.5px solid var(--line-06);flex-shrink:0;}
   .lk-header .t{font-size:17px;font-weight:600;color:var(--black);letter-spacing:-.3px;line-height:22px;}
@@ -462,7 +612,93 @@
   .lk-body::-webkit-scrollbar{width:0;}
   .lk-fhead{padding:14px 16px 2px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-40);}
   .lk-card{margin:10px 16px 0;border:.5px solid var(--line-09);border-radius:14px;padding:11px 12px;box-shadow:0 1px 4px rgba(0,0,0,.03);position:relative;}
+  /* 指令行:这一行才是任务本身,所以它是卡上分量最重的一行 */
+  .lk-do{font-size:14px;font-weight:650;color:var(--black);letter-spacing:-.2px;line-height:1.3;margin-top:2px;}
+  .lk-card.quiet .lk-do{font-size:13.5px;margin-top:0;}
+  /* 商品降为被引用的对象:图小一档、名字退到次级、价格仍然要看得见 */
+  .lk-card .lk-do + .lk-hd{margin-top:9px;}
+  .lk-card .lk-do ~ .lk-hd img{width:46px;height:46px;border-radius:10px;}
+  .lk-card .lk-do ~ .lk-hd .ttl{font-size:12.5px;font-weight:500;color:var(--text-65);}
+  .lk-card .lk-do ~ .lk-hd .prc{font-size:13px;font-weight:700;margin-top:2px;}
+  .lk-card.quiet .lk-do ~ .lk-hd img{width:46px;height:46px;}
+  .lk-card.quiet .lk-do ~ .lk-hd .lk-ticon{width:46px;height:46px;border-radius:12px;}
   .lk-tag{font-weight:700;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;}
+  /* 缩略图的基样式:早前删 atRow 时把 .at-obj 一起清掉了,只剩尺寸覆盖,
+     图于是按原图尺寸铺开,把整张卡撑爆。 */
+  .at-obj{flex:0 0 auto;width:38px;height:38px;border-radius:10px;overflow:hidden;background:var(--chip-bg);}
+  .at-obj img{width:100%;height:100%;object-fit:cover;display:block;}
+  .at-obj.ico{display:flex;align-items:center;justify-content:center;color:var(--text-65);}
+  .up-day{padding:16px 16px 2px;font-size:11px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--text-40);}
+  .up-card{padding:12px 14px 12px;}
+  .up-from{margin-top:5px;}
+  .up-card .up-hd{margin-top:12px;padding:8px 10px;background:var(--ref-bg);border-radius:12px;}
+  .up-card .lk-acts{margin-top:11px;}
+  /* B · 无容器:层只由字号建立 */
+  .up-flat .up-hd.bare{background:none;padding:0;margin-top:10px;}
+  .up-flat .up-hd.bare .at-obj{width:44px;height:44px;border-radius:11px;}
+  .up-flat .up-hd{align-items:center;}
+  /* C · 引用式:弱(引用条)/ 强(文案 + 商品绑成一体)/ 中(动作,靠更大间距断开)
+     引用条的类名不能叫 .up-quote —— 卡片自身带的是 up-${upStyle} = up-quote,
+     同名会让 display:inline-flex 作用到整张卡上,内容当场排成一行溢出。 */
+  .up-qref{display:inline-flex;align-items:center;gap:5px;max-width:100%;
+    background:var(--ref-bg);border-radius:8px;padding:4px 8px 4px 7px;cursor:pointer;
+    font-size:11px;font-weight:600;color:var(--text-40);letter-spacing:-.1px;}
+  .up-qref svg{width:11px;height:11px;flex-shrink:0;}
+  .up-qref span:first-of-type{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .up-qref .lk-chv{color:rgba(0,0,0,.25);}
+  .up-body{margin-top:10px;}
+  .up-quote-card .up-hd.bare{background:none;padding:0;}
+  .up-quote-card .up-hd.bare .at-obj{width:44px;height:44px;border-radius:11px;}
+  .up-quote-card .up-hd{align-items:center;}
+  .up-quote-card .up-hd.tight{margin-top:8px;}
+  /* 动作一律左对齐:按钮数量不定(1~2 个),
+     推右边缘会让单按钮卡和双按钮卡的落点不一致,读起来是两种卡型。
+     统一左起,右下角的空留着。 */
+  .up-quote-card .lk-acts{margin-top:13px;}
+  .up-hd{display:flex;align-items:flex-start;gap:10px;cursor:pointer;}
+  .up-hd .at-obj{width:44px;height:44px;border-radius:11px;}
+  .up-hd .at-obj.ico svg{width:18px;height:18px;}
+  .up-bd{flex:1;min-width:0;}
+  .up-name{font-size:13px;color:var(--text-87);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .up-spec{font-size:12px;color:var(--text-40);margin-top:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .up-price{flex:0 0 auto;text-align:right;padding-left:10px;}
+  .up-price b{display:block;font-size:14px;font-weight:750;color:var(--black);letter-spacing:-.2px;}
+  .up-price s{display:block;font-size:11.5px;color:var(--text-40);margin-top:1px;}
+  .up-task{flex:1;}
+  /* 状态由句中被强调的词承担,不再头顶挂一个分类标签 */
+  /* 过期的 run:降为记录 —— 它说的事已经被更新的一条取代,
+     留着是为了"我不在的时候发生过什么",不是为了让你现在照着它动手。 */
+  .up-card.past{opacity:.62;}
+  .up-card.past .up-news{font-weight:500;color:var(--text-65);font-size:13.5px;}
+  .up-news{font-size:15px;font-weight:600;color:var(--black);line-height:1.42;letter-spacing:-.2px;margin-top:10px;}
+  .up-news b{font-weight:750;}
+  /* N 个候选:结果是一组东西时,卡上必须看得见它们 */
+  /* 卡里的横滑商品:比首页那排小一档 —— 它是这条更新的证据,不是货架本身。
+     ✦ 也去掉:这一排每张卡上都挂一个"问 Migoo",和卡底下那两个按钮说的是同一件事,
+     而且它把注意力从"选哪个"引到了"再问一次"。 */
+  .up-picks{padding:10px 0 2px;margin:0 -14px 0 0;gap:8px;}
+  .up-picks .hcard{flex:0 0 104px;width:104px;}
+  .up-picks .sparkb{display:none;}
+  .up-picks .cap{padding:6px 0 0;}
+  .up-picks .cap .ttl{font-size:11.5px;line-height:1.3;}
+  .up-picks .cap .pr{font-size:12.5px;margin-top:2px;}
+  .up-task{font-size:11.5px;font-weight:600;color:var(--text-40);letter-spacing:-.1px;cursor:pointer;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .up-task .lk-chv{color:rgba(0,0,0,.25);}
+  .up-hd{margin-top:8px;}
+  .up-list{margin-top:10px;background:var(--chip-bg);border-radius:11px;overflow:hidden;}
+  .up-li{display:flex;align-items:center;gap:10px;padding:8px 11px;font-size:12px;color:var(--text-87);}
+  .up-li + .up-li{border-top:.5px solid rgba(0,0,0,.05);}
+  .up-li .lt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .up-li .lp{font-weight:700;color:var(--black);}
+  .up-li .best{margin-left:7px;font-size:9px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--lk-good);background:rgba(30,158,84,.1);border-radius:5px;padding:2px 5px;}
+  .lk-ago{font-size:9.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text-40);margin-left:6px;}
+  /* 依据:结论之后退一档的第二句 —— 助理给结论,并且交代凭什么这么说。
+     Keepa 之流只甩一张价格曲线让你自己判断,那是工具的做法。 */
+  .lk-note .ev2{display:block;margin-top:5px;color:var(--text-40);font-size:11px;line-height:1.45;}
   .lk-tag.scarce{color:var(--lk-scarce);} .lk-tag.inkt{color:var(--ink);} .lk-tag.deal{color:var(--lk-good);}
   .lk-hd{display:flex;gap:11px;align-items:center;margin-top:9px;}
   .lk-hd img{width:56px;height:56px;border-radius:11px;object-fit:cover;flex-shrink:0;}
@@ -477,8 +713,15 @@
   .lk-note.scarcebg{background:rgba(199,116,0,.07);}
   .lk-note.inkbg{background:rgba(51,80,122,.055);}
   .lk-note.goodbg{background:rgba(30,158,84,.07);}
+  /* 运行记录:没事发生也要说一句 —— 旧的任务页只有配置,看不出它跑没跑;
+     只报结果又会让安静的任务像是死了。所以每一行恒有一句"最近一次怎么样",
+     有事时它升级成带底色的事件行,没事时就是一句灰字。 */
+  .lk-note.run{background:none;padding:5px 2px 0;font-size:11px;color:var(--text-40);}
   .lk-acts{display:flex;gap:6px;margin-top:10px;align-items:center;}
   .lk-btn{font-family:var(--sf);font-size:11.5px;font-weight:600;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid #DCDFE4;background:#fff;color:var(--text-87);}
+  /* 蓝实心只给"买" —— 它是唯一要花钱的动作,颜色就该只标这一件事。
+     一张卡上没有购买动作(比如挑礼物),那它就没有蓝按钮,两个描边按钮并列即可:
+     这本身也是诚实的信息 —— 现在还轮不到下单。 */
   .lk-btn.pri{background:var(--brand);border-color:var(--brand);color:#fff;}
   /* 全部收藏区:卡型与更新卡完全相同,但把视觉重量收回去。
      Updates 那三张是"有事发生了,现在该动手",蓝色实心按钮是这个信号;
@@ -487,6 +730,12 @@
      收法:蓝退成浅色底(与 composer 能力标签同一种淡蓝,不引入新色)、
      行距压紧、图放大一档 —— 让眼睛落在货上,不落在按钮上。 */
   .lk-card.menuup{z-index:30;}
+  /* 无宿主对象的任务:没有商品图,用一个能力记号占住同样的位置,
+     其余排版与商品卡完全一致 —— 同一页里不该有两种卡型的读法。 */
+  .lk-ticon{flex:0 0 auto;width:56px;height:56px;border-radius:14px;background:var(--chip-bg);
+    display:flex;align-items:center;justify-content:center;color:var(--text-65);}
+  .lk-ticon svg{width:22px;height:22px;}
+  .lk-card.quiet .lk-ticon{width:70px;height:70px;border-radius:12px;}
   .lk-card.quiet{padding:11px 12px;margin-top:8px;}
   .lk-card.quiet .lk-hd{margin-top:0;align-items:flex-start;}
   .lk-card.quiet .lk-hd img{width:70px;height:70px;border-radius:12px;}
@@ -509,6 +758,55 @@
   .lk-menu .mi.danger{color:#E8442B;}
   .lk-sec{padding:15px 16px 4px;border-top:8px solid var(--section-gap);margin-top:14px;}
   .lk-sec .st{font-size:13px;font-weight:700;color:var(--black);}
+  /* 任务行:等高、可扫。没有商品卡的排版,也没有一次性的动作按钮。 */
+  .at-list{padding:6px 0 0;}
+  .at-card{margin:10px 16px 0;border:.5px solid var(--line-09);border-radius:14px;padding:13px 14px;
+    box-shadow:0 1px 4px rgba(0,0,0,.03);transition:box-shadow .45s ease,border-color .45s ease;}
+  /* 从 Updates 的引用行跳过来时,那张卡自报家门 —— 蓝环一闪即散,
+     不留任何常驻状态(选中态会让用户以为要再点一次才生效)。
+     用 transition 不用 animation:.at-card 的 animation 槽位被入场的 lkrise 占着。 */
+  .at-card.at-hit{box-shadow:0 0 0 4px rgba(0,122,255,.18),0 1px 4px rgba(0,0,0,.03);
+    border-color:rgba(0,122,255,.55);}
+  .at-hd{display:flex;align-items:center;gap:10px;}
+  .at-name{flex:1;min-width:0;font-size:14.5px;font-weight:650;color:var(--black);letter-spacing:-.2px;cursor:pointer;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .at-rule2{font-size:13px;color:var(--text-87);margin-top:9px;line-height:1.35;}
+  /* 商品 = 这条任务的附件,不是它的一部分 */
+  .at-ref{display:flex;align-items:center;gap:9px;margin-top:9px;padding:6px 10px 6px 6px;
+    background:var(--ref-bg);border-radius:11px;cursor:pointer;}
+  .at-ref img{width:32px;height:32px;border-radius:8px;object-fit:cover;background:#fff;flex-shrink:0;}
+  .at-ref .rt{flex:1;min-width:0;font-size:12px;color:var(--text-87);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .at-ref .rp{font-size:12.5px;font-weight:700;color:var(--black);}
+  .at-notify{font-size:11.5px;color:var(--grey-99);margin-top:3px;}
+  .at-adj{width:100%;margin-top:11px;height:38px;border-radius:10px;background:#fff;
+    border:1px solid rgba(0,122,255,.45);color:var(--brand);font-family:var(--sf);
+    font-size:13.5px;font-weight:600;cursor:pointer;}
+  /* 开关常驻在行上 —— 每一个同类产品都把它当一等动作(ChatGPT pause、
+     Shortcuts/Gemini toggle、Datadog mute),因为任务不合适时用户的第一反应
+     是"先关掉"而不是删掉(删掉就丢了配置)。藏进 ⋯ 是把最高频的动作埋了。 */
+  .at-sw{flex:0 0 auto;width:40px;height:24px;border-radius:12px;background:#E3E5EA;
+    position:relative;cursor:pointer;transition:background .18s;}
+  .at-sw.on{background:var(--lk-good);}
+  .at-sw i{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:#fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .18s;}
+  .at-sw.on i{transform:translateX(16px);}
+  .lk-addbar{flex-shrink:0;display:none;padding:8px 16px 10px;background:#fff;
+    border-top:.5px solid var(--line-06);}
+  .lk-addbar.show{display:block;}
+  .lk-addbtn{width:100%;height:46px;border-radius:13px;border:none;background:var(--brand);color:#fff;
+    font-family:var(--sf);font-size:15px;font-weight:600;letter-spacing:-.2px;cursor:pointer;}
+  /* 分段控件:两个面是同级的两个视图,不是"一个列表 + 一个筛选"。
+     胶囊并排读起来是筛选(可以都不选);滑块在槽里读起来是切换(必有一个在)。
+     选中态由"哪一格是白的"说,不靠深色实心 —— 深色实心在这一页已经是别的意思。 */
+  .lk-seg{display:flex;margin:12px 16px 2px;padding:2px;background:var(--chip-bg);border-radius:999px;}
+  .lk-seg .sg{flex:1;text-align:center;font-size:13.5px;font-weight:600;color:var(--text-65);
+    padding:7px 0;border-radius:999px;cursor:pointer;transition:color .18s ease;letter-spacing:-.1px;}
+  .lk-seg .sg.on{background:#fff;color:var(--black);
+    box-shadow:0 1px 3px rgba(8,16,33,.10),0 0 0 .5px rgba(0,0,0,.04);}
+  .lk-filter{display:flex;gap:7px;padding:12px 16px 2px;}
+  .lf{font-size:12px;font-weight:600;color:var(--text-65);background:#fff;border:1px solid var(--line-09);
+    border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap;}
+  .lf.on{background:#081021;border-color:#081021;color:#fff;}
   .lk-chv{color:rgba(0,0,0,.28);}
   .lk-reveal{opacity:0;transform:translateY(8px);animation:lkrise .4s ease forwards;}
   @keyframes lkrise{to{opacity:1;transform:none;}}
@@ -518,7 +816,7 @@
   /* ============================================================
      模拟键盘 + composer 聚焦态(对齐线上 Migoo 输入规范)
      ============================================================ */
-  .kbd { position: absolute; left: 0; right: 0; bottom: 0; height: 291px; z-index: 96;
+  .kbd { position: absolute; left: 0; right: 0; bottom: 0; height: 291px; z-index: 102;
     background: #D1D4DA; padding: 8px 3px 0; transform: translateY(100%);
     transition: transform .26s cubic-bezier(.32,.72,0,1); }
   .kbd.show { transform: translateY(0); }
@@ -533,7 +831,7 @@
   .kbd .khome { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
     width: 134px; height: 5px; border-radius: 3px; background: rgba(0,0,0,.4); }
 
-  .cfocus { position: absolute; inset: 0; z-index: 95; display: none; }
+  .cfocus { position: absolute; inset: 0; z-index: 101; display: none; }
   .cfocus.show { display: block; }
   .cfocus .cf-scrim { position: absolute; inset: 0; background: rgba(255,255,255,.72);
     backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
@@ -561,6 +859,8 @@
     font-size: 15px; color: var(--text-87); letter-spacing: -.2px; }
   .cf-sug .st { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cf-sug .sa { flex-shrink: 0; display: flex; color: var(--text-40); }
+  /* 动作型条目(停掉这条任务):不是"可以这么说",而是按下去就发生 —— 不给插入箭头 */
+  .cf-sug.act .st { color: var(--lk-bad, #D93B3B); }
   /* 能力标签:与商品引用条同一个位置、同一个"可摘"手势,只是挂的是范围而不是对象。
      用蓝系浅底 —— 它是一个正在生效的状态,不是一件静态附件,需要与灰底的商品引用区分开。 */
   .cf-tag { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px;
@@ -569,6 +869,55 @@
   .cf-tag .ci { display: flex; }
   .cf-tag .tx { display: flex; align-items: center; cursor: pointer; opacity: .75; margin-left: 1px; }
   .cf-tag .tx svg { width: 13px; height: 13px; }
+  /* ---- opt41:composer 作为会话浮层的 dock ----
+     不是另开一个浮层,是同一层底部那一行换了内容。所以这里全部走覆盖,
+     复用 .cf-* 的每一个部件(引用条、光标、发送键),只去掉它作为独立浮层时
+     才需要的东西:自己的白卡阴影和圆角。 */
+  /* dock 本身不是一块板 —— 它只是个容器。谁浮起来由里面的部件自己决定。 */
+  .chat .cdock.composing { padding: 0 16px 10px; background: transparent; position: relative; }
+  /* 4-2 的裸行改成盖在会话上的一层:不占布局,线程就不会被推;
+     顶部全透明让上一条气泡还露着一截 —— 那一截就是"我浮在你的对话上面"这句话。
+     往下渐白到不透明,行落在近白底上才读得清。 */
+  .cdock.composing .cf-sugs { position: absolute; left: 0; right: 0; bottom: 100%;
+    padding: 52px 24px 12px;
+    /* 渐变必须在第一行开始之前(52px)就走到不透明 —— 让它慢慢渐,
+       第一条建议就压在气泡上,读不清。透明的那一段全部落在留白里。 */
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 0, #fff 52px); }
+  /* chips 横滑,负边距铺到浮层左右边缘 —— 右侧那半个被切住的 chip
+     就是"还有,往右划"的全部提示,缩在内边距里反而看不出能滑。 */
+  .cdock.composing .cf-chips { margin: 0 -16px 10px; padding: 0 16px; flex-wrap: nowrap; }
+  /* 默认态 / 商品态:chips 裸在上方,输入是一张浮起来的白卡。
+     两者不合并 —— 建议是"可以这么说"的候选,不是输入框的一部分。 */
+  /* position:relative 是必须的 —— 上方那层建议是 absolute,而定位元素会盖在
+     静态流内元素之上,不给这张卡定位,它的上边框和向上的投影会被那层白底糊掉。 */
+  .cdock.composing > .cf-input { position: relative; background: #fff; border-radius: 20px;
+    padding: 14px 14px 10px; box-shadow: 0 2px 14px rgba(8,16,33,.10), 0 0 0 .5px rgba(0,0,0,.05); }
+  /* 能力选中态:此刻建议是这个能力的一部分,才和输入合成同一张面板 */
+  .dk-panel { background: #fff; border-radius: 20px; padding: 0 14px 10px;
+    box-shadow: 0 2px 14px rgba(8,16,33,.10), 0 0 0 .5px rgba(0,0,0,.05); }
+  .dk-panel .cf-chips { margin: 0 -14px 0; padding: 0 14px 11px; }
+  .dk-panel .cf-input { box-shadow: none; background: transparent; border-radius: 0;
+    padding: 12px 0 0; border-top: .5px solid var(--line-09); }
+  /* 两行横滑:两条各自 max-content 的行叠在同一个横滚容器里。
+     不用 grid —— grid 的列宽由同列最宽的一项决定,短句后面会拖一大截空白。 */
+  .cf-chips.rows2 { display: block; }
+  .cf-chips.rows2 .r { display: flex; gap: 8px; width: max-content; }
+  .cf-chips.rows2 .r + .r { margin-top: 8px; }
+  /* 能力选中态:能力从"输入框里的一枚标签"升格成这一段的抬头 ——
+     它此刻是整个 dock 的范围,不只是输入框的一个附件。× 摘掉即退回空态。 */
+  .dk-cap { display: flex; align-items: center; gap: 7px; padding: 13px 0 10px;
+    font-size: 15px; font-weight: 650; color: var(--black); letter-spacing: -.2px; }
+  .dk-cap .ci { display: flex; color: var(--text-40); }
+  .dk-cap .dx { margin-left: auto; display: flex; cursor: pointer; color: var(--text-40); }
+  /* 键盘顶上来时浮层要让位 —— 底边抬到键盘上沿,而不是被压在下面。
+     类名不能叫 .kbd:那是键盘元素自己的类(height:291 / 灰底),
+     挂到浮层上会让浮层整个继承键盘的长相。 */
+  /* 键盘占掉 291px 后剩的地方本来就少,composer 自己又高(建议 + 引用条 + 输入),
+     再按常态那个 top 起,线程只剩一条缝 —— 起得更高一点,让上文还看得见。 */
+  .chat.sheetmode.kbdup { top: 6%; bottom: 291px; }
+  .chat.sheetmode.kbdup.tall { top: 4%; }
+  .chat.sheetmode.kbdup .cdock { padding-bottom: 10px; }
+
   .cf-input { background: #fff; border-radius: 20px; padding: 14px 14px 10px;
     box-shadow: 0 2px 14px rgba(8,16,33,.10), 0 0 0 0.5px rgba(0,0,0,.05); }
   /* 商品引用条:点商品 ✦ = 唤起同一个输入框,只是预先引用了这件商品(附件范式) */
@@ -578,6 +927,11 @@
     background: #fff; flex-shrink: 0; }
   .cf-quote .qi { flex: 1; min-width: 0; }
   .cf-quote .qb { font-size: 12px; font-weight: 600; color: var(--text-87); line-height: 1.25; }
+  /* 一行版:整条压到一行,名字放大一档(它现在是这条里唯一的字) */
+  .cf-quote.one { padding: 5px 8px 5px 5px; }
+  .cf-quote.one img { width: 30px; height: 30px; border-radius: 7px; }
+  .cf-quote.one .qb { font-size: 12.5px; font-weight: 500; color: var(--text-87);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cf-quote .qn { font-size: 11.5px; color: var(--text-40); line-height: 1.3; margin-top: 1px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cf-quote .qx { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
@@ -597,13 +951,22 @@
     transition: opacity .15s; }
   .cf-send.off { opacity: .35; }
 
+  /* 放得下就一行(自然保持药丸形),放不下就换行 —— 不再横向溢出到机身外面。
+     带动作时用 flex+wrap:一行挤不下,动作自己掉到第二行,不会把文字挤没。 */
   .toast { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%) translateY(8px);
     background: rgba(8,16,33,0.92); color: #fff; font-size: 12.5px; font-weight: 500;
-    border-radius: 999px; padding: 9px 16px; z-index: 95; opacity: 0; pointer-events: none;
-    transition: all .25s ease; white-space: nowrap; }
+    border-radius: 18px; padding: 9px 16px; z-index: 103; opacity: 0; pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+    max-width: calc(100% - 32px); text-align: center; line-height: 1.4; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  .toast.has-act { pointer-events: auto; padding-right: 8px; }
-  .toast .tact { margin-left: 12px; padding: 3px 9px; border-radius: 999px;
+  /* width:max-content 是必须的 —— 绝对定位的 flex 容器会 shrink-to-fit,
+     换行后它会自己挑一个很窄的宽度(实测 197px / 5 行),把一句话拧成一条。
+     先按内容取宽,再由 max-width 收住,才会是"能一行就一行,不行才换"。 */
+  .toast.has-act { pointer-events: auto; padding: 9px 10px 9px 16px;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px;
+    width: max-content; }
+  .toast .tmsg { flex: 0 1 auto; }
+  .toast .tact { padding: 4px 10px; border-radius: 999px; white-space: nowrap;
     background: rgba(255,255,255,.16); color: #fff; font-weight: 600; cursor: pointer; }
 
   /* ---------- side notes ---------- */
@@ -625,9 +988,14 @@
      主方案不叫 "Option 1":它不是候选之一,就是这次要看的东西。 -->
 <div style="display:flex;justify-content:center;gap:8px;margin:-8px 0 0">
   <button class="tglbtn on" id="tgl-opt1" onclick="setDemoState('opt1')">Demo</button>
+  <button class="tglbtn" id="tgl-opt43" onclick="setDemoState('opt43')">Demo 2</button>
+  <button class="tglbtn" id="tgl-opt42" onclick="setDemoState('opt42')">Option 4-2</button>
   <button class="tglbtn" id="tgl-backup" onclick="setDemoState(lastBackup)">Backup</button>
 </div>
 <div id="backupRow" style="display:none;justify-content:center;gap:6px;margin:9px 0 0">
+  <button class="tglbtn sub" id="tgl-opt4" onclick="setDemoState('opt4')">Option 4</button>
+  <button class="tglbtn sub" id="tgl-opt41" onclick="setDemoState('opt41')">Option 4-1</button>
+  <button class="tglbtn sub" id="tgl-opt5" onclick="setDemoState('opt5')">Option 5</button>
   <button class="tglbtn sub" id="tgl-opt2" onclick="setDemoState('opt2')">Option 2</button>
   <button class="tglbtn sub" id="tgl-opt3" onclick="setDemoState('opt3')">Option 3</button>
 </div>
@@ -737,35 +1105,129 @@ const FEED_UPDATE_QUOTA = 3;
      USE_CAPS    = chips 是"能力两层"(能力 → 整句建议),否则是六条现成 query
      MIX_UPDATES = 收藏更新混入双列流,否则收在顶部独立区
 
-   Demo(opt1)     = 能力 chips + 混入流(主方案,默认)
+   Demo(opt1)      = 能力 chips + 混入流(主方案,默认)
+   Option 4(opt4)  = Demo + 会话浮层 + 电商 agent 显性(A + B)
+   Option 4-1(opt41)= opt4 的分叉:composer 与会话浮层合成同一个对象。
+     dock = 电商 tab 里一切说话的入口都先开这条浮层,composer 就是浮层底部那一行。
+     入口之间的差别只剩"浮层开着时是什么默认态":
+       顶部输入框 / agent 头像 → 空态 + 能力 chips
+       顶部能力 chip          → 该能力选中 + 它的整句建议展开
+       商品 ✦                 → 引用该商品 + 关于它的推荐 query
+     这一版要验的就是你那句话:会话是我和这个 agent 讲过的全部的话,
+     所以不存在"还没进会话"的状态,composer 只是这条线程的写入端。
+   Option 4-3(opt43)= 4-2 的拷贝,起点与 4-2 完全一致
+   Option 4-2(opt42)= 4-1 的分叉,只差"能力选中后长什么样":
+     4-1 dockcap='panel' —— 能力升格成抬头,建议与输入合成一张面板
+     4-2 dockcap='tag'   —— 沿用 Option 4 那套:能力变成输入框里的一枚蓝标签,
+                            建议是输入卡上方的裸行(行末 ↘),不合并
+   Option 5(opt5)  = Demo + 会话浮层,身份仍是 Migoo(只有 A)
    Backup/Option 2 = query chips + 混入流
    Backup/Option 3 = query chips + 顶部独立区
+
+   两个新开关:
+     sheet = 会话在当前页唤起(一层),而不是切到 tab1(一个地方)
+     agent = 这条线程有独立身份与独立历史(电商 agent 显性外露)
+   sheet 不依赖 agent,反过来也一样 —— 拆成两个开关就是为了单独看清各自的效果。
+
+   要让某一版分道时,往这张表里加新的行为开关,
+   不要在渲染代码里写 likesState === 'optN' —— 编号会变,行为不会。
 
    开关按行为命名,不按选项编号命名 —— 编号是会变的(这三个方案已经整体
    重排过一次),叫 IS_OPT1 的东西一旦编号一换就全是错的,而且这个错不报错。
    要改编号只动下面这张表和按钮文案,分支代码一行都不用碰。
    "无更新"态已从 demo 移除,故不再需要 HAS_EVENTS 开关。 */
 const DEMO = {
-  opt1: { caps:true,  mix:true  },
-  opt2: { caps:false, mix:true  },
-  opt3: { caps:false, mix:false },
+  opt1: { caps:true,  mix:true,  sheet:false, agent:false, watch:false, pdplean:true },
+  opt2: { caps:false, mix:true,   sheet:false, agent:false, watch:false },
+  opt3: { caps:false, mix:false,  sheet:false, agent:false, watch:false },
+  opt4: { caps:true,  mix:true,   sheet:true,  agent:true,  watch:true  },
+  opt41:{ caps:true,  mix:true,   sheet:true,  agent:true,  watch:true,  dock:true, dockcap:'panel' },
+  opt42:{ caps:true,  mix:true,   sheet:true,  agent:true,  watch:true,  dock:true, dockcap:'tag',
+          homecomp:true, runsui:true, expand:false, watchcompose:true, quote1:true, pdplean:true },
+  /* 4-3 分叉:like 与 auto-task 分家(likesplit)—— 见 LIKE_SPLIT */
+  opt43:{ caps:true,  mix:true,   sheet:true,  agent:true,  watch:true,  dock:true, dockcap:'tag',
+          homecomp:true, runsui:true, expand:false, watchcompose:true, quote1:true, pdplean:true,
+          likesplit:true },
+  opt5: { caps:true,  mix:true,   sheet:true,  agent:false, watch:false },
 };
 let USE_CAPS = true;
 let MIX_UPDATES = true;
+let chatTall = false;      /* 会话浮层是否展到高位 */
+let lkOnlyNew = false, lkTab = 'updates', upUnreadN = 3;   /* 旧版:与 header 角标同一个数 */
+let upUnread = true;        /* 新版:只说"有没有未读 run",不说几条 */
+let CHAT_SHEET = false;      /* A:会话作为浮层留在电商 tab */
+let CHAT_AGENT = false;      /* B:这条线程有独立身份与独立历史 */
+/* like 退休:那一下点击本来就是一条最轻的 autotask,只是一直被叫错名字。
+   ♡(一个情绪)→ 🔔(到某个时候告诉我)—— 族 1a 全部是这句话,铃铛就是它的字形。 */
+/* 只有 Option 4 打开:agent 维度的任务页得先有一个 agent。
+   Option 5 没有独立 agent,它的任务只能落进 Migoo 的全局列表,
+   所以电商 tab 这一页在它那里仍然是 Likes。 */
+let WATCH_MODE = false;
+let CHAT_DOCK = false;       /* composer 住在会话浮层底部,所有入口都先开浮层 */
+let DOCK_CAP = 'panel';      /* 能力选中后的形态:panel = 合成面板 / tag = 输入框里的标签 */
+/* 首页顶部整体作为一个 composer 块:chips 排在输入框上方(与浮层里一致),
+   且下面那片内容不再挂标题 —— 见 Daily Picks 处的注释。 */
+let HOME_COMPOSER = false;
+/* 任务页的通用化改版:运行面叫 Runs(不限电商,任何 auto-task 都有"跑过几次"),
+   两个面用分段控件切换,tab 上不挂计数,头部不带副标题。 */
+let AT_RUNS = false;
+/* 浮层头上的展开键。默认给,4-2 不给 —— 浮层常态已经抬到 11%、输入时 6%,
+   展开只多拿 7%,为这点收益常驻一个按钮不划算;真要更多地方,关掉浮层就是整页。 */
+let CHAT_EXPAND = true;
+/* PDP 上那枚铃铛:默认一下点击就建一条最轻的 auto-task;
+   4-2 改成先唤起 composer —— 铃铛变成"开始建一条",不是"已经建好"。
+   代价是从一步变两步,换来的是用户在下手前先看见能设哪些条件。 */
+let WATCH_COMPOSE = false;
+/* 引用条只留一行商品名。品牌另起一行是商详页的排法,在这里没用:
+   用户刚从那件东西上点过来,他知道是哪一件,引用条只需要认得出,不需要读完。 */
+let QUOTE_ONELINE = false;
+/* PDP 精简:去掉个性化理由行,以及 Try it on / Tell me when… 两条动作行。
+   后者现在是重复入口 —— Tell me when… 和右上角那枚铃铛做的是同一件事,
+   而铃铛已经带两态(未设置进 composer / 已设置报出条件);
+   Try it on 在 dock 版的商品 query 里也已经拿掉过一次,留在这里只剩一处孤例。 */
+let PDP_LEAN = false;
+/* like 与 auto-task 分家。
+   两者不是一个东西的两种叫法:
+     like      = 这件商品身上的一个位。零状态、零执行、语义是"我"。
+     auto-task = 一个在跑的进程。它**不属于任何商品** —— 一条任务可以引用两件
+                 (「比商品 2 便宜时告诉我」),可以从别的路径建,可以属于别的 agent。
+   所以 PDP 上:♡ 是按钮(我的动作),auto-task 是一行状态(它的事实),
+   两者形状不同、位置不同,不会被读成同一类开关的两个。
+   创建 auto-task 不再有专用按钮 —— 它本来就是一句话,归 Ask。 */
+let LIKE_SPLIT = false;
 let likesState = 'opt1';
-let lastBackup = 'opt2';          /* 点 Backup 回到上次看的那一版 */
+/* 收进 Backup 的历版 —— 一级只留还在推进的那几个。
+   加减备选只动这一个数组,setDemoState 里不再有硬编码的 id 比较。 */
+const BACKUP = ['opt4','opt41','opt5','opt2','opt3'];
+let lastBackup = 'opt4';          /* 点 Backup 回到上次看的那一版 */
 function setDemoState(s) {
   likesState = s;
   USE_CAPS = DEMO[s].caps;
   MIX_UPDATES = DEMO[s].mix;
-  if (s !== 'opt1') lastBackup = s;
-  ['opt1','opt2','opt3'].forEach(k => {
+  CHAT_SHEET = DEMO[s].sheet;
+  CHAT_AGENT = DEMO[s].agent;
+  WATCH_MODE = DEMO[s].watch;
+  CHAT_DOCK  = !!DEMO[s].dock;
+  DOCK_CAP   = DEMO[s].dockcap || 'panel';
+  HOME_COMPOSER = !!DEMO[s].homecomp;
+  AT_RUNS = !!DEMO[s].runsui;
+  CHAT_EXPAND = DEMO[s].expand !== false;
+  WATCH_COMPOSE = !!DEMO[s].watchcompose;
+  QUOTE_ONELINE = !!DEMO[s].quote1;
+  PDP_LEAN = !!DEMO[s].pdplean;
+  LIKE_SPLIT = !!DEMO[s].likesplit;
+  cthread = [];              /* 换方案等于换一条线程,不要串味 */
+  upUnreadN = 3; upUnread = true;   /* 换方案就当没看过,便于反复演示 */
+  lkTab = 'updates';
+  const isBackup = BACKUP.includes(s);
+  if (isBackup) lastBackup = s;
+  ['opt1','opt2','opt3','opt4','opt41','opt42','opt43','opt5'].forEach(k => {
     const b = document.getElementById('tgl-'+k);
     if (b) b.classList.toggle('on', k === s);
   });
-  document.getElementById('tgl-backup')?.classList.toggle('on', s !== 'opt1');
+  document.getElementById('tgl-backup')?.classList.toggle('on', isBackup);
   const br = document.getElementById('backupRow');
-  if (br) br.style.display = s === 'opt1' ? 'none' : 'flex';
+  if (br) br.style.display = isBackup ? 'flex' : 'none';
   const wasOpen = document.getElementById('likesTab')?.classList.contains('show');
   render();
   if (wasOpen) { lkScanned = true; openLikes(); }
@@ -952,8 +1414,19 @@ const IC = {
   heart: (on)=>'<svg width="17" height="16" viewBox="0 0 20 18" fill="none"><path d="M10 17S1 11.6 1 5.9C1 3 3.2 1 5.7 1 7.5 1 9.1 2 10 3.5 10.9 2 12.5 1 14.3 1 16.8 1 19 3 19 5.9 19 11.6 10 17 10 17z" fill="'+(on?'#081021':'none')+'" stroke="'+(on?'#081021':'#54545C')+'" stroke-width="1.7" stroke-linejoin="round"/></svg>',
   spark: '<svg width="15" height="15" viewBox="0 0 14 14" fill="none"><path d="M7 0l1.3 4.2L12.5 5.5 8.3 6.8 7 11 5.7 6.8 1.5 5.5 5.7 4.2 7 0z" fill="#007AFF"/><path d="M11.5 9.5l.6 1.9 1.9.6-1.9.6-.6 1.9-.6-1.9-1.9-.6 1.9-.6.6-1.9z" fill="#007AFF" opacity="0.65"/></svg>',
   sparkSm: '<svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M6 0l1.4 4.6L12 6 7.4 7.4 6 12 4.6 7.4 0 6l4.6-1.4L6 0z" fill="#33507A"/></svg>',
-  heartHead: '<svg width="22" height="20" viewBox="0 0 20 18" fill="none"><path d="M10 17S1 11.6 1 5.9C1 3 3.2 1 5.7 1 7.5 1 9.1 2 10 3.5 10.9 2 12.5 1 14.3 1 16.8 1 19 3 19 5.9 19 11.6 10 17 10 17z" stroke="#1C1C1E" stroke-width="1.7" stroke-linejoin="round"/></svg>',
+  tabShopSm: '<svg width="12" height="12" viewBox="0 0 22 22" fill="none"><path d="M4 7h14l-1.2 11.2a1.6 1.6 0 01-1.6 1.4H6.8a1.6 1.6 0 01-1.6-1.4z" fill="#fff"/><path d="M7.8 8.6V6.2a3.2 3.2 0 016.4 0v2.4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  clock: '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.1" stroke="currentColor" stroke-width="1.35"/><path d="M8 4.8V8.2l2.3 1.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  bell: (on)=>'<svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M10 2.6a4.9 4.9 0 00-4.9 4.9c0 4-1.4 5.2-1.4 5.2h12.6s-1.4-1.2-1.4-5.2A4.9 4.9 0 0010 2.6z" fill="'+(on?'#081021':'none')+'" stroke="'+(on?'#081021':'#54545C')+'" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.4 15.6a1.8 1.8 0 003.2 0" stroke="'+(on?'#081021':'#54545C')+'" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  chevL: '<svg width="19" height="19" viewBox="0 0 20 20" fill="none"><path d="M12.4 4.5L6.9 10l5.5 5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  expand: '<svg width="17" height="17" viewBox="0 0 18 18" fill="none"><path d="M11 2.5h4.5V7M7 15.5H2.5V11M15.5 2.5L10.4 7.6M2.5 15.5l5.1-5.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  collapse: '<svg width="17" height="17" viewBox="0 0 18 18" fill="none"><path d="M15.5 7H11V2.5M2.5 11H7v4.5M10.4 7.6l5.1-5.1M7.6 10.4l-5.1 5.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  /* 和 bellHead 并排时按"墨迹"对齐,不按外框:
+     bell 的框 21×21,但铃铛本身只占 13.2×15 单位;heart 的框 22×20,图形却占满 20×18。
+     同框等大 = heart 看起来大一圈。缩到 19×17.1 后两者的实际高度与线宽都对齐了。 */
+  heartHead: '<svg width="19" height="17.1" viewBox="0 0 20 18" fill="none"><path d="M10 17S1 11.6 1 5.9C1 3 3.2 1 5.7 1 7.5 1 9.1 2 10 3.5 10.9 2 12.5 1 14.3 1 16.8 1 19 3 19 5.9 19 11.6 10 17 10 17z" stroke="#1C1C1E" stroke-width="1.7" stroke-linejoin="round"/></svg>',
   /* 实心小心形,currentColor 继承事件行文字色 —— 收藏更新卡与普通推荐卡的唯一区分符 */
+  bellSm: '<svg width="10" height="10.5" viewBox="0 0 20 20" fill="none"><path d="M10 2.6a4.9 4.9 0 00-4.9 4.9c0 4-1.4 5.2-1.4 5.2h12.6s-1.4-1.2-1.4-5.2A4.9 4.9 0 0010 2.6zM8.4 15.6a1.8 1.8 0 003.2 0" fill="currentColor"/></svg>',
+  bellHead: '<svg width="21" height="21" viewBox="0 0 20 20" fill="none"><path d="M10 2.4a5.1 5.1 0 00-5.1 5.1c0 4.1-1.5 5.4-1.5 5.4h13.2s-1.5-1.3-1.5-5.4A5.1 5.1 0 0010 2.4z" stroke="#1C1C1E" stroke-width="1.6" stroke-linejoin="round"/><path d="M8.3 16a1.9 1.9 0 003.4 0" stroke="#1C1C1E" stroke-width="1.6" stroke-linecap="round"/></svg>',
   heartSm: '<svg width="10.5" height="9.5" viewBox="0 0 20 18" fill="none"><path d="M10 17S1 11.6 1 5.9C1 3 3.2 1 5.7 1 7.5 1 9.1 2 10 3.5 10.9 2 12.5 1 14.3 1 16.8 1 19 3 19 5.9 19 11.6 10 17 10 17z" fill="currentColor"/></svg>',
   tabTasks: '<svg class="tabfill" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 8.27726C1.5 5.11417 4.06419 2.54999 7.22727 2.54999H16.7727C19.9358 2.54999 22.5 5.11418 22.5 8.27726V15.7227C22.5 18.8858 19.9358 21.45 16.7727 21.45H7.22727C4.06419 21.45 1.5 18.8858 1.5 15.7227V8.27726Z" fill="currentColor"/><path d="M7.6 12.3l3 3 5.8-6.1" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   tabAgents: '<svg class="tabfill" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.5 8.27726C1.5 5.11417 4.06419 2.54999 7.22727 2.54999H16.7727C19.9358 2.54999 22.5 5.11418 22.5 8.27726V15.7227C22.5 18.8858 19.9358 21.45 16.7727 21.45H7.22727C4.06419 21.45 1.5 18.8858 1.5 15.7227V8.27726Z" fill="currentColor"/><path d="M15.7158 8.16773C16.2302 7.84549 16.9096 8.00031 17.2324 8.51441C17.5548 9.02873 17.3987 9.70804 16.8848 10.031L13.9863 11.8494L16.8848 13.6677C17.3987 13.9907 17.5548 14.67 17.2324 15.1843C16.9096 15.6986 16.2303 15.8534 15.7158 15.531L12.4766 13.4988C11.2607 12.7355 11.2606 10.9632 12.4766 10.2L15.7158 8.16773ZM8.59961 8.54956C9.207 8.54963 9.6991 9.0418 9.69922 9.64917V14.0496C9.69901 14.6569 9.20694 15.1491 8.59961 15.1492C7.99232 15.1491 7.50021 14.6568 7.5 14.0496V9.64917C7.50012 9.04183 7.99227 8.54968 8.59961 8.54956Z" fill="white"/></svg>',
@@ -967,13 +1440,22 @@ const cap = (id, showWhy) => { const p=P[id]; return `
   <div class="cap">
     <div class="ttl">${p.brand} ${p.nm}</div>
     <div class="pr">$${p.pr}</div>
-    ${(showWhy && p.why) ? `<div class="why">${p.why}</div>` : ''}
+    ${/* 理由行是这张卡唯一解释"为什么是它"的地方。
+         没有别的理由但你收藏过时,那就是理由 —— 一句话,不是一个角标。 */''}
+    ${(() => { const why = p.why || ((LIKE_SPLIT && saved.has(id)) ? 'You liked this' : '');
+        return (showWhy && why) ? `<div class="why">${why}</div>` : ''; })()}
   </div>`; };
 
 const imgw = (id, liked) => { const p=P[id]; return `
   <div class="imgw">
     <img src="${p.img}" alt="">
-    ${liked ? `<div class="ltag">${IC.heartSm}<span>You liked</span></div>` : ''}
+    ${/* 这枚角标只出现在 auto-task 的更新卡上(scard),普通推荐卡从来没有 ——
+         所以它回答的一直是"这张卡为什么在这儿",位置和条件都对,错的只是名词:
+         它曾经写 You liked,而这张卡在这儿和收藏毫无关系,是一条任务跑出了结果。
+         值这块地方的理由:一屏推荐里有一张是**新闻**不是推荐,
+         这件事该在读到文字之前就被看见 —— 下面那行理由是读的,角标是扫的。
+         收藏本身不进角标:它是一条推荐依据,归价格下面那行。 */''}
+    ${liked ? `<div class="ltag">${(WATCH_MODE || LIKE_SPLIT) ? IC.bellSm : IC.heartSm}<span>${(WATCH_MODE || LIKE_SPLIT) ? 'Auto-task' : 'You liked'}</span></div>` : ''}
     <div class="sparkb" onclick="event.stopPropagation();openSheet('${id}')">${IC.spark}</div>
   </div>`; };
 
@@ -1104,19 +1586,34 @@ const home = () => {
   });
   return `
   <div class="screen-body" id="sb">
+    ${/* like 分家之后顶部是两个入口,它们通向两个不同性质的地方:
+         ♡ = 我记下的东西(纯列表,没有 agent)
+         🔔 = 它替我在跑的事(run / task,带未读点)
+         并排放不是重复 —— 重复的判定看"点了到哪儿",这两个落点毫无交集。
+         ♡ 永远不带点:收藏不会自己发生变化,没有"未读"这回事。 */''}
+    ${LIKE_SPLIT ? `<div class="lk-corner lk-corner2" onclick="openLikeList()" aria-label="Likes">${IC.heartHead}</div>` : ''}
     <div class="lk-corner" onclick="openLikes()">
-      ${IC.heartHead}<span class="badge">3</span>
+      ${WATCH_MODE ? IC.bellHead : IC.heartHead}${AT_RUNS ? (upUnread ? '<span class="dot"></span>' : '') : (upUnreadN ? `<span class="badge">${upUnreadN}</span>` : '')}
     </div>
-    <div class="greet">What are we looking for today?</div>
-    <div class="ask" onclick="openFocus()">
+    <div class="greet${LIKE_SPLIT ? ' twoicon' : ''}">What are we looking for today?</div>
+    ${(() => {
+      const askRow = `<div class="askrow">
+    ${(CHAT_SHEET && !CHAT_DOCK) ? `<div class="askbot${CHAT_AGENT ? '' : ' migoo'}" id="askbot" onclick="openCopilot()" aria-label="Open conversation"></div>` : ''}
+    <div class="ask${(CHAT_SHEET && CHAT_DOCK) ? ' withbot' : ''}" onclick="openFocus()">
+      ${(CHAT_SHEET && CHAT_DOCK) ? `<div class="askbot inbox${CHAT_AGENT ? '' : ' migoo'}" id="askbot" aria-hidden="true"></div>` : ''}
       <span class="ph"><span class="phroll" id="phroll">${PH_ROLL.concat(PH_ROLL[0]).map(t=>`<span>${t}</span>`).join('')}</span></span>
       <span class="aic">${IC.mic}</span><span class="aic">${IC.plus}</span>
     </div>
-    <div class="askchips">
+    </div>`;
+      const chipRow = `<div class="askchips${HOME_COMPOSER ? ' above' : ''}">
       ${USE_CAPS
         ? CAP_CHIPS.map(c=>`<span class="achip capchip" onclick="openCap('${c.k}')"><span class="ci">${CAP_IC[c.k]}</span>${c.t}</span>`).join('')
         : CF_CHIPS.map(t=>`<span class="achip" onclick="openFocus('${cfEsc(t)}')">${t}</span>`).join('')}
-    </div>
+    </div>`;
+      /* chips 排在输入框上方 = 和浮层里的位置一致。点开之后 chips 还在原地,
+         输入框还在原地 —— 首页那一行不是"另一个入口",它就是躺下的 composer。 */
+      return HOME_COMPOSER ? chipRow + askRow : askRow + chipRow;
+    })()}
     ${!MIX_UPDATES ? `
     <div class="sec">
       <div class="sec-head" onclick="openLikes()">
@@ -1192,7 +1689,7 @@ function pdpHTML(id){
       <div class="pdp-hero">
         <div class="sheet-grabber"></div>
         <div class="pdp-close" onclick="closePDP()">${IC.close}</div>
-        <div class="pdp-watch" id="pdpSave" onclick="event.stopPropagation();toggleSave('${id}')" aria-label="${saved.has(id)?'Saved':'Save'}">${IC.heart(saved.has(id))}</div>
+        <div class="pdp-watch" id="pdpSave" onclick="event.stopPropagation();${(WATCH_COMPOSE && !LIKE_SPLIT) ? `bellTap('${id}')` : `toggleSave('${id}')`}" aria-label="${saved.has(id)?((WATCH_MODE&&!LIKE_SPLIT)?'Auto-task on':'Saved'):((WATCH_MODE&&!LIKE_SPLIT)?'Create auto-task':'Save')}">${(WATCH_MODE && !LIKE_SPLIT) ? IC.bell(saved.has(id)) : IC.heart(saved.has(id))}</div>
         <img src="${d.hero.startsWith('assets/')?d.hero:A+d.hero}" alt="">
         <div class="indicator">1/${d.gallery||12}</div>
       </div>
@@ -1202,10 +1699,14 @@ function pdpHTML(id){
         <div class="pdp-subnote">${d.sub}</div>
         <div class="pdp-title">${p.brand} ${p.nm}</div>
       </div>
-      ${p.why ? `<div class="pdp-why">${p.why}</div>` : ''}
+      ${(p.why && !PDP_LEAN) ? `<div class="pdp-why">${p.why}</div>` : ''}
       <ul class="ai-bullets">${d.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>
       ${p.scene ? `<div class="pdp-scene" onclick="openGenSheet()">See it in a scene ›</div>` : ''}
-      ${p.tryon ? `<div class="pdp-scene" onclick="openTryOn('${id}')">Try it on — with your character ›</div>` : ''}
+      ${(p.tryon && !PDP_LEAN) ? `<div class="pdp-scene" onclick="openTryOn('${id}')">Try it on — with your character ›</div>` : ''}
+      ${/* 条件说得清的入口。PDP 上颜色、尺码、价格全在屏幕上,族 1a 的条件
+           在这一页是看得见的东西,在别处都得凭空描述 —— 所以这一行只该在这里出现。
+           点开是会话的输入框 + 四条现成条件,不是表单,不新增组件。 */''}
+      ${(WATCH_MODE && !PDP_LEAN) ? `<div class="pdp-scene" onclick="openFocus('', '${id}', null, true)">Tell me when… ›</div>` : ''}
       <div style="height:16px"></div>
       ${d.variants.map(varGroupHTML).join('')}
       <div style="height:16px"></div>
@@ -1217,7 +1718,9 @@ function pdpHTML(id){
       ${detailsHTML(d.details, d.desc)}
     </div>
     <div class="pdp-dock">
-      <div class="ask-migoo" onclick="askMigooPDP()"><img class="ask-logo" src="${A}migoo-logo.png" alt=""><span>Ask Migoo</span></div>
+      ${/* dock 版里这一格通向 mshop,不是 Migoo —— 头像跟着落点走。
+           文案也跟着缩成 Ask:头像已经把"问谁"说完了,再写一遍名字是同一件事占两处。 */''}
+      <div class="ask-migoo${CHAT_DOCK ? ' bot' : ''}" onclick="askMigooPDP()"><img class="ask-logo" src="${A}${CHAT_DOCK ? 'mshop-logo.png' : 'migoo-logo.png'}" alt="">${CHAT_DOCK ? '' : '<span>Ask Migoo</span>'}</div>
       <div class="buy-main" onclick="toast('In-app checkout — Migoo fulfils & attributes')">Buy at ${d.buy.src} · $${d.buy.price} ${IC.arrowUR}</div>
     </div>
     <div class="home-indicator"></div>`;
@@ -1232,14 +1735,18 @@ function openPDP(id){
   const ov = document.getElementById('pdp');
   ov.innerHTML = pdpHTML(id);
   ov.classList.remove('full');
-  document.getElementById('pdpBackdrop').classList.add('show');
+  const chatUp = document.getElementById('chat')?.classList.contains('show');
+  ov.classList.toggle('top', !!chatUp);
+  const bd = document.getElementById('pdpBackdrop');
+  bd.classList.toggle('top', !!chatUp);
+  bd.classList.add('show');
   ov.classList.add('open');
   attachSheetDrag(ov);
 }
 function closePDP(){
   const ov = document.getElementById('pdp');
-  ov.classList.remove('open','full');
-  document.getElementById('pdpBackdrop').classList.remove('show');
+  ov.classList.remove('open','full','top');
+  document.getElementById('pdpBackdrop').classList.remove('show','top');
 }
 /* composer 直接叠在 PDP 上(z-index 95 > PDP),不关闭 PDP ——
    这样用户唤起输入框后又不想问了,关掉仍停在商品页,而不是被弹回首页 */
@@ -1300,7 +1807,7 @@ const LK_MDL = { sneaker:'Crimson · US 9', watch:'Midnight · 45mm · Sport', p
    同一件东西不该因为"这次没事发生"就变个样子,否则用户要认两套卡。 */
 function lkCard(tagCls, tagTxt, pid, priceHTML, noteHTML, btns){
   const p = P[pid];
-  const quiet = !tagTxt && !noteHTML;      /* 无事发生 → 同卡型,低重量 */
+  const quiet = !tagTxt;                   /* 无事发生 → 同卡型,低重量 */
   /* 有事发生时动作独占一行(它是这张卡的结论,该有分量);
      没事发生时动作跟在价格后面 —— 同样两个按钮,不再是一条横贯的工具条,
      卡从 122px 掉到 ~90px,八张排下来才像货架不像待办清单。 */
@@ -1313,11 +1820,15 @@ function lkCard(tagCls, tagTxt, pid, priceHTML, noteHTML, btns){
         ${ALERTS[pid] !== undefined ? `
         <div class="mi" onclick="offAlert('${pid}')">Clear target price</div>` : ''}
         <div class="mi" onclick="openSheet('${pid}')">Ask Migoo about this…</div>
-        <div class="mi danger" onclick="lkToast('取消收藏,停止监控 — demo')">Remove from Likes</div>
+        <div class="mi danger" onclick="lkToast('取消收藏,停止监控 — demo')">${WATCH_MODE ? 'Remove auto-task' : 'Remove from Likes'}</div>
       </div>
     </div>`;
+  /* Updates 卡的主语是"这次发生了什么",不是任务的定义 ——
+     定义归 Tasks tab,在这儿再写一遍是让人复习自己设过什么,而他是来看结果的。
+     眉题带时间:同类产品(ChatGPT 的 chat、GitHub 的 run、Keepa 的邮件)全都有;
+     没有"什么时候",用户判断不了该不该现在就动。 */
   return `<div class="lk-card lk-reveal${quiet ? ' quiet' : ''}">
-    ${tagTxt ? `<div><span class="lk-tag ${tagCls}">${tagTxt}</span></div>` : ''}
+    ${tagTxt ? `<div><span class="lk-tag ${tagCls}">${tagTxt}</span>${WATCH_MODE && LK_AGO[pid] ? `<span class="lk-ago">· ${LK_AGO[pid]}</span>` : ''}</div>` : ''}
     <div class="lk-hd tappable" onclick="openPDP('${pid}')">
       <img src="${p.img}" alt="">
       <div class="bd">
@@ -1357,7 +1868,8 @@ const alertLow = (pid) => Math.round(P[pid].pr * 0.91);
 const alertLow2 = (pid) => Math.round(P[pid].pr * 0.85);
 /* 已设的线跟在价格后面,不占按钮位 —— 它是这件东西的一个事实(和价格同类),
    不是一个动作,所以不做成可点的控件,只是一句灰色元数据。 */
-const priceTag = (pid, priceHTML) => priceHTML + (ALERTS[pid] !== undefined
+/* WATCH 态下指令行已经写明"到 $150 叫我",价格后不必再挂一次 */
+const priceTag = (pid, priceHTML) => priceHTML + ((!WATCH_MODE && ALERTS[pid] !== undefined)
   ? `<span class="lk-target">· Target $${ALERTS[pid]}</span>` : '');
 /* 已设就不再出这个按钮 —— 位置让给别的动作,状态由价格后面那枚标签承担 */
 /* 措辞统一到 target 一个词:眉题是 TARGET HIT、价格后是 · Target $150,
@@ -1384,7 +1896,7 @@ function moveAlert(pid){
 }
 function offAlert(pid){
   delete ALERTS[pid]; renderLikesBody();
-  lkToast('Target cleared — still watching it for you');
+  lkToast('Target cleared — the auto-task stays on');
 }
 /* 全部收藏里的一张卡:无眉题、无事件行,其余与更新卡完全相同。
    第二个按钮是"给这件东西定一个我自己的条件" —— 默认的盯价由 Migoo 判断
@@ -1392,78 +1904,376 @@ function offAlert(pid){
    条件是自然语言的("降到 150 或者出新色就叫我"),不是一个数字输入框。 */
 function lkRow(pid){
   const p = P[pid];
-  return lkCard(null, null, pid, priceTag(pid, `$${p.pr}`), null,
+  return lkCard(null, null, pid, priceTag(pid, `$${p.pr}`),
+    WATCH_MODE ? ['run', LK_RUN[pid] || 'Checked 20 min ago · no change'] : null,
     `<button class="lk-btn pri" onclick="event.stopPropagation();toast('In-app checkout — Migoo fulfils &amp; attributes')">Buy now</button>
      ${alertBtn(pid)}`);
 }
 /* 副标题说"有几件值得看",不说"刚检查过" ——
    检查是 Migoo 的工序,用户不关心;有几件值得看才是这一页的结论,
    而且它和下面 Updates · 3 对得上,读者第一眼就知道往哪儿看。 */
+/* mshop 这个 agent 的任务里,一部分没有宿主商品(按日历跑,产出是一份清单)。
+   它们和盯商品的任务住同一页 —— 都是 mshop 执行、mshop 通知。
+   行的主体是"最近一次发生了什么",不是"它被配置成什么":
+   跑了 30 次报过 3 次结果的任务,和从没触发过的,不该长得一样。
+   配置(频率、通知渠道、开关)退到 ⋯ 里,它是低频操作,不值列表上的位置。 */
+/* 安静的任务也要有运行记录 —— 差异化写法,别八条一模一样 */
+const LK_AGO = { watch:'20 min ago', phones:'2h ago', sneaker:'this morning' };
+const LK_RUN = { tote:'Checked 20 min ago · no change since Jul 9',
+  backpack:'Checked 1h ago · $79 for the last 3 weeks',
+  sunglasses:'Checked 20 min ago · in stock, no change',
+  bottle:'Checked 2h ago · no change since you saved it',
+  sneaker2:'Checked 40 min ago · US 9 still sold out' };
+/* ---- Tasks tab:一条任务一张卡,骨架与现有 autotask 页完全一致 ---- */
+const AT_ROWS = () => [
+  { pid:'watch',  name:'Price & stock alert', rule:'Any price or stock move — tell me',
+    adj:'Change the alert on the Apple Watch' },
+  { pid:'phones', name:'Price & stock alert', rule:'Any price or stock move — tell me',
+    adj:'Change the alert on the AirPods Max' },
+  { pid:'sneaker',name:'Price alert', rule:`Below $${ALERTS.sneaker} — tell me`,
+    adj:'Change my target on the Nike Free RN' },
+  { name:'Gift ideas for Mom', rule:'Every month — find a few she’d use',
+    adj:'Change the gift ideas you look for' },
+  { pid:'tote',   name:'Price alert', rule:`Below $${ALERTS.tote} — tell me`,
+    adj:'Change my target on the Madewell tote' },
+  { pid:'backpack',   name:'Price & stock alert', rule:'Any price or stock move — tell me' },
+  { pid:'sunglasses', name:'Price & stock alert', rule:'Any price or stock move — tell me' },
+  { pid:'bottle',     name:'Price & stock alert', rule:'Any price or stock move — tell me' },
+  { pid:'sneaker2',   name:'Back-in-stock alert', rule:'US 9 back in stock — tell me' },
+  /* 一条任务引用两件商品 —— 它不属于其中任何一件,两边的状态行都会算上它。
+     这条就是"一件商品一条任务"那个模型放不下的反例。 */
+  { pids:['sneaker','sneaker2'], name:'Whichever is cheaper',
+    rule:'When the Free RN goes below the AF1 — tell me' },
+  { name:'Winter coat, when it turns', rule:'When it drops below 10°C — start looking' },
+  { name:'Tokyo trip list', rule:'Two weeks before I fly — build the list' },
+  /* 用户对着电商 agent 说"每天 3 点提醒我喝水"——这事一定会发生。
+     它留在 mshop 名下:任务归属跟着"你是对谁说的"走,不跟着题材走。
+     真要按题材分派,用户就得先知道自己该找哪个 agent,那是把路由的活外包给用户。
+     (代价是这一页会混进非电商任务 —— 全局那份列表在 Me page,两边都看得到。) */
+  { name:'Water at 3', rule:'Every day at 3pm — tell me to drink water',
+    adj:'Change when you remind me to drink water' },
+];
+/* 单条 autotask 的卡型 —— 与产品里已有的那张完全一致,一行不改:
+     名字 ›  [开关] / 触发 — 动作 / Notify via / Adjust with Agent
+   商品不改这个框架,它是插进来的一个附件(同 composer 的商品引用):
+   有商品就多一条,没有就没有 —— 全站一条 autotask 只有一种长相。 */
+function atTask(r){
+  const p = r.pid ? P[r.pid] : null;
+  return `<div class="at-card lk-reveal">
+    <div class="at-hd">
+      <div class="at-name" onclick="lkToast('任务详情:规则 / 运行历史 — demo')">${r.name} <span class="lk-chv">›</span></div>
+      <span class="at-sw on" onclick="this.classList.toggle('on');lkToast(this.classList.contains('on')?'Auto-task resumed':'Auto-task paused')"><i></i></span>
+    </div>
+    <div class="at-rule2">${r.rule}</div>
+    ${p ? `<div class="at-ref" onclick="openPDP('${r.pid}')">
+      <img src="${p.img}" alt=""><span class="rt">${p.brand} ${p.nm}</span><span class="rp lk-mono">$${p.pr}</span>
+    </div>` : ''}
+    <div class="at-notify">Notify via: Migoo App/Web</div>
+    <button class="at-adj" onclick="sheetId='${r.pid||''}';closeLikes();setTimeout(()=>sendQ('${(r.adj||'Adjust this auto-task').replace(/'/g,"\\'")}'),140)">Adjust with Agent</button>
+  </div>`;
+}
+
+/* ---- Worth a look tab:一次 run 的结果,通用四段 ---- */
+const UP_OBJ = {
+  /* N 个结果 → 横滑商品卡。文字清单是"表格式回答";这是电商 agent,
+     结果是商品就该长成商品。复用首页那套 hcard,不再造一种商品卡。 */
+  picks: (ids) => `<div class="hrow up-picks">${ids.map(hcard).join('')}</div>`,
+};
+/* Worth a look = run 的记录,不是任务的最新状态。
+   同一条任务可以出现多次,按时间倒序 —— 任务再触发一次时,
+   "一任务一卡"会把上一条新闻静默覆盖掉,而这一页的职责就是告诉你发生过什么。
+   参考产品全是 run 模型(ChatGPT 每次一条 chat、Zapier / GitHub 每次一行);
+   "每任务一行显示最新状态"是监控面板的做法,那种用户看的是当前状态,不是发生过什么。
+
+   由此多出一个状态:旧的 run 会过期。Jul 20 那条上的价格已经不成立,
+   所以它降为记录 —— 压低对比、不给动作(第④段本来就是可选的)。
+
+   动作的边界:卡上的动作只对「这条新闻」生效;改任务的事归 Tasks tab,
+   那边每张卡都有 Adjust with Agent。所以 Adjust target / Change what I look for 移走。 */
+const UPDATES = () => [
+  { pid:'watch', task:'Price & stock alert', ti:0, day:'Today', price:'$329',
+    news:`Only 4 left in your size — it was 9 on Monday, so it’s moving fast.`,
+    btns:[{t:'Buy now',pri:1,act:"toast('In-app checkout — Migoo fulfils &amp; attributes')"},
+          {t:'Find similar',act:"sheetId='watch';sendQ('Find me a similar smartwatch in stock')"}] },
+  { pid:'phones', task:'Price & stock alert', ti:1, day:'Today', price:'$449', was:'$549',
+    news:`Lowest since you saved it — and it hasn’t been under this since January.`,
+    btns:[{t:'Buy now',pri:1,act:"toast('In-app checkout — Migoo fulfils &amp; attributes')"},
+          {t:'Is it worth it?',act:"sheetId='phones';sendQ('Is the AirPods Max worth it at $449?')"}] },
+  { pid:'sneaker', task:'Price alert', ti:2, day:'Today', price:'$89', was:'$96', target:1,
+    news:`Your target, hit for the first time since you set it on Jul 18.`,
+    btns:[{t:'Buy now',pri:1,act:"toast('In-app checkout — Migoo fulfils &amp; attributes')"}] },
+  { name:'Something for Mom', task:'Gift ideas for Mom', ti:3, day:'Yesterday',
+    news:`Three she’d actually use — her birthday is May 4, so there’s time to think.`,
+    obj:UP_OBJ.picks(['perfume','candle','mug']),
+    btns:[{t:'Ask which one she’d like',act:"sheetId=null;sendQ('Which of these three should I get for Mom?')"}] },
+  /* 同一条任务的更早一次 run —— 已读且已过期,只作记录 */
+  { pid:'sneaker', task:'Price alert', ti:2, day:'Jul 20', price:'$96', past:1,
+    news:`Down to $96 — lowest since you saved it, but still above your line.`,
+    btns:[] },
+];
+/* 同一套逻辑(标题=新闻 / 署名=任务 / 附件=商品 / 动作),三种设计走法。
+   逻辑不变,变的是谁当视觉主体、层用什么手段建立:
+     headline —— 文字主导,标题在上,商品被包成附件。读起来最像一条消息。
+     product  —— 商品主导,大图在上,新闻退成它的理由。最像电商,最好扫。
+     message  —— mshop 说的一句话,头像 + 气泡。和 agent 的身份连得最紧。 */
+let upStyle = 'quote';   /* 默认 Card C(Quoted task);A/B 留在 ⋯ 菜单里备查 */
+function upSetStyle(v){ upStyle = v; renderLikesBody(); lkCloseMenus(); }
+/* 商品块:左身份 / 右价格。
+   · 规格只留商品名没说过的部分 —— 名字里已经有 45mm、Silver 时再写一遍是纯重复,
+     滤掉之后剩下的恰好是名字说不了的那个(US 9 / Midnight · Sport),信息量最高。
+   · 价格右对齐单独成列 —— 它是这个块里最该被看到的数,尤其当新闻说的就是价格;
+     挤在灰色规格行末尾时,它是全块最小最灰的东西,和它的重要性正好相反。 */
+const upObjRow = (u, cls) => {
+  const p = P[u.pid], name = `${p.brand} ${p.nm}`;
+  const spec = (LK_MDL[u.pid] || '').split(' · ').filter(t => t && !name.includes(t)).join(' · ');
+  return `<div class="up-hd ${cls||''}" onclick="openPDP('${u.pid}')">
+  <div class="at-obj"><img src="${p.img}" alt=""></div>
+  <div class="up-bd">
+    <div class="up-name">${name}</div>
+    ${spec ? `<div class="up-spec">${spec}</div>` : ''}
+  </div>
+  <div class="up-price">
+    <b class="${u.target?'hi-good':''}">${u.price}</b>${u.was?`<s>${u.was}</s>`:''}
+  </div>
+</div>`; };
+const upActs = (u) => u.btns && u.btns.length ? `<div class="lk-acts" onclick="event.stopPropagation()">${
+  u.btns.map(b=>`<button class="lk-btn${b.pri?' pri':''}" onclick="${b.act}">${b.t}</button>`).join('')}</div>` : '';
+const upFrom = (u) => `<div class="up-from"><span class="up-task" onclick="goTask(${u.ti})">${u.task} <span class="lk-chv">›</span></span></div>`;
+function upCard(u){
+  const body =
+    /* B · 去掉嵌套容器 —— A 里那个浅底块让一张卡看起来像两张。
+       层完全由字号建立:标题最大,商品名次之,规格与署名最小。不加任何盒子。 */
+    upStyle === 'flat' ? `
+      <div class="up-news">${u.news}</div>
+      ${upFrom(u)}
+      ${u.pid ? upObjRow(u, 'bare') : (u.obj || '')}
+      ${upActs(u)}`
+    /* C · 引用式 —— 三档轻重直接对应三段职责:
+         弱 = 一枚引用条(用全站已有的引用语汇:浅底、小、带 ›),
+              它只回答"这条更新出自哪条任务",不参与内容
+         强 = 更新内容本身,文案与商品**绑成一体**(紧挨着、无容器隔断),
+              因为"发生了什么"和"发生在哪件东西上"是一句话的两半
+         中 = 动作,用更大的间距与上面那一体断开
+       和 A/B 的差别不在样式,在分组:A/B 把文案、商品、署名当三个平级块,
+       C 把它们分成"出处 / 内容 / 动作"三档。 */
+  : upStyle === 'quote' ? `
+      <div class="up-qref" onclick="goTask(${u.ti})">${IC.bellSm}<span>${u.task}</span><span class="lk-chv">›</span></div>
+      <div class="up-body">
+        <div class="up-news">${u.news}</div>
+        ${u.pid ? upObjRow(u, 'bare tight') : (u.obj || '')}
+      </div>
+      ${upActs(u)}`
+  : `
+      <div class="up-news">${u.news}</div>
+      ${upFrom(u)}
+      ${u.pid ? upObjRow(u) : (u.obj || '')}
+      ${upActs(u)}`;
+  return `<div class="lk-card up-card up-${upStyle}${upStyle==='quote'?' up-quote-card':''} lk-reveal${u.past?' past':''}">${body}</div>`;
+}
 function lkSubtitle(){
-  return '8 saves · 3 worth a look';
+  /* 副标题只说总量 —— "值得看的有几条"已经写在 tab 上了 */
+  return WATCH_MODE ? `${AT_ROWS().length} auto-tasks · all running` : '8 saves · 3 worth a look';
 }
 function lkBodyHTML(){
   return lkBodyActive();
 }
 function lkBodyActive(){
+  /* WATCH 态 = agent 的任务列表(等高行,结果只留一句 + 指针);
+     其余方案仍是原来的 Likes 页,两套互不干扰。 */
+  if (WATCH_MODE) {
+    /* 两个 tab,分工是用户说得出口的两句话:
+         Tasks   = 我让它做什么(定义 + 状态,等高轻行)
+         Updates = 它跟我说了什么(结果本体 + 可执行的动作,富卡片)
+       结果不再只给一个指针 —— 用户是专门走到这一页来看结果的,
+       意图已经表达过,再让他点进会话是白收一道过路费。
+       ("卡片是入口不是答案"那条只管流内插卡:那时它打断你,所以该是邀请。) */
+    /* 运行面在前:打开这一页十次有九次是想知道"有什么新的",管理是低频的。
+       AT_RUNS 版叫 Runs —— 这一页要能装下任何 auto-task,不只是电商的价格提醒。
+       "Updates" 说的是数据变了,而这里陈列的是"它跑了一次,并且决定开口说";
+       Runs 落在那次运行上,任何类型的任务都说得通(找一轮礼物、提醒喝水,都是一次 run)。
+       两版都不在 tab 上写未读数:数字每读一条就跳一次,而"有没有"才是要不要点进去的分界;
+       AT_RUNS 版连存量数(Tasks · 12)也去掉 —— 分段控件是两个视图的开关,
+       挂上计数就又变回了"筛选出多少条"的读法。 */
+    const tabs = AT_RUNS ? `
+      <div class="lk-seg lk-reveal">
+        <span class="sg${lkTab==='updates'?' on':''}" onclick="lkSetTab('updates')">Runs${upUnread ? '<i class="sdot"></i>' : ''}</span>
+        <span class="sg${lkTab==='tasks'?' on':''}" onclick="lkSetTab('tasks')">Tasks</span>
+      </div>` : `
+      <div class="lk-filter lk-reveal">
+        <span class="lf${lkTab==='updates'?' on':''}" onclick="lkSetTab('updates')">Updates${upUnreadN ? ` · ${upUnreadN}` : ''}</span>
+        <span class="lf${lkTab==='tasks'?' on':''}" onclick="lkSetTab('tasks')">Tasks · ${AT_ROWS().length}</span>
+      </div>`;
+    /* 时间提到卡外、按天分组 —— 每张卡都写一次"多久之前"是把同一个维度重复 N 遍;
+       而这一列本来就是时间序,分组头一说,组内所有卡就都不必再说。
+       代价:同一天内的先后只剩顺序表达(20m 与 2h 不再区分),
+       但"是不是今天"才是决定要不要现在动的那一刀。 */
+    if (lkTab === 'updates') {
+      const rows = UPDATES(); let day = '', html = '';
+      rows.forEach(u => { if (u.day !== day) { day = u.day; html += `<div class="up-day lk-reveal">${day}</div>`; }
+        html += upCard(u); });
+      return tabs + html + `<div style="height:20px"></div>`;
+    }
+    return tabs + `<div class="at-list">${AT_ROWS().map((r,i)=>atTask(r,i)).join('')}</div>
+      <div style="height:20px"></div>
+      <div style="height:20px"></div>`;
+  }
   return `
       <div class="lk-fhead lk-reveal">Updates · 3</div>
       ${lkCard('scarce','LOW STOCK','watch',priceTag('watch','$329'),
         ['scarcebg','Only <span class="lk-mono" style="color:var(--lk-scarce)">4 left</span> — went <span class="lk-mono lk-ink">9→6→4</span> over our last 3 checks.'],
-        `<button class="lk-btn pri" onclick="event.stopPropagation();toast('In-app checkout — Migoo fulfils & attributes')">Buy now</button>
+        `<button class="lk-btn pri" onclick="event.stopPropagation();toast('In-app checkout — Migoo fulfils &amp; attributes')">Buy now</button>
          <button class="lk-btn" onclick="event.stopPropagation();sheetId='watch';sendQ('Find me a similar smartwatch in stock')">Find similar</button>`)}
       ${lkCard('inkt','PRICE ↓','phones',priceTag('phones','$449<span class="lk-delta lk-mono lk-ink">↓$100</span>'),
         ['inkbg','Lowest since you saved it (<span class="lk-mono lk-ink">Jul 12</span>) — every check this week equal or lower.'],
-        `<button class="lk-btn pri" onclick="event.stopPropagation();toast('In-app checkout — Migoo fulfils & attributes')">Buy now</button>
+        `<button class="lk-btn pri" onclick="event.stopPropagation();toast('In-app checkout — Migoo fulfils &amp; attributes')">Buy now</button>
          ${alertBtn('phones')}`)}
-      ${/* 价格后照常挂 Target —— 规则不开例外,而且这张卡上"现价 = 你的线"
-           两个数并排,恰好就是这张卡要说的事。
-           事件行相应地不再复述那个数字,只说发生了什么、什么时候定的。 */''}
       ${lkCard('deal','TARGET HIT','sneaker',priceTag('sneaker','$89'),
         ['goodbg','Hit your target this morning — you set it when you saved (<span class="lk-mono lk-ink">Jul 18</span>).'],
-        `<button class="lk-btn pri" onclick="event.stopPropagation();toast('In-app checkout — Migoo fulfils & attributes')">Buy now</button>
-         ${/* 不放 Will it drop more? —— 它和 Adjust target 在这张卡上是同一个念头
-              ("还会跌吗 → 那我要不要改条件"),而后者更具体、更可执行;
-              三个按钮也会把这一行挤成两行。 */''}
+        `<button class="lk-btn pri" onclick="event.stopPropagation();toast('In-app checkout — Migoo fulfils &amp; attributes')">Buy now</button>
          ${alertBtn('sneaker')}`)}
       <div class="lk-sec lk-reveal"><span class="st">All Liked Products</span></div>
-      ${/* 不重复上面 Updates 里的三件 —— 同一张脸在一屏里出现两次,
-           用户第一反应是"我收藏了两个?"。整页 3 + 5 = 8,与副标题的 8 saves 对得上。 */''}
       ${['tote','backpack','sunglasses','bottle','sneaker2'].map(lkRow).join('')}
       <div style="height:20px"></div>`;
 }
+/* 纯收藏列表 —— 和 Auto-tasks 那一页刻意不共用任何东西。
+   那一页是 agent 的地盘(有 run、有开关、有 Adjust with Agent);
+   这一页只是"我记下的东西",没有任务、没有状态、没有可执行的动作,
+   一张卡上只有图、名、价,点进去就是商详。
+   收藏本来就不请 agent 干活,这一页也就没有理由长得像它。 */
+function likeList(){
+  const ids = [...saved];
+  return `<div class="likes-overlay likelist" id="likeList">
+    ${statusbar()}
+    <div class="lk-header">
+      <span style="position:absolute;left:16px;top:2px;font-size:24px;font-weight:300;line-height:32px;cursor:pointer" onclick="closeLikeList()">‹</span>
+      <div class="t">Likes</div>
+    </div>
+    <div class="lk-body">
+      ${ids.length ? `<div class="grid ll-grid">
+        <div class="gcol">${ids.filter((_,i)=>i%2===0).map(llCard).join('')}</div>
+        <div class="gcol">${ids.filter((_,i)=>i%2===1).map(llCard).join('')}</div>
+      </div>` : `<div class="ll-empty">Nothing here yet</div>`}
+      <div style="height:24px"></div>
+    </div>
+  </div>`;
+}
+const llCard = (id) => { const p=P[id]; return `
+  <div class="gcard" onclick="goPDPFromLikes('${id}')">
+    <div class="imgw"><img src="${p.img}" alt=""></div>
+    <div class="cap"><div class="ttl">${p.brand} ${p.nm}</div><div class="pr">$${p.pr}</div></div>
+  </div>`; };
+function openLikeList(){
+  closePDP();
+  const el = document.getElementById('likeList');
+  if (el) { el.outerHTML = likeList(); document.getElementById('likeList').classList.add('show'); }
+}
+function closeLikeList(){ document.getElementById('likeList')?.classList.remove('show'); }
+/* 从列表点进商详:收掉列表再开 PDP —— 两者同层,不收就被盖住(likes 那一页踩过一次) */
+function goPDPFromLikes(id){ closeLikeList(); setTimeout(()=>openPDP(id), 160); }
 function likesTab(){
   return `<div class="likes-overlay" id="likesTab">
     ${statusbar()}
     <div class="lk-header">
       <span style="position:absolute;left:16px;top:2px;font-size:24px;font-weight:300;line-height:32px;cursor:pointer" onclick="closeLikes()">‹</span>
-      <div class="t">Likes</div>
-      <div class="s" id="lkSub"><span class="lk-pdot"></span><span id="lkSubText">${lkSubtitle()}</span></div>
+      <div class="t">${WATCH_MODE ? 'Auto-tasks' : 'Likes'}</div>
+      ${AT_RUNS ? '' : `<div class="s" id="lkSub"><span class="lk-pdot"></span><span id="lkSubText">${lkSubtitle()}</span></div>`}
       <button class="more" onclick="lkNavMenu(event)" aria-label="More">⋯</button>
-      <div class="lk-navmenu" id="lkNavMenu"><div class="mi" onclick="lkToast('批量管理(多选删除) — demo')">Manage saves…</div></div>
+      <div class="lk-navmenu" id="lkNavMenu">${WATCH_MODE ? `
+        ${/* demo 专用:同一套逻辑的三种卡型,摆出来比 */''}
+        <div class="mi" onclick="upSetStyle('headline')">Card A · Headline-led</div>
+        <div class="mi" onclick="upSetStyle('flat')">Card B · No box</div>
+        <div class="mi" onclick="upSetStyle('quote')">Card C · Quoted task</div>` : ''}
+        <div class="mi" onclick="lkToast('批量管理(多选删除) — demo')">${WATCH_MODE ? 'Manage auto-tasks…' : 'Manage saves…'}</div></div>
     </div>
     <div class="lk-prog" id="lkProg"><i id="lkBar"></i></div>
     <div class="lk-body" id="lkBody">${lkBodyHTML()}</div>
+    ${/* 固定在底部,与现有 autotask 页一致 —— 新建是这一页的常驻动作,
+         跟着列表滚到最底下才出现,等于列表越长越难新建。
+         只在 Tasks tab 出现:Worth a look 是在读结果,不是在管配置。 */''}
+    <div class="lk-addbar" id="lkAddBar">
+      <button class="lk-addbtn" onclick="closeLikes();setTimeout(()=>openFocus('Every '),160)">Add Auto-task</button>
+    </div>
     ${fbar()}
     <div class="lk-toast" id="lkToast"></div>
   </div>`;
 }
 let lkScanned = false, lkScanT = [];
+/* 点一下 Updates 就算看过,点消失。
+   默认虽然停在 Updates,但"停在这儿"和"看过了"不是一回事 ——
+   要有一个用户主动的动作,这个点才该退场,否则它从没起过作用。 */
+function lkSetTab(t){
+  lkTab = t;
+  if (t === 'updates') lkMarkRead();   /* 明确点了 Runs = 看过了,点当场消失 */
+  renderLikesBody();
+  /* 换 tab 要回到顶部 —— 两个 tab 内容长度不同,沿用上一个的滚动位置
+     会让人落在列表中间,甚至落到内容之外的空白。 */
+  const b = document.getElementById('lkBody'); if (b) b.scrollTop = 0;
+}
+/* 筛选切的是视角,不是结构:分段还是那两段,只是把没动静的行藏起来。 */
+/* 引用行 → Tasks tab 里的那一条。
+   只切 tab 等于把用户丢进一个 11 条的列表里自己找 —— 引用的意义就没了。
+   所以:切 tab → 滚到那张卡(居中,能看见上下文)→ 让它闪一下自报家门。 */
+function goTask(i){
+  lkSetTab('tasks');
+  requestAnimationFrame(() => {
+    const body = document.getElementById('lkBody');
+    const card = body && body.querySelectorAll('.at-card')[i];
+    if (!card) return;
+    const br = body.getBoundingClientRect(), cr = card.getBoundingClientRect();
+    const top = body.scrollTop + (cr.top - br.top) - Math.max(0, (br.height - cr.height) / 2);
+    body.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    /* 入场动画(lk-reveal)结束后再闪,否则两条动画叠在一起谁都看不清 */
+    setTimeout(() => {
+      card.classList.add('at-hit');
+      setTimeout(() => card.classList.remove('at-hit'), 900);
+    }, 300);
+  });
+}
+function lkFilter(v){ lkOnlyNew = v; renderLikesBody(); }
 function renderLikesBody(){
+  const bar = document.getElementById('lkAddBar');
+  if (bar) bar.classList.toggle('show', WATCH_MODE && lkTab === 'tasks');
   const body = document.getElementById('lkBody');
   const st = document.getElementById('lkSubText');
   if (body) body.innerHTML = lkBodyHTML();
   if (st) st.innerHTML = lkSubtitle();
 }
 function openLikes(){
+  clearHomeDot();            /* 进门就清电商 tab 那个点 —— 你已经知道有新东西了 */
   renderLikesBody();
   document.getElementById('likesTab').classList.add('show');
-  if (!lkScanned) lkRunScan();
+  /* 扫描动画只属于 Likes 页 —— 它演的是"你收藏的东西我刚替你查过一遍",
+     那一页没有别的地方能说这句话。Auto-tasks 页说不着:开关、规则、
+     all running、跑出来的 Updates,内容本身已经是证据。
+     而且用户多半是被 push 拉进来看某一条更新的,先给他 1.5s 空屏是反的。 */
+  if (!lkScanned && !WATCH_MODE) lkRunScan();
 }
 /* Likes 是一页,PDP 是压在页上的一层 —— 从 PDP 里跳过去必须先把这层收掉,
    否则 Likes 在 z-index 75 打开,被 92 的 PDP 整个盖住,看起来就是"点了没反应"。 */
 function goLikes(){ closePDP(); closeSheet(); openLikes(); }
+/* 从 toast 追加条件:不关 PDP —— 条件说的就是这一页上的东西(颜色/尺码/价格),
+   把页面收掉再让用户描述条件,等于把参照物拿走。 */
+function goWatchChips(id){ openFocus('', id, null, true); }
+/* header 铃铛上的角标和 Updates tab 上的数字是同一个数,清也一起清。
+   触发点有两个:
+     · 点 Updates tab —— 用户明确"我来看这个",数字当场消失
+     · 离开这一页 —— 默认落地就在 Updates,不点 tab 也已经看过了;
+       不在这里兜住,退出去铃铛还挂着 3,等于告诉他"你没看过"。
+   清 badge 走 DOM 而不是重渲首页:首页在浮层底下,重渲会重跑瀑布流布局。 */
+/* 两个点,两个时机 —— 它们说的不是同一件事:
+     电商 tab 上那个点 = "这里面有新东西",你进来了就已经知道了,当场清掉。
+     Runs 上那个点 = "新东西在这个面里",它得在你落地之后还看得见,
+     否则它唯一的职责(告诉你该看哪个面)就没机会履行;离开这一页才算看过。
+   这也是为什么不能共用一个布尔:一个在进门时清,一个在出门时清。 */
+function clearHomeDot(){
+  upUnreadN = 0;
+  const c = document.querySelector('.lk-corner');
+  c?.querySelector('.badge')?.remove();
+  c?.querySelector('.dot')?.remove();
+}
+function lkMarkRead(){ clearHomeDot(); upUnread = false; }
 function closeLikes(){
+  lkMarkRead();
   const el = document.getElementById('likesTab');
   if (el) el.classList.remove('show');
   lkCloseMenus();
@@ -1548,10 +2358,13 @@ function kbdShow(v){ document.getElementById('kbd').classList.toggle('show', v);
 /* 输入框 placeholder 轮播:每条演示一种"说法",不是演示品类。
    ① 开放描述 ② 带预算约束的需求 ③ 指代已有物 ④ 具体属性判断
    —— 合起来说清"不用凑关键词,怎么想就怎么说";与下方 chips(可点的快捷 query)分工不同 */
+/* 四条都要在最窄的那一版里放得下 —— 输入框左侧站了 agent 头像时,
+   可写宽度只剩 199px(头像 40 + 间距 10 + 框内左右留白与右侧两个图标)。
+   按最窄的那版定长度,四个方案共用一套文案;要加长得先量。 */
 const PH_ROLL = [
   'Tell me what you need',
-  'A gift for my mom, under $50',
-  'Something like this, but cheaper',
+  'A gift for mom, under $50',
+  'Same look, less money',
   'Will this fit a carry-on?',
 ];
 const PH_H = 21, PH_MS = 2600;
@@ -1631,6 +2444,7 @@ const CAP = Object.fromEntries(CAP_CHIPS.map(c => [c.k, c]));
 /* 每个能力一枚 icon —— 这一排与"现成 query"那一排形状相同(都是圆角 pill),
    靠 icon 区分:带 icon 的是能力(点开还有下一层),纯文字的是一句现成的话(点了就进框)。 */
 const CAP_IC = {
+  watch: IC.bellSm,
   compare:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 5.4h9.4M9 3l2.4 2.4L9 7.8M14 10.6H4.6M7 8.2l-2.4 2.4L7 13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   /* 衣架:穿搭最直白的记号,比 T 恤图形更不容易被读成某一件单品 */
   outfit:'<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 6.1V5.5a1.55 1.55 0 111.55-1.55" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8 6.1L2 10.5c-.7.5-.35 1.6.5 1.6h11c.85 0 1.2-1.1.5-1.6z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>',
@@ -1641,11 +2455,46 @@ const CAP_IC = {
 const IC_INS = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M4.5 4.5l7 7M11.5 7.4v4.1H7.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 /* 引用了具体商品时换一组"对这件东西"的 query;尺码/试穿只对服饰类出 */
 const CF_CHIPS_PROD = ['More like this','Find it cheaper','Is this a good price?'];
+/* like 分家之后,PDP 上一个 auto-task 的痕迹都没有 —— 创建走 Ask 里这一枚。
+   形状就是普通的圆 pill,不加 icon:这一排全是"关于这件东西你可以问什么",
+   它只是其中一句,不该被打扮成一个另有层级的东西。
+   (点它仍然进条件那一层 —— 那是这句话的自然下一步,不是它的身份。) */
+const CF_CHIP_REMIND = (id) => ({ t:'Remind me when…', act:`openFocus('', '${id}', null, true)` });
 const CF_CHIPS_WEAR = ['What size should I get?'];
+/* watch 态下,商品 composer 的 chips 换成四条"到什么时候告诉我" ——
+   它们是句子不是选项,点了键入输入框,发出去就是一条任务。
+   价格那条带上现价算出的具体数字:用户手上没有参照就写不出条件。 */
+/* 当前条件的一句话说法 —— 标签里放得下的长度 */
+const watchRule = (id) => ALERTS[id] ? `below $${ALERTS[id]}` : 'price or stock';
+/* 铃铛的两态分工:要"说"才进会话,只是要"看"就别进。
+     未设置 → 你要做一件还不存在的事,必须说出条件 → 进 composer
+     已设置 → 你多半只是想确认它还在、当初设的是多少 → toast 报出来就够了。
+   为一个"看一眼"的意图付一次盖住商品 + 拉键盘的代价,不划算;
+   真要改,toast 上那一下才进 composer,那时用户是带着"我要改"进去的。
+   铃铛在任何一态都不再直接关掉任务 —— 误触关掉一条盯了很久的价太贵。 */
+function bellTap(id){
+  if (!saved.has(id)) return goWatchChips(id);
+  toast(`Auto-task on · ${watchRule(id)}`, { t:'Change', fn:`goWatchChips('${id}')` });
+}
+function stopWatch(id){
+  saved.delete(id); delete ALERTS[id];
+  closeFocus(); closeChat();
+  const pill = document.getElementById('pdpSave');
+  if (pill) { pill.innerHTML = IC.bell(false); pill.setAttribute('aria-label','Create auto-task'); }
+  document.querySelectorAll('#h-'+id).forEach(h=>h.innerHTML = IC.bell(false));
+  toast('Auto-task stopped');
+}
+const watchChips = (id) => [
+  `Tell me if it drops below $${Math.round(P[id].pr*0.9)}`,
+  `Tell me when it’s back in stock`,
+  ...(P[id].tryon ? [`Tell me when my size is in`] : []),
+  `Tell me if a new colour drops`,
+];
 const IC_X = '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 let cfValue = '';
 let cfProd = null;                                     /* 当前引用的商品 id */
 let cfCap  = null;                                     /* 当前选中的能力 chip(仅 USE_CAPS 态) */
+let cfWatch = false;                                   /* 这次唤起只列"到什么时候叫我" */
 const cfEsc = s => s.replace(/'/g, "\\'");
 function cfRender(){
   const t = document.getElementById('cfText');
@@ -1654,33 +2503,96 @@ function cfRender(){
   /* 聚焦即有光标:空态时光标在 placeholder 之前(iOS 原生行为) */
   t.innerHTML = cfValue
     ? `${cfValue}<span class="caret"></span>`
-    : `<span class="caret lead"></span>${cfProd ? 'Ask about this…' : (cfCap ? CAP[cfCap].ph : PH_ROLL[0])}`;
+    : `<span class="caret lead"></span>${cfWatch ? (saved.has(cfProd) ? 'Change it, or tell me another' : 'When should I tell you?') : (cfProd ? 'Ask about this…' : (cfCap ? CAP[cfCap].ph : PH_ROLL[0]))}`;
   document.getElementById('cfSend').classList.toggle('off', !cfValue);
 }
 /* 通用 composer 与商品 ✦ 走同一个函数 —— 点 ✦ 本质就是"唤起输入框 + 引用这件商品 + 给几条 query" */
-function openFocus(prefill, prodId, capKey){
+/* 三种形态,按"这份列表是穷举还是举例"分,不按文字长短分:
+     方角 + icon 的 chip  = 能力。点了会进入一个状态。
+     全圆 pill,无 icon    = 直接给的 query。举例 —— 关于这件商品你能问的事无穷,
+                            这几条只是起个头,横滑本身就在说"还有,而且不重要"。
+     裸行(竖排,行末 ↘)  = 某个能力下的 query。穷举 —— 这个能力就这几种说法,
+                            读起来像一份清单,而清单要能退出,靠输入框里那枚标签的 ×。
+   裸行只出现在能力选中态:它的形态承诺了"你正处在一个状态里",
+   而直接推荐没有那个状态,套上这个形态就是许了一个兑现不了的承诺。 */
+/* watchOnly:只列条件,不列别的能力。
+   商品 composer 有两个入口,它们要的 chips 不是一回事:
+     ✦ / Ask Migoo   → "关于这件东西我想问点什么"(找同款、比价、试穿)
+     Tell me when… › → "到什么时候叫我"(只有条件)
+   之前把 watch 态下所有商品 chips 一律换成条件,结果 ✦ 那个入口也被换掉,
+   而 Try it on 又被无条件插在最前面,于是条件列表里混进一个执行型能力。 */
+function openFocus(prefill, prodId, capKey, watchOnly){
   cfValue = prefill || '';
   cfProd  = prodId || null;
   cfCap   = capKey || null;
+  cfWatch = !!watchOnly;
   const p = cfProd ? P[cfProd] : null;
   /* 能力型 chip(试穿)直接执行,query 型 chip 键入不发送 —— 视觉同构,措辞区分(动词 vs 问句) */
-  const chips = p
-    ? (p.tryon ? [{t:'Try it on', act:`openTryOn('${cfProd}')`}] : [])
-        .concat(CF_CHIPS_PROD.map(t=>({t})), p.tryon ? CF_CHIPS_WEAR.map(t=>({t})) : [])
-    : CF_CHIPS.map(t=>({t}));
+  const chips = !p ? CF_CHIPS.map(t=>({t}))
+    : cfWatch ? watchChips(cfProd).map(t=>({t}))
+    : ((p.tryon && !CHAT_DOCK) ? [{t:'Try it on', act:`openTryOn('${cfProd}')`}] : [])
+        .concat(LIKE_SPLIT ? [CF_CHIP_REMIND(cfProd)] : [], CF_CHIPS_PROD.map(t=>({t})), p.tryon ? CF_CHIPS_WEAR.map(t=>({t})) : []);
   /* USE_CAPS 且无商品引用时走两层。选中能力后这一排换成该能力的整句建议 ——
      能力已经以标签形式挂在输入框里,再留一排 chips 就是同一件事占两处。
      引用了具体商品时不换 —— 那时上下文已经收窄到这件东西,再摆一遍全局能力是噪音。 */
-  const cap = (USE_CAPS && !p && cfCap) ? CAP[cfCap] : null;
+  /* watch 态本来就是一个能力:"到什么时候叫我"。以前它只表现为一组 chips,
+     没有名字也没有可撤销的状态 —— 而它恰恰是全站最需要说清范围的那一个。
+     升格成一枚 Auto-task 标签之后,它和 Gift ideas 走同一套:
+     标签挂在输入框里、建议在上方、× 退回普通的商品 composer。 */
+  /* 已经设过的话,标签自己把条件说出来 —— 用户回到这个 PDP,想知道的从来不是
+     "有没有",而是"我当初设的是什么"。写进标签就不用再加一行说明。
+     placeholder 随之从"设"变成"改";建议里补一条停掉,否则删除只能去任务页找。 */
+  const watchOn = cfWatch && saved.has(cfProd);
+  const cap = cfWatch
+    ? { k:'watch',
+        t: watchOn ? `Auto-task · ${watchRule(cfProd)}` : 'Auto-task',
+        ph: watchOn ? 'Change it, or tell me another' : 'When should I tell you?',
+        qs: watchOn
+          ? [...watchChips(cfProd), { t:'Stop this auto-task', act:`stopWatch('${cfProd}')` }]
+          : watchChips(cfProd) }
+    : ((USE_CAPS && !p && cfCap) ? CAP[cfCap] : null);
   const dockTop = cap
-    ? `<div class="cf-sugs">${cap.qs.map(q=>
-         `<div class="cf-sug" onclick="cfType('${cfEsc(q)}')">
-            <span class="st">${q}</span><span class="sa">${IC_INS}</span></div>`).join('')}</div>`
+    ? `<div class="cf-sugs">${cap.qs.map(q=>{
+         const t = q.t || q;   /* 条目可以是一句话(点了进框),也可以带 act(点了直接执行) */
+         return `<div class="cf-sug${q.act?' act':''}" onclick="${q.act || `cfType('${cfEsc(t)}')`}">
+            <span class="st">${t}</span><span class="sa">${q.act ? '' : IC_INS}</span></div>`;
+       }).join('')}</div>`
     : (USE_CAPS && !p)
       ? `<div class="cf-chips">${CAP_CHIPS.map(c=>
            `<span class="cf-chip capchip" onclick="openCap('${c.k}')"><span class="ci">${CAP_IC[c.k]}</span>${c.t}</span>`).join('')}</div>`
       : `<div class="cf-chips">${chips.map(c=>
-           `<span class="cf-chip" onclick="${c.act || `cfType('${cfEsc(c.t)}')`}">${c.t}</span>`).join('')}</div>`;
+           `<span class="cf-chip${c.cap?' capchip':''}" onclick="${c.act || `cfType('${cfEsc(c.t)}')`}">${c.cap?`<span class="ci">${CAP_IC[c.cap]}</span>`:''}${c.t}</span>`).join('')}</div>`;
+  /* ---- opt41:composer 就是会话浮层的 dock ----
+     四个入口(输入框 / agent 头像 / 能力 chip / 商品 ✦)全部走到这里,
+     区别只剩浮层开着时 dock 里装的是什么。能力选中时它升格成这一段的抬头,
+     而不再是输入框里的一枚标签 —— 此刻它是整个 dock 的范围。 */
+  if (CHAT_DOCK) {
+    /* 引用条在能力标签之上 —— 读起来是"这件东西 → 要拿它做什么",
+       反过来就成了"要做什么 → 哦对了是这件",宾语迟到。 */
+    const inputHTML = `
+      <div class="cf-input">
+        ${p ? cfQuoteHTML(p) : ''}
+        ${(cap && DOCK_CAP === 'tag') ? `<div class="cf-tag">
+          <span class="ci">${CAP_IC[cap.k]}</span>${cap.t}
+          <span class="tx" onclick="cfDropCap()">${IC_X}</span>
+        </div>` : ''}
+        <div class="cf-text ph" id="cfText"></div>
+        <div class="cf-row">
+          <span class="ic">${IC.plus}</span><span class="sp3"></span>
+          <span class="ic">${IC.mic}</span>
+          <span class="cf-send off" id="cfSend" onclick="cfSend()">${IC.upSm}</span>
+        </div>
+      </div>`;
+    if (cap && DOCK_CAP === 'panel') {
+      openDockComposer(`<div class="dk-panel">
+        <div class="dk-cap"><span class="ci">${CAP_IC[cap.k]}</span><b>${cap.t}</b>
+          <span class="dx" onclick="cfDropCap()">${IC_X}</span></div>
+        ${rows2HTML(cap.qs)}${inputHTML}</div>`, '');
+    } else {
+      openDockComposer(dockTop, inputHTML);
+    }
+    return;
+  }
   document.getElementById('cfocus').innerHTML = `
     <div class="cf-scrim" onclick="closeFocus()"></div>
     <div class="cf-dock${cap ? ' fade' : ''}">
@@ -1707,13 +2619,58 @@ function openFocus(prefill, prodId, capKey){
   kbdShow(true);
   cfRender();
 }
+/* 两行横滑:按下标奇偶分到两行,两行宽度自然接近,不会一行长一行空。
+   每个 chip 各按自己的文字取宽 —— 定宽会在短句后面拖一大截空白。 */
+function rows2HTML(list){
+  const row = a => `<div class="r">${a.map(q=>
+    `<span class="cf-chip" onclick="cfType('${cfEsc(q)}')">${q}</span>`).join('')}</div>`;
+  const r1 = list.filter((_,i)=>i%2===0), r2 = list.filter((_,i)=>i%2===1);
+  return `<div class="cf-chips rows2">${row(r1)}${r2.length ? row(r2) : ''}</div>`;
+}
+/* 浮层已经开着就只换 dock,绝不重渲 —— 重渲会把线程连同滚动位置一起重建,
+   而用户此刻的意图恰恰是"就在这条对话里接着说"。 */
+function openDockComposer(dkTop, inputHTML){
+  const chat = document.getElementById('chat');
+  if (!chat.classList.contains('show')) { sheetId = cfProd; chatShell(chatPre()); }
+  const dock = chat.querySelector('.cdock');
+  if (!dock) return;
+  dock.className = 'cdock composing';
+  dock.innerHTML = dkTop + inputHTML;
+  chat.classList.add('kbdup');
+  kbdShow(true);
+  cfRender();
+  chatScrollEnd();
+}
+/* 收起 composer ≠ 关掉浮层 —— 浮层留着,dock 退回那条静止的输入行,
+   点它又能回到 composer。全站只有一个 composer,它只是有站起来和坐下两种姿势。 */
+function restDock(){
+  const chat = document.getElementById('chat');
+  const dock = chat?.querySelector('.cdock');
+  chat?.classList.remove('kbdup');
+  kbdShow(false);
+  if (dock) { dock.className = 'cdock'; dock.innerHTML = caskHTML(); }
+}
+const caskHTML = () => `<div class="cask"${CHAT_DOCK ? ` onclick="openFocus('')"` : ''}><span class="sp2">${
+  CHAT_SHEET && CHAT_AGENT ? 'Ask about anything you’re looking at' : 'Anything on your mind?'}</span>${IC.mic}${IC.plus}</div>`;
+const cfQuoteHTML = (p) => QUOTE_ONELINE
+  ? `<div class="cf-quote one">
+      <img src="${p.img}">
+      <div class="qi"><div class="qb">${p.brand} ${p.nm}</div></div>
+      <span class="qx" onclick="cfUnquote()">${IC_X}</span>
+    </div>`
+  : `<div class="cf-quote">
+      <img src="${p.img}">
+      <div class="qi"><div class="qb">${p.brand}</div><div class="qn">${p.nm}</div></div>
+      <span class="qx" onclick="cfUnquote()">${IC_X}</span>
+    </div>`;
 function cfType(t){ cfValue = t; cfRender(); }        /* chip / 建议 → 键入,不发送 */
 /* 能力 chip → 挂标签 + 换成该能力的整句建议;输入框留空等用户自己说或点一条建议 */
 function openCap(k){ openFocus('', null, k); }
 /* 摘掉能力标签 → 退回能力那一层,已打的字保留(与 cfUnquote 一致) */
-function cfDropCap(){ openFocus(cfValue, null, null); }
+function cfDropCap(){ openFocus(cfValue, cfWatch ? cfProd : null, null); }
 function cfUnquote(){ openFocus(cfValue, null); }     /* 去掉引用 → 退回通用 composer */
 function closeFocus(){
+  if (CHAT_DOCK) { restDock(); cfProd = null; cfCap = null; return; }
   document.getElementById('cfocus').classList.remove('show');
   kbdShow(false);
   cfProd = null;
@@ -1722,6 +2679,14 @@ function closeFocus(){
 function cfSend(){                                     /* 用户主动发送 → 跳 tab1 会话 */
   if (!cfValue) return;
   const q = cfValue, ctx = cfProd;
+  /* 在 Auto-task 标签下发出去的那一句,就是这条任务成立的时刻 —— 铃铛在这里才变实心。
+     铃铛本身不再是开关(它现在是入口),所以状态必须由"说出口"来推进。 */
+  if (cfWatch && ctx) {
+    saved.add(ctx);
+    const pill = document.getElementById('pdpSave');
+    if (pill) { pill.innerHTML = IC.bell(true); pill.setAttribute('aria-label','Auto-task on'); }
+    document.querySelectorAll('#h-'+ctx).forEach(h=>h.innerHTML = IC.bell(true));
+  }
   closeFocus();
   sheetId = ctx;                                       /* 带上引用商品作为追问上下文 */
   setTimeout(()=>sendQ(q), 120);
@@ -1766,16 +2731,78 @@ const bubbleU = (t, ids, img) => {
     (img ? `<div class="uatt one"><img src="${A}${img}"></div>` : '') +
     `<span class="b">${t}</span></div>`;
 };
+/* 电商 agent 的身份。只有 CHAT_AGENT 时才露出 ——
+   Option 5 里同一条浮层写的是 Migoo,好让"历史混杂"这件事看得见。 */
+const SHOPBOT = { name:'mshop', sub:'Shopping · your saves, prices, fits' };
+let cthread = [];            /* 浮层线程:关掉存起来,再点常驻入口接着看 */
+
+/* 重开浮层时看到的上文 —— 两版的区别全在这里,也是这次对照真正要看的东西:
+     agent 版:线程只属于电商,上文全是货、价、尺码,接得上
+     非 agent 版:同一个 Migoo 主线程,上文夹着做 PPT、转写录音这些不相干的事
+   Option 5 必须真的把混杂演出来,否则它会显得概念更少、更简单,比较就是假的。 */
+const PRIOR_SHOP = [
+  bubbleU('Which of my two saved strollers packs smaller?', ['keenz','doona']),
+  bubbleA('The Keenz folds to 52×44×18 cm — it clears the overhead bin. The Doona doesn’t fold that flat, but it turns into the car seat, so you carry one thing instead of two.'),
+  bubbleU('Noted. Remind me before the Tokyo trip.'),
+  bubbleA('Will do — I’ll bring it up the week before you fly.'),
+];
+const PRIOR_MIXED = [
+  bubbleU('Turn yesterday’s recording into notes'),
+  bubbleA('Done — 42 minutes, 6 decisions, 3 follow-ups. Want the follow-ups as tasks?'),
+  bubbleU('Yes. Also make the Q3 deck 12 slides instead of 20'),
+  bubbleA('Trimmed to 12 — I merged the two roadmap slides and dropped the appendix.'),
+  bubbleU('Which of my two saved strollers packs smaller?', ['keenz','doona']),
+  bubbleA('The Keenz folds to 52×44×18 cm — it clears the overhead bin.'),
+];
+const priorHTML = () => `<div class="cthread-sep">Earlier</div>` +
+  (CHAT_AGENT ? PRIOR_SHOP : PRIOR_MIXED).join('');
+/* 所有"点卡进会话"的入口共用这一个:浮层模式带上线程上文,整页模式不带
+   (整页那条对话本来就住在 tab1,它自己有历史)。 */
+const chatPre = () => CHAT_SHEET ? (cthread[0] || priorHTML()) : '';
 function chatShell(bodyHTML) {
-  document.getElementById('chat').innerHTML = `
-    <div class="chead">
-      <div class="ct">Migoo</div><div class="cs">Generated by AI</div>
-      <span class="cdoc" onclick="toast('会话历史 — demo')">${IC.doc}</span>
-    </div>
-    <div class="cbody">${bodyHTML}</div>
-    <div class="cdock"><div class="cask"><span class="sp2">Anything on your mind?</span>${IC.mic}${IC.plus}</div></div>
-    ${fbar('migoo')}`;
-  document.getElementById('chat').classList.add('show');
+  const el = document.getElementById('chat');
+  el.classList.toggle('sheetmode', CHAT_SHEET);
+  const head = CHAT_SHEET
+    ? `<div class="chead">
+         <div class="csheet-grab"></div>
+         ${CHAT_AGENT
+           ? `<div class="ct cagent"><img src="${A}mshop-logo.png">${SHOPBOT.name}</div>
+              <div class="cs">${SHOPBOT.sub}</div>`
+           : `<div class="ct">Migoo</div><div class="cs">Generated by AI</div>`}
+         ${CHAT_EXPAND ? `<span class="cexp" onclick="toggleSheetTall()" aria-label="${chatTall ? 'Collapse' : 'Expand'}">${chatTall ? IC.collapse : IC.expand}</span>` : ''}
+         <span class="cdoc" onclick="closeChat()" aria-label="Close">${IC_X}</span>
+       </div>`
+    : `<div class="chead">
+           <div class="ct">Migoo</div><div class="cs">Generated by AI</div>
+           <span class="cdoc" onclick="toast('会话历史 — demo')">${IC.doc}</span>
+         </div>`;
+  el.innerHTML = head +
+    `<div class="cbody">${bodyHTML}</div>
+     <div class="cdock">${caskHTML()}</div>` +
+    (CHAT_SHEET ? '' : fbar(CHAT_AGENT ? 'shop' : 'migoo'));
+  el.classList.toggle('tall', CHAT_SHEET && chatTall);
+  const pdpOpen = document.getElementById('pdp')?.classList.contains('open');
+  el.classList.toggle('top', CHAT_SHEET && pdpOpen);
+  const cs = document.getElementById('chatScrim');
+  cs?.classList.toggle('show', CHAT_SHEET);
+  cs?.classList.toggle('top', CHAT_SHEET && pdpOpen);
+  el.classList.add('show');
+}
+/* 展开 = 这一层变高,不是换一个地方。
+   曾经它是"浮层 → 整页":点开就成了 mshop 自己的整页,于是要给整页配返回、
+   配底 tab、还要决定返回落在哪 —— 为了一个"我想多看几行"的诉求,
+   引进了一整套换页语义。而 mshop 和 Migoo 是两个 agent,展开到主 tab 更是把
+   两条线程合回去的类别错误。
+   现在它只改高度:同一层、同一条线程、同一个关闭键,展开与收起互为反向。 */
+function toggleSheetTall(){
+  chatTall = !chatTall;
+  const el = document.getElementById('chat');
+  el.classList.toggle('tall', chatTall);
+  /* 只换图标,不重渲整壳 —— 重渲会把 .cbody 连同滚动位置一起重建,
+     而这个动作用户的意图恰恰是"我要接着看现在这几行"。 */
+  const btn = el.querySelector('.cexp');
+  if (btn) { btn.innerHTML = chatTall ? IC.collapse : IC.expand;
+             btn.setAttribute('aria-label', chatTall ? 'Collapse' : 'Expand'); }
 }
 /* ============================================================
    会话统一时序:query 先出 → 思考 2s → 逐段流式打出 → 富内容淡入
@@ -1820,9 +2847,12 @@ function chatFlow(pre, userHTML, segs){
     const s = segs[i];
     const el = document.createElement('div');
     el.className = 'ma';
-    el.innerHTML = '<div class="b"></div>';
+    /* seg.tag 挂在气泡顶部且不参与打字 —— 见 .btag 注释 */
+    el.innerHTML = '<div class="b">' +
+      (s.tag ? `<div class="btag">${IC.bellSm}<span>${s.tag}</span></div>` : '') +
+      '<span class="bt"></span></div>';
     body.insertBefore(el, document.getElementById('ctyping'));
-    typeHTML(el.querySelector('.b'), s.t, () => {
+    typeHTML(el.querySelector('.bt'), s.t, () => {
       if (s.rich) {
         const r = document.createElement('div');
         r.className = 'crich';
@@ -1863,10 +2893,18 @@ function replyFor(q, id) {
   /* 价格提醒:先给参照(现价 + 收藏以来的最低),再问要盯哪条线。
      不问"你要设多少"就直接给输入框 —— 用户没有参照就填不出数,
      这也是上一版数字键盘方案真正卡住的地方。 */
+  /* 四条条件句 → 一条任务。回复只做两件事:复述成可执行的一句,补上默认值。
+     不反问 —— 每多问一个问题就重一分,这是"轻量创建"能不能成立的地方。 */
+  if (low.includes('back in stock'))
+    return { tag:'Auto-task updated', text: `Done — I’ll ping you the moment the ${p.nm} is back. I check a few times a day, and I’ll only say it once.`, ids: [] };
+  if (low.includes('my size'))
+    return { tag:'Auto-task updated', text: `Done — watching US 9 on this one. If it comes back in another size first I’ll stay quiet.`, ids: [] };
+  if (low.includes('new colour') || low.includes('new color'))
+    return { tag:'Auto-task updated', text: `Done — I’ll tell you if a new colourway shows up. Right now it’s ${(PDPD[id]?.variants?.[0]?.options||[]).length || 4} colours.`, ids: [] };
   if (low.includes('drops below'))
-    return { text: `Done — I’ll only ping you at <code>$${ALERTS[id]}</code>. It’s <code>$${p.pr}</code> today and the lowest I’ve seen since you saved it is <code>$${alertLow(id)}</code>, so that line is realistic. Tell me another number any time.`, ids: [] };
+    return { tag:'Auto-task updated', text: `Done — I’ll only ping you at <code>$${ALERTS[id]}</code>. It’s <code>$${p.pr}</code> today and the lowest I’ve seen since you saved it is <code>$${alertLow(id)}</code>, so that line is realistic. Tell me another number any time.`, ids: [] };
   if (low.includes('instead'))
-    return { text: `Moved — <code>$${ALERTS[id]}</code> it is. That’s below anything I’ve seen this year, so it may sit a while. I’ll stay quiet until then.`, ids: [] };
+    return { tag:'Auto-task updated', text: `Moved — <code>$${ALERTS[id]}</code> it is. That’s below anything I’ve seen this year, so it may sit a while. I’ll stay quiet until then.`, ids: [] };
   if (low.includes('more like'))
     return { text: `In the same lane as the ${p.nm} — two worth a look:`, ids: SIMILAR[id] };
   if (low.includes('cheaper') || low.includes('lower') || low.includes('price'))
@@ -1876,9 +2914,47 @@ function replyFor(q, id) {
 function sendQ(q) {
   const id = sheetId;
   closeSheet();
-  closePDP();                    /* 发送后切到会话 tab,PDP 不该留在底下 */
+  /* 浮层模式下不关 PDP —— 会话是叠在当前页上的一层,当前页可以是 PDP。
+     整页模式仍要关:那是真的换了地方,PDP 留在底下没有意义。 */
+  if (!CHAT_SHEET) closePDP();
   const r = replyFor(q, id);
-  chatFlow('', bubbleU(q, id), [{ t: r.text, rich: plist(r.ids) }]);
+  chatFlow(chatPre(), bubbleU(q, id), [{ t: r.text, rich: plist(r.ids), tag: r.tag }]);
+  if (CHAT_SHEET) markCopilot();
+}
+/* 常驻入口:只有浮层模式才有意义 —— 它是"回到那条对话"的门。
+   整页模式下这条对话本来就住在 tab1,不需要第二个入口。 */
+let askVisible = true, askObs;
+function markCopilot(){
+  const el = document.getElementById('copilot'), bot = document.getElementById('askbot');
+  const mark = `<img src="${A}${CHAT_AGENT ? 'mshop-logo.png' : 'migoo-logo.png'}">`;
+  if (bot) bot.innerHTML = mark;
+  if (!el) return;
+  /* 与贴在输入框里的那枚共用同一份内容 —— 同一个对象,只是换了位置 */
+  el.className = 'copilot' + (CHAT_AGENT ? '' : ' migoo') + (el.classList.contains('show') ? ' show' : '');
+  el.innerHTML = mark;
+  /* 浮起来的条件只有一个:贴着输入框的那个已经看不见了。
+     两个入口同时在场就是重复,同时不在场就没了回到对话的路。 */
+  const chatOpen = document.getElementById('chat')?.classList.contains('show');
+  el.classList.toggle('show', CHAT_SHEET && !askVisible && !chatOpen);
+}
+function watchAskDock(){
+  askObs?.disconnect();
+  const row = document.querySelector('.askrow'), root = document.getElementById('sb');
+  askVisible = true;
+  if (!row || !root) { markCopilot(); return; }
+  askObs = new IntersectionObserver(es => {
+    askVisible = es[0].isIntersecting;
+    markCopilot();
+  }, { root, threshold: 0.55 });
+  askObs.observe(row);
+}
+/* dock 版里头像和输入框落到同一个默认态 —— 它们本来就通向同一条线程,
+   只是一个说"回去",一个说"说点什么";进去之后没有理由长得不一样。 */
+function openCopilot(){
+  if (CHAT_DOCK) { sheetId = null; openFocus(''); return; }
+  sheetId = null;
+  chatShell(chatPre());
+  chatScrollEnd();
 }
 function openChatFree() { sheetId = 'backpack'; sendQ('What should I pack for Tokyo in October?'); }
 /* ============================================================
@@ -1916,11 +2992,25 @@ QCARDS.hat.reply = () => [
 
 function askQ(key) {
   const c = QCARDS[key];
-  chatFlow('', bubbleU(c.q, c.pk || c.ids, c.img), c.reply ? c.reply() : [
+  if (CHAT_SHEET) setTimeout(markCopilot, 0);
+  chatFlow(chatPre(), bubbleU(c.q, c.pk || c.ids, c.img), c.reply ? c.reply() : [
     { t: `On it — give me a second.` }
   ]);
 }
-function closeChat() { flowStop(); document.getElementById('chat').classList.remove('show'); }
+function closeChat() {
+  flowStop();
+  /* 浮层关掉不等于对话没了 —— 存回线程,常驻入口再点开就接着看。
+     这是把会话改成浮层的前提:不存,浮层比切 tab 更糟(切 tab 至少留在 tab1)。 */
+  const body = document.querySelector('#chat .cbody');
+  if (CHAT_SHEET && body) cthread = [body.innerHTML.replace(/<div class="ma" id="ctyping">[\s\S]*?<\/div><\/div>/,'')];
+  document.getElementById('chat').classList.remove('show');
+  document.getElementById('chatScrim')?.classList.remove('show');
+  /* 展开是"这一次我要多看几行",不是一项偏好 —— 关掉就复位 */
+  chatTall = false;
+  document.getElementById('chat').classList.remove('tall', 'kbdup');
+  if (CHAT_DOCK) kbdShow(false);
+  if (CHAT_SHEET) markCopilot();
+}
 /* 从 Shop 点 Migoo tab → 切到助理 tab(会话的常驻家) */
 function openAssistant() {
   chatShell(
@@ -1972,8 +3062,8 @@ function toggleSave(id) {
   const pdpOpen = document.getElementById('pdp')?.classList.contains('open');
   if (pdpOpen) {
     const pill = document.getElementById('pdpSave');
-    if (pill) { pill.innerHTML = IC.heart(on); pill.setAttribute('aria-label', on?'Saved':'Save'); }
-    document.querySelectorAll('#h-'+id).forEach(h=>h.innerHTML = IC.heart(on));
+    if (pill) { pill.innerHTML = WATCH_MODE ? IC.bell(on) : IC.heart(on); pill.setAttribute('aria-label', WATCH_MODE ? (on?'Auto-task on':'Create auto-task') : (on?'Saved':'Save')); }
+    document.querySelectorAll('#h-'+id).forEach(h=>h.innerHTML = WATCH_MODE ? IC.bell(on) : IC.heart(on));
   } else {
     render();
   }
@@ -1982,7 +3072,24 @@ function toggleSave(id) {
      现在 toast 带入口,入口还没来得及点就没了,才暴露出来。
      文案:收藏是"这个我在意",盯价是它自带的结果 —— 只在这里说一次,之后不再提。
      带一个去 Likes 的入口:承诺说完就该有地方看见它。 */
-  if (on) toast('Saved, I’ll watch price and stock for you', {t:'View Likes', fn:'goLikes()'});
+  /* 一下点击创建的就是一条最轻的 auto-task,没有任何条件要填。
+     用 auto-task 这一个名词说到底 —— 会话里的眉题已经是 Auto-task updated,
+     这里再叫 Watching 就是两个名词抢同一个概念,用户得自己猜它们是不是一回事。
+     toast 的动作不是"去看收藏夹",而是"再收窄一点":承诺说完,
+     紧接着给唯一一个值得追加的动作,而不是把人送去一个列表。 */
+  /* like 分家之后,收藏就只是收藏 —— 不再顺带承诺"我会替你盯价"。
+     那句承诺属于 auto-task,混进来会让用户以为收藏本身就会跑。 */
+  if (LIKE_SPLIT) {
+    /* 收了东西就该给个看得见的去处 —— 但只给这一个,不带任何 agent 的动作。 */
+    if (on) toast('Added to Likes', { t:'View like list', fn:'openLikeList()' });
+    else toast('Removed from Likes');
+  }
+  else if (WATCH_MODE) {
+    if (on) toast('Auto-task created · I’ll tell you if the price or stock moves',
+                  {t:'Add a condition', fn:`goWatchChips('${id}')`});
+    else toast('Auto-task removed');
+  }
+  else if (on) toast('Saved, I’ll watch price and stock for you', {t:'View Likes', fn:'goLikes()'});
   else toast('Removed from Likes');
 }
 let toastTimer;
@@ -1990,7 +3097,8 @@ let toastTimer;
    一条能点的 toast 如果按普通时长消失,等于给了个够不着的入口。 */
 function toast(msg, act) {
   const t = document.getElementById('toast');
-  t.innerHTML = msg + (act ? `<span class="tact" onclick="hideToast();${act.fn}">${act.t}</span>` : '');
+  t.innerHTML = (act ? `<span class="tmsg">${msg}</span>` : msg) +
+    (act ? `<span class="tact" onclick="hideToast();${act.fn}">${act.t}</span>` : '');
   t.classList.toggle('has-act', !!act);
   t.classList.add('show');
   clearTimeout(toastTimer);
@@ -2017,14 +3125,18 @@ function render() {
      <div class="sheet" id="sheet"></div>
      <div class="flow" id="flow"></div>
      ${likesTab()}
+     ${likeList()}
      <div class="pdp-backdrop" id="pdpBackdrop" onclick="closePDP()"></div>
      <div class="pdp-overlay" id="pdp"></div>
+     <div class="chat-scrim" id="chatScrim" onclick="closeChat()"></div>
+     <div class="copilot" id="copilot" onclick="openCopilot()"></div>
      <div class="chat" id="chat"></div>
      <div class="cfocus" id="cfocus"></div>
      <div class="kbd" id="kbd">${kbdHTML()}</div>
      <div class="toast" id="toast"></div>`;
   phStart();
   markScrollable();
+  watchAskDock();
 }
 render();
 </script>
