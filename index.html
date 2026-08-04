@@ -986,13 +986,16 @@
      它们是三个平级候选,实际上主方案只有一个,Option 2/3 是留档的对照。
      主方案不叫 "Option 1":它不是候选之一,就是这次要看的东西。 -->
 <div style="display:flex;justify-content:center;gap:8px;margin:-8px 0 0">
-  <button class="tglbtn on" id="tgl-opt1" onclick="setDemoState('opt1')">Demo</button>
-  <button class="tglbtn" id="tgl-opt43" onclick="setDemoState('opt43')">Demo 2</button>
-  <button class="tglbtn" id="tgl-opt431" onclick="setDemoState('opt431')">Demo 2-1</button>
-  <button class="tglbtn" id="tgl-opt42" onclick="setDemoState('opt42')">Option 4-2</button>
+  <!-- 两个一级方案的差别就是这一个:电商 agent 显不显性外露。
+       名字直接写这件事,不写编号 —— 编号说不出它们在比什么。 -->
+  <button class="tglbtn on" id="tgl-opt43" onclick="setDemoState('opt43')">显性 mshop agent</button>
+  <button class="tglbtn" id="tgl-opt11" onclick="setDemoState('opt11')">无显性 mshop agent</button>
   <button class="tglbtn" id="tgl-backup" onclick="setDemoState(lastBackup)">Backup</button>
 </div>
-<div id="backupRow" style="display:none;justify-content:center;gap:6px;margin:9px 0 0">
+<div id="backupRow" style="display:none;justify-content:center;gap:6px;margin:9px 0 0;flex-wrap:wrap">
+  <button class="tglbtn sub" id="tgl-opt1" onclick="setDemoState('opt1')">Demo</button>
+  <button class="tglbtn sub" id="tgl-opt431" onclick="setDemoState('opt431')">Demo 2-1</button>
+  <button class="tglbtn sub" id="tgl-opt42" onclick="setDemoState('opt42')">Option 4-2</button>
   <button class="tglbtn sub" id="tgl-opt4" onclick="setDemoState('opt4')">Option 4</button>
   <button class="tglbtn sub" id="tgl-opt41" onclick="setDemoState('opt41')">Option 4-1</button>
   <button class="tglbtn sub" id="tgl-opt5" onclick="setDemoState('opt5')">Option 5</button>
@@ -1138,6 +1141,13 @@ const FEED_UPDATE_QUOTA = 3;
    "无更新"态已从 demo 移除,故不再需要 HAS_EVENTS 开关。 */
 const DEMO = {
   opt1: { caps:true,  mix:true,  sheet:false, agent:false, watch:false, pdplean:true },
+  /* Demo 1 = Demo 的底子(会话仍走 tab1,没有浮层/dock)+ Demo 2 那套 like 与 auto-task:
+       watch     → 那一页从 Likes 变成 Auto-tasks
+       runsui    → Runs / Tasks 分段控件,不挂计数、不带副标题
+       likesplit → ♡ 只是收藏(独立列表页),auto-task 的创建走 Ask 里的 Remind me when…
+     浮层相关的开关一个都不带 —— 这一版要单看"分家"这件事本身。 */
+  opt11:{ caps:true,  mix:true,  sheet:false, agent:false, watch:true,  pdplean:true,
+          runsui:true, likesplit:true, homecomp:true, tryon:false },
   opt2: { caps:false, mix:true,   sheet:false, agent:false, watch:false },
   opt3: { caps:false, mix:false,  sheet:false, agent:false, watch:false },
   opt4: { caps:true,  mix:true,   sheet:true,  agent:true,  watch:true  },
@@ -1206,11 +1216,15 @@ let LIKE_SPLIT = false;
    裸行的问题是它借用了会话的语法(全宽、左对齐、纯文字紧贴气泡),
    只靠一个 11px 的 ↘ 撤销;pill 的形状本身就说了"我不是一句被说过的话"。 */
 let SUG_PILL = false;
+/* 商品 composer 里那枚 Try it on。它是执行型能力混在一排整句 query 里,
+   dock 版早就拿掉过一次;PDP 上那条动作行也被 pdplean 收走了 ——
+   两处都没了之后再留着这一枚,它就成了全站唯一一处孤例。 */
+let TRYON_CHIP = true;
 let likesState = 'opt1';
 /* 收进 Backup 的历版 —— 一级只留还在推进的那几个。
    加减备选只动这一个数组,setDemoState 里不再有硬编码的 id 比较。 */
-const BACKUP = ['opt4','opt41','opt5','opt2','opt3'];
-let lastBackup = 'opt4';          /* 点 Backup 回到上次看的那一版 */
+const BACKUP = ['opt1','opt431','opt42','opt4','opt41','opt5','opt2','opt3'];
+let lastBackup = 'opt1';          /* 点 Backup 回到上次看的那一版 */
 function setDemoState(s) {
   likesState = s;
   USE_CAPS = DEMO[s].caps;
@@ -1228,12 +1242,13 @@ function setDemoState(s) {
   PDP_LEAN = !!DEMO[s].pdplean;
   LIKE_SPLIT = !!DEMO[s].likesplit;
   SUG_PILL = !!DEMO[s].sugpill;
+  TRYON_CHIP = DEMO[s].tryon !== false;
   cthread = [];              /* 换方案等于换一条线程,不要串味 */
   upUnreadN = 3; upUnread = true;   /* 换方案就当没看过,便于反复演示 */
   lkTab = 'updates';
   const isBackup = BACKUP.includes(s);
   if (isBackup) lastBackup = s;
-  ['opt1','opt2','opt3','opt4','opt41','opt42','opt43','opt431','opt5'].forEach(k => {
+  ['opt1','opt11','opt2','opt3','opt4','opt41','opt42','opt43','opt431','opt5'].forEach(k => {
     const b = document.getElementById('tgl-'+k);
     if (b) b.classList.toggle('on', k === s);
   });
@@ -1701,7 +1716,7 @@ function pdpHTML(id){
       <div class="pdp-hero">
         <div class="sheet-grabber"></div>
         <div class="pdp-close" onclick="closePDP()">${IC.close}</div>
-        <div class="pdp-watch" id="pdpSave" onclick="event.stopPropagation();${(WATCH_COMPOSE && !LIKE_SPLIT) ? `bellTap('${id}')` : `toggleSave('${id}')`}" aria-label="${saved.has(id)?((WATCH_MODE&&!LIKE_SPLIT)?'Auto-task on':'Saved'):((WATCH_MODE&&!LIKE_SPLIT)?'Create auto-task':'Save')}">${(WATCH_MODE && !LIKE_SPLIT) ? IC.bell(saved.has(id)) : IC.heart(saved.has(id))}</div>
+        <div class="pdp-watch" id="pdpSave" onclick="event.stopPropagation();${(WATCH_COMPOSE && !LIKE_SPLIT) ? `bellTap('${id}')` : `toggleSave('${id}')`}" aria-label="${saveLabel(saved.has(id))}">${saveIcon(saved.has(id))}</div>
         <img src="${d.hero.startsWith('assets/')?d.hero:A+d.hero}" alt="">
         <div class="indicator">1/${d.gallery||12}</div>
       </div>
@@ -2491,8 +2506,8 @@ function stopWatch(id){
   saved.delete(id); delete ALERTS[id];
   closeFocus(); closeChat();
   const pill = document.getElementById('pdpSave');
-  if (pill) { pill.innerHTML = IC.bell(false); pill.setAttribute('aria-label','Create auto-task'); }
-  document.querySelectorAll('#h-'+id).forEach(h=>h.innerHTML = IC.bell(false));
+  if (pill) { pill.innerHTML = saveIcon(false); pill.setAttribute('aria-label', saveLabel(false)); }
+  document.querySelectorAll('#h-'+id).forEach(h=>h.innerHTML = saveIcon(false));
   toast('Auto-task stopped');
 }
 const watchChips = (id) => [
@@ -2501,6 +2516,12 @@ const watchChips = (id) => [
   ...(P[id].tryon ? [`Tell me when my size is in`] : []),
   `Tell me if a new colour drops`,
 ];
+/* PDP 右上角那枚按钮的字形与文案:铃铛(auto-task)还是 ♡(纯收藏)。
+   分家之后只有 LIKE_SPLIT 关着才是铃铛。抽成一处 —— 之前渲染路径改了、
+   toggleSave 里的命令式更新没跟上,点一下就把 ♡ 改写成铃铛。 */
+const isBellSave = () => WATCH_MODE && !LIKE_SPLIT;
+const saveIcon = (on) => isBellSave() ? IC.bell(on) : IC.heart(on);
+const saveLabel = (on) => isBellSave() ? (on ? 'Auto-task on' : 'Create auto-task') : (on ? 'Saved' : 'Save');
 const IC_X = '<svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 let cfValue = '';
 let cfProd = null;                                     /* 当前引用的商品 id */
@@ -2541,7 +2562,7 @@ function openFocus(prefill, prodId, capKey, watchOnly){
   /* 能力型 chip(试穿)直接执行,query 型 chip 键入不发送 —— 视觉同构,措辞区分(动词 vs 问句) */
   const chips = !p ? CF_CHIPS.map(t=>({t}))
     : cfWatch ? watchChips(cfProd).map(t=>({t}))
-    : ((p.tryon && !CHAT_DOCK) ? [{t:'Try it on', act:`openTryOn('${cfProd}')`}] : [])
+    : ((p.tryon && !CHAT_DOCK && TRYON_CHIP) ? [{t:'Try it on', act:`openTryOn('${cfProd}')`}] : [])
         .concat(LIKE_SPLIT ? [CF_CHIP_REMIND()] : [], CF_CHIPS_PROD.map(t=>({t})), p.tryon ? CF_CHIPS_WEAR.map(t=>({t})) : []);
   /* USE_CAPS 且无商品引用时走两层。选中能力后这一排换成该能力的整句建议 ——
      能力已经以标签形式挂在输入框里,再留一排 chips 就是同一件事占两处。
@@ -2707,8 +2728,8 @@ function cfSend(){                                     /* 用户主动发送 →
   if (cfWatch && ctx && !LIKE_SPLIT) {
     saved.add(ctx);
     const pill = document.getElementById('pdpSave');
-    if (pill) { pill.innerHTML = IC.bell(true); pill.setAttribute('aria-label','Auto-task on'); }
-    document.querySelectorAll('#h-'+ctx).forEach(h=>h.innerHTML = IC.bell(true));
+    if (pill) { pill.innerHTML = saveIcon(true); pill.setAttribute('aria-label', saveLabel(true)); }
+    document.querySelectorAll('#h-'+ctx).forEach(h=>h.innerHTML = saveIcon(true));
   }
   closeFocus();
   sheetId = ctx;                                       /* 带上引用商品作为追问上下文 */
@@ -3085,8 +3106,8 @@ function toggleSave(id) {
   const pdpOpen = document.getElementById('pdp')?.classList.contains('open');
   if (pdpOpen) {
     const pill = document.getElementById('pdpSave');
-    if (pill) { pill.innerHTML = WATCH_MODE ? IC.bell(on) : IC.heart(on); pill.setAttribute('aria-label', WATCH_MODE ? (on?'Auto-task on':'Create auto-task') : (on?'Saved':'Save')); }
-    document.querySelectorAll('#h-'+id).forEach(h=>h.innerHTML = WATCH_MODE ? IC.bell(on) : IC.heart(on));
+    if (pill) { pill.innerHTML = saveIcon(on); pill.setAttribute('aria-label', saveLabel(on)); }
+    document.querySelectorAll('#h-'+id).forEach(h=>h.innerHTML = saveIcon(on));
   } else {
     render();
   }
@@ -3161,7 +3182,7 @@ function render() {
   markScrollable();
   watchAskDock();
 }
-render();
+setDemoState('opt43');   /* 首屏 = 一级里的第一个(模块级默认值对应的是 opt1,必须显式切一次) */
 </script>
 </body>
 </html>
