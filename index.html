@@ -267,6 +267,38 @@
 
   /* PDP 内能力动作(场景预览/试穿——生成能力的落点) */
   .pdp-scene { margin: 10px 16px 0; font-size: 13px; font-weight: 600; color: var(--brand); cursor: pointer; }
+  /* 商品页的动作区只有两处:右上角这组圆钮,和底部那条。底部两格给了 Ask 和 Buy,
+     所以创建 auto-task 只能落在这里 —— 而"一个收藏 + 一个提醒"本来就是电商最常规的一组。
+     条数做成铃铛上的角标,和首页那枚同一套语汇,不另发明说法。 */
+  .pdp-watch.pdp-bell { right: 58px; }
+  .pdp-watch .nbadge { position: absolute; top: -3px; right: -3px; min-width: 16px; height: 16px;
+    padding: 0 4px; border-radius: 8px; background: var(--brand); color: #fff;
+    font-size: 10px; font-weight: 700; line-height: 16px; text-align: center;
+    box-shadow: 0 0 0 2px #fff; }
+  /* 图上小浮层:报"有几条在跑",点击进按商品过滤的任务页。
+     位置在图的左下 —— 右下已有 1/9,右上是 ♡;它是这件商品的一条状态,贴着货。 */
+  .pdp-atpill { position: absolute; left: 12px; bottom: 12px; z-index: 20;
+    display: flex; align-items: center; gap: 5px; padding: 6px 10px 6px 9px;
+    background: rgba(255,255,255,.94); border-radius: 999px; cursor: pointer;
+    font-size: 12px; font-weight: 600; color: var(--text-87);
+    box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+  .pdp-atpill svg { color: var(--text-40); }
+  /* 底部 Set:和 Ask 同构(圆标 + 小字),两枚并排时都收窄,给 Buy 留地方。
+     铃铛按 24px 对齐 Ask 的头像框 —— 图标框不等高,两行小字就不在一条线上。 */
+  .ask-migoo.setbtn svg { width: 24px; height: 24px; }
+  .pdp-dock:has(.setbtn) .ask-migoo { width: 64px; }
+  /* 半屏小单:盖在 PDP 上,行只读,底部一条创建(描边 —— 蓝实心留给 Buy now) */
+  .ats-scrim { position: absolute; inset: 0; z-index: 99; background: rgba(8,16,33,.32);
+    opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .ats-scrim.show { opacity: 1; pointer-events: auto; }
+  .ats-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 100; background: #fff;
+    border-radius: 20px 20px 0 0; padding: 20px 16px 26px; transform: translateY(100%);
+    transition: transform .3s cubic-bezier(.32,.72,0,1); }
+  .ats-sheet.show { transform: translateY(0); }
+  .ats-head { font-size: 15.5px; font-weight: 650; color: var(--black); padding: 0 2px 2px; }
+  /* 卡片沿用任务页的 .at-card,只收掉页面级的左右外边距(sheet 自己有 16px 内边距) */
+  .ats-sheet .at-card { margin: 10px 0 0; }
+
   /* 策展流页(橱窗/运营落地) */
   .flow { position: absolute; inset: 0; z-index: 78; background: #fff; display: none; flex-direction: column; }
   .flow.show { display: flex; }
@@ -986,14 +1018,13 @@
      它们是三个平级候选,实际上主方案只有一个,Option 2/3 是留档的对照。
      主方案不叫 "Option 1":它不是候选之一,就是这次要看的东西。 -->
 <div style="display:flex;justify-content:center;gap:8px;margin:-8px 0 0">
-  <!-- 两个一级方案的差别就是这一个:电商 agent 显不显性外露。
-       名字直接写这件事,不写编号 —— 编号说不出它们在比什么。 -->
-  <button class="tglbtn on" id="tgl-opt43" onclick="setDemoState('opt43')">显性 mshop agent</button>
-  <button class="tglbtn" id="tgl-opt11" onclick="setDemoState('opt11')">无显性 mshop agent</button>
+  <button class="tglbtn on" id="tgl-opt111" onclick="setDemoState('opt111')">Demo 0805</button>
   <button class="tglbtn" id="tgl-backup" onclick="setDemoState(lastBackup)">Backup</button>
 </div>
 <div id="backupRow" style="display:none;justify-content:center;gap:6px;margin:9px 0 0;flex-wrap:wrap">
+  <button class="tglbtn sub" id="tgl-opt11" onclick="setDemoState('opt11')">Demo NEW</button>
   <button class="tglbtn sub" id="tgl-opt1" onclick="setDemoState('opt1')">Demo</button>
+  <button class="tglbtn sub" id="tgl-opt43" onclick="setDemoState('opt43')">显性 mshop agent</button>
   <button class="tglbtn sub" id="tgl-opt431" onclick="setDemoState('opt431')">Demo 2-1</button>
   <button class="tglbtn sub" id="tgl-opt42" onclick="setDemoState('opt42')">Option 4-2</button>
   <button class="tglbtn sub" id="tgl-opt4" onclick="setDemoState('opt4')">Option 4</button>
@@ -1096,7 +1127,10 @@ const SAVED_UPDATES = {
        "since you saved"     → Migoo 自己发现的变化
      角标的职责恒定为身份(这是你收藏的),不兼做事件类型 ——
      否则与事件行重复,且把注意力引到一个不携带新信息的元素上。 */
-  sneaker: { ev:'Hit $89 — the target you set', buy:true },
+  /* at:true = 这条更新出自用户亲手设的 auto-task 条件,角标只给它 ——
+     另外两条是 Migoo 自己在收藏上发现的变化("since you saved" / 库存),
+     全部挂角标就成了"收藏=任务"的旧混淆,而且一屏三个铃铛,角标就不再是信号。 */
+  sneaker: { ev:'Hit $89 — the target you set', buy:true, at:true },
   phones:  { ev:'$100 off since you saved',     buy:true },
   watch:   { ev:'Only 4 left in your size',     buy:true },
 };
@@ -1147,7 +1181,10 @@ const DEMO = {
        likesplit → ♡ 只是收藏(独立列表页),auto-task 的创建走 Ask 里的 Remind me when…
      浮层相关的开关一个都不带 —— 这一版要单看"分家"这件事本身。 */
   opt11:{ caps:true,  mix:true,  sheet:false, agent:false, watch:true,  pdplean:true,
-          runsui:true, likesplit:true, homecomp:true, tryon:false },
+          runsui:true, likesplit:true, homecomp:true, tryon:false, qrow:true },
+  /* Demo NEW 1:Demo NEW 的拷贝,起点完全一致 */
+  opt111:{caps:true,  mix:true,  sheet:false, agent:false, watch:true,  pdplean:true,
+          runsui:true, likesplit:true, homecomp:true, tryon:false, qrow:true, atrow:true },
   opt2: { caps:false, mix:true,   sheet:false, agent:false, watch:false },
   opt3: { caps:false, mix:false,  sheet:false, agent:false, watch:false },
   opt4: { caps:true,  mix:true,   sheet:true,  agent:true,  watch:true  },
@@ -1220,11 +1257,23 @@ let SUG_PILL = false;
    dock 版早就拿掉过一次;PDP 上那条动作行也被 pdplean 收走了 ——
    两处都没了之后再留着这一枚,它就成了全站唯一一处孤例。 */
 let TRYON_CHIP = true;
+/* 商品/通用 query 也走裸行(整句一行一条,行末 ↘),不再是横滑 pill。
+   只在非 dock 版成立:那里 composer 背后是**模糊掉的页面**,一条气泡都没有,
+   所以裸行不会被读成"一句被说过的话" —— 那正是它在会话浮层里唯一的毛病。
+   换来的是整句读得全(pill 横滑必然把长句切掉),以及这个 composer 里只有一种形态。
+   代价:丢掉"pill = 举例 / 裸行 = 穷举"那条区分 —— 两种态从不同屏出现,不冲突。 */
+let QUERY_ROW = false;
+/* PDP 上显性露出 auto-task:一行,左边是动作、右边是状态,整行一个热区。
+     左 = 我能做什么(点进 composer,商品已引用、Remind me when 已键好)
+     右 = 已经有什么(只陈述;跨 agent 的完整列表在 PDP 上没有归属,不做跳转)
+   没有任务时右边不出现,整行就是一个纯创建入口 —— 一个组件覆盖两态,
+   不用再去右上角和 ♡ 抢位置(那个位置属于收藏,而 auto-task 不是商品的属性)。 */
+let PDP_ATROW = false;
 let likesState = 'opt1';
 /* 收进 Backup 的历版 —— 一级只留还在推进的那几个。
    加减备选只动这一个数组,setDemoState 里不再有硬编码的 id 比较。 */
-const BACKUP = ['opt1','opt431','opt42','opt4','opt41','opt5','opt2','opt3'];
-let lastBackup = 'opt1';          /* 点 Backup 回到上次看的那一版 */
+const BACKUP = ['opt11','opt1','opt43','opt431','opt42','opt4','opt41','opt5','opt2','opt3'];
+let lastBackup = 'opt11';          /* 点 Backup 回到上次看的那一版 */
 function setDemoState(s) {
   likesState = s;
   USE_CAPS = DEMO[s].caps;
@@ -1243,12 +1292,14 @@ function setDemoState(s) {
   LIKE_SPLIT = !!DEMO[s].likesplit;
   SUG_PILL = !!DEMO[s].sugpill;
   TRYON_CHIP = DEMO[s].tryon !== false;
+  QUERY_ROW = !!DEMO[s].qrow && !DEMO[s].dock;
+  PDP_ATROW = !!DEMO[s].atrow;
   cthread = [];              /* 换方案等于换一条线程,不要串味 */
   upUnreadN = 3; upUnread = true;   /* 换方案就当没看过,便于反复演示 */
   lkTab = 'updates';
   const isBackup = BACKUP.includes(s);
   if (isBackup) lastBackup = s;
-  ['opt1','opt11','opt2','opt3','opt4','opt41','opt42','opt43','opt431','opt5'].forEach(k => {
+  ['opt1','opt11','opt111','opt2','opt3','opt4','opt41','opt42','opt43','opt431','opt5'].forEach(k => {
     const b = document.getElementById('tgl-'+k);
     if (b) b.classList.toggle('on', k === s);
   });
@@ -1501,7 +1552,7 @@ const gcard = (id) => `<div class="gcard" onclick="openPDP('${id}')">${imgw(id)}
    ♥ 是与普通推荐理由行的唯一区分符:两者共用 .why 的字号与色值,
    若再加底色或边框就会变成第五种卡型,与刚统一的插卡语言打架。 */
 const scard = (id) => { const p=P[id], u=SAVED_UPDATES[id]; return `
-  <div class="gcard scard" onclick="openPDP('${id}')">${imgw(id, true)}
+  <div class="gcard scard" onclick="openPDP('${id}')">${imgw(id, LIKE_SPLIT ? !!u.at : true)}
     <div class="cap">
       <div class="ttl">${p.brand} ${p.nm}</div>
       <div class="pr">$${p.pr}</div>
@@ -1716,6 +1767,11 @@ function pdpHTML(id){
       <div class="pdp-hero">
         <div class="sheet-grabber"></div>
         <div class="pdp-close" onclick="closePDP()">${IC.close}</div>
+        ${/* 有在跑的任务时,图上左下角一枚小浮层报数;点击开一张半屏小单 ——
+             压在商品上,范围不言自明;关掉就在原地,没有返回问题。
+             创建在底部 Set;管理在首页铃铛进的任务页。看/建/管,三个门三种重量。 */''}
+        ${(PDP_ATROW && tasksOn(id).length) ? `
+        <div class="pdp-atpill" onclick="event.stopPropagation();openAtSheet('${id}')">${IC.bellSm}<span>${tasksOn(id).length} auto-task${tasksOn(id).length>1?'s':''} running</span><span class="lk-chv">›</span></div>` : ''}
         <div class="pdp-watch" id="pdpSave" onclick="event.stopPropagation();${(WATCH_COMPOSE && !LIKE_SPLIT) ? `bellTap('${id}')` : `toggleSave('${id}')`}" aria-label="${saveLabel(saved.has(id))}">${saveIcon(saved.has(id))}</div>
         <img src="${d.hero.startsWith('assets/')?d.hero:A+d.hero}" alt="">
         <div class="indicator">1/${d.gallery||12}</div>
@@ -1748,6 +1804,9 @@ function pdpHTML(id){
       ${/* dock 版里这一格通向 mshop,不是 Migoo —— 头像跟着落点走。
            文案也跟着缩成 Ask:头像已经把"问谁"说完了,再写一遍名字是同一件事占两处。 */''}
       <div class="ask-migoo${CHAT_DOCK ? ' bot' : ''}" onclick="askMigooPDP()"><img class="ask-logo" src="${A}${CHAT_DOCK ? 'mshop-logo.png' : 'migoo-logo.png'}" alt="">${CHAT_DOCK ? '' : '<span>Ask Migoo</span>'}</div>
+      ${/* Set = 和 Ask 同一个 composer,只是建议全换成 auto-task 条件 ——
+           创建的原语仍然是说一句话,这个键只是替你把语境换好。 */''}
+      ${PDP_ATROW ? `<div class="ask-migoo setbtn" onclick="openFocus('', '${id}', null, true)">${IC.bell(false)}<span>Set</span></div>` : ''}
       <div class="buy-main" onclick="toast('In-app checkout — Migoo fulfils & attributes')">Buy at ${d.buy.src} · $${d.buy.price} ${IC.arrowUR}</div>
     </div>
     <div class="home-indicator"></div>`;
@@ -1771,6 +1830,7 @@ function openPDP(id){
   attachSheetDrag(ov);
 }
 function closePDP(){
+  closeAtSheet();
   const ov = document.getElementById('pdp');
   ov.classList.remove('open','full','top');
   document.getElementById('pdpBackdrop').classList.remove('show','top');
@@ -1789,7 +1849,7 @@ function attachSheetDrag(ov){
   }, { passive:true });
 }
 function sheetPointerDown(e){
-  if (e.target.closest('.pdp-close') || e.target.closest('.pdp-watch')) return;
+  if (e.target.closest('.pdp-close') || e.target.closest('.pdp-watch')) return;   /* 含 .pdp-bell */
   const ov = document.getElementById('pdp');
   const phone = ov.closest('.phone');
   sheetDrag = { y:e.clientY, halfTop:Math.round(phone.clientHeight*0.10), full:ov.classList.contains('full') };
@@ -1952,6 +2012,11 @@ const LK_RUN = { tote:'Checked 20 min ago · no change since Jul 9',
   bottle:'Checked 2h ago · no change since you saved it',
   sneaker2:'Checked 40 min ago · US 9 still sold out' };
 /* ---- Tasks tab:一条任务一张卡,骨架与现有 autotask 页完全一致 ---- */
+/* 会话里建的任务落到这里(session 内)—— 否则 demo 当场自证其伪:
+   刚发完 "Remind me when…",回到商品页铃铛还是 0,任务页也没有它。 */
+let SESSION_TASKS = [];
+/* 方向是"任务引用商品" —— 反了的话,跨两件商品的那条(比价型)没地方放 */
+const tasksOn = (pid) => AT_ROWS().filter(r => (r.pids || (r.pid ? [r.pid] : [])).includes(pid));
 const AT_ROWS = () => [
   { pid:'watch',  name:'Price & stock alert', rule:'Any price or stock move — tell me',
     adj:'Change the alert on the Apple Watch' },
@@ -1979,7 +2044,7 @@ const AT_ROWS = () => [
      (代价是这一页会混进非电商任务 —— 全局那份列表在 Me page,两边都看得到。) */
   { name:'Water at 3', rule:'Every day at 3pm — tell me to drink water',
     adj:'Change when you remind me to drink water' },
-];
+].concat(SESSION_TASKS);
 /* 单条 autotask 的卡型 —— 与产品里已有的那张完全一致,一行不改:
      名字 ›  [开关] / 触发 — 动作 / Notify via / Adjust with Agent
    商品不改这个框架,它是插进来的一个附件(同 composer 的商品引用):
@@ -2498,6 +2563,34 @@ const watchRule = (id) => ALERTS[id] ? `below $${ALERTS[id]}` : 'price or stock'
    为一个"看一眼"的意图付一次盖住商品 + 拉键盘的代价,不划算;
    真要改,toast 上那一下才进 composer,那时用户是带着"我要改"进去的。
    铃铛在任何一态都不再直接关掉任务 —— 误触关掉一条盯了很久的价太贵。 */
+/* PDP 上"看一眼"的落点:半屏小单。
+   单条任务用的就是任务页那张卡(at-card):全站一条 auto-task 只有一种长相。
+   差两处,都是语境使然:
+     · 不带商品引用条 —— 单子就盖在这件商品上,再贴一张它自己的缩略图是同义反复
+     · Adjust 的收尾走 closeAtSheet(原卡走 closeLikes,那是它所在页面的关法) */
+const atsCard = (r) => `<div class="at-card">
+    <div class="at-hd">
+      <div class="at-name" onclick="toast('任务详情:规则 / 运行历史 — demo')">${r.name} <span class="lk-chv">›</span></div>
+      <span class="at-sw on" onclick="event.stopPropagation();this.classList.toggle('on');toast(this.classList.contains('on')?'Auto-task resumed':'Auto-task paused')"><i></i></span>
+    </div>
+    <div class="at-rule2">${r.rule}</div>
+    <div class="at-notify">Notify via: Migoo App/Web</div>
+    <button class="at-adj" onclick="atsAdjust('${r.pid||''}','${(r.adj||'Adjust this auto-task').replace(/'/g,"\\'")}')">Adjust with Agent</button>
+  </div>`;
+function atsAdjust(pid, q){ closeAtSheet(); sheetId = pid || null; setTimeout(() => sendQ(q), 140); }
+function openAtSheet(id){
+  const ts = tasksOn(id);
+  document.getElementById('atsSheet').innerHTML = `
+    <div class="csheet-grab"></div>
+    <div class="ats-head">Auto-tasks on this</div>
+    ${ts.map(atsCard).join('')}`;
+  document.getElementById('atsScrim').classList.add('show');
+  document.getElementById('atsSheet').classList.add('show');
+}
+function closeAtSheet(){
+  document.getElementById('atsScrim')?.classList.remove('show');
+  document.getElementById('atsSheet')?.classList.remove('show');
+}
 function bellTap(id){
   if (!saved.has(id)) return goWatchChips(id);
   toast(`Auto-task on · ${watchRule(id)}`, { t:'Change', fn:`goWatchChips('${id}')` });
@@ -2535,7 +2628,7 @@ function cfRender(){
   /* 聚焦即有光标:空态时光标在 placeholder 之前(iOS 原生行为) */
   t.innerHTML = cfValue
     ? `${cfValue}<span class="caret"></span>`
-    : `<span class="caret lead"></span>${cfWatch ? (saved.has(cfProd) ? 'Change it, or tell me another' : 'When should I tell you?') : (cfProd ? 'Ask about this…' : (cfCap ? CAP[cfCap].ph : PH_ROLL[0]))}`;
+    : `<span class="caret lead"></span>${cfWatch ? ((!LIKE_SPLIT && saved.has(cfProd)) ? 'Change it, or tell me another' : 'When should I tell you?') : (cfProd ? 'Ask about this…' : (cfCap ? CAP[cfCap].ph : PH_ROLL[0]))}`;
   document.getElementById('cfSend').classList.toggle('off', !cfValue);
 }
 /* 通用 composer 与商品 ✦ 走同一个函数 —— 点 ✦ 本质就是"唤起输入框 + 引用这件商品 + 给几条 query" */
@@ -2574,8 +2667,10 @@ function openFocus(prefill, prodId, capKey, watchOnly){
   /* 已经设过的话,标签自己把条件说出来 —— 用户回到这个 PDP,想知道的从来不是
      "有没有",而是"我当初设的是什么"。写进标签就不用再加一行说明。
      placeholder 随之从"设"变成"改";建议里补一条停掉,否则删除只能去任务页找。 */
-  const watchOn = cfWatch && saved.has(cfProd);
-  const cap = cfWatch
+  /* LIKE_SPLIT 版不建 watch 标签:Set 和 Ask 是同一个 composer,
+     只是建议换成了条件 —— 创建就是把一句话说完,不需要先进入一个"状态"。 */
+  const watchOn = cfWatch && !LIKE_SPLIT && saved.has(cfProd);
+  const cap = (cfWatch && !LIKE_SPLIT)
     ? { k:'watch',
         t: watchOn ? `Auto-task · ${watchRule(cfProd)}` : 'Auto-task',
         ph: watchOn ? 'Change it, or tell me another' : 'When should I tell you?',
@@ -2592,8 +2687,12 @@ function openFocus(prefill, prodId, capKey, watchOnly){
     : (USE_CAPS && !p)
       ? `<div class="cf-chips">${CAP_CHIPS.map(c=>
            `<span class="cf-chip capchip" onclick="openCap('${c.k}')"><span class="ci">${CAP_IC[c.k]}</span>${c.t}</span>`).join('')}</div>`
-      : `<div class="cf-chips">${chips.map(c=>
-           `<span class="cf-chip${c.cap?' capchip':''}" onclick="${c.act || `cfType('${cfEsc(c.t)}')`}">${c.cap?`<span class="ci">${CAP_IC[c.cap]}</span>`:''}${c.t}</span>`).join('')}</div>`;
+      : QUERY_ROW
+        ? `<div class="cf-sugs">${chips.map(c=>
+             `<div class="cf-sug" onclick="${c.act || `cfType('${cfEsc(c.t)}')`}">
+                <span class="st">${c.t}</span><span class="sa">${IC_INS}</span></div>`).join('')}</div>`
+        : `<div class="cf-chips">${chips.map(c=>
+             `<span class="cf-chip${c.cap?' capchip':''}" onclick="${c.act || `cfType('${cfEsc(c.t)}')`}">${c.cap?`<span class="ci">${CAP_IC[c.cap]}</span>`:''}${c.t}</span>`).join('')}</div>`;
   /* ---- opt41:composer 就是会话浮层的 dock ----
      四个入口(输入框 / agent 头像 / 能力 chip / 商品 ✦)全部走到这里,
      区别只剩浮层开着时 dock 里装的是什么。能力选中时它升格成这一段的抬头,
@@ -2636,7 +2735,7 @@ function openFocus(prefill, prodId, capKey, watchOnly){
   }
   document.getElementById('cfocus').innerHTML = `
     <div class="cf-scrim" onclick="closeFocus()"></div>
-    <div class="cf-dock${cap ? ' fade' : ''}">
+    <div class="cf-dock${(cap || QUERY_ROW) ? ' fade' : ''}">
       ${dockTop}
       <div class="cf-input">
         ${cap ? `<div class="cf-tag">
@@ -2723,6 +2822,13 @@ function cfSend(){                                     /* 用户主动发送 →
   const q = cfValue, ctx = cfProd;
   /* 在 Auto-task 标签下发出去的那一句,就是这条任务成立的时刻 —— 铃铛在这里才变实心。
      铃铛本身不再是开关(它现在是入口),所以状态必须由"说出口"来推进。 */
+  /* 会话里建的任务落库(session 内)。只认句式不做真解析 —— demo 够用;
+     落库之后铃铛 pill 的数字、任务页的列表都跟着变,演示"建完回来看得见"这条路才闭环。 */
+  if (LIKE_SPLIT && ctx && /(remind me|tell me)\s+(when|if|before|once)/i.test(q)) {
+    SESSION_TASKS.push({ pid: ctx, name: 'Reminder', rule: q });
+    const pb = document.getElementById('pdpBell');
+    if (pb) pb.innerHTML = pdpBellHTML(ctx);
+  }
   /* !LIKE_SPLIT 是必须的:分家之后 saved 就是收藏集合,
      在这里写进去等于"设了个提醒顺手把商品收藏了" —— 正是这一版要拆掉的混淆。 */
   if (cfWatch && ctx && !LIKE_SPLIT) {
@@ -2769,7 +2875,8 @@ const bubbleU = (t, ids, img) => {
   const list = ids ? (Array.isArray(ids) ? ids : [ids]) : [];
   const one = list.length === 1 ? P[list[0]] : null;
   return `<div class="mu">` +
-    (one ? `<div class="uref"><img src="${one.img}"><span>${one.brand} ${one.nm}</span></div>` : '') +
+    /* 引用条可点回商品 —— 多图附件那排早就能点,单图引用没理由是死的 */
+    (one ? `<div class="uref" onclick="event.stopPropagation();openPDP('${list[0]}')" style="cursor:pointer"><img src="${one.img}"><span>${one.brand} ${one.nm}</span></div>` : '') +
     (list.length > 1 ? `<div class="uatt">${list.map(id =>
        `<img src="${P[id].img}" onclick="event.stopPropagation();openPDP('${id}')">`).join('')}</div>` : '') +
     (img ? `<div class="uatt one"><img src="${A}${img}"></div>` : '') +
@@ -3172,6 +3279,8 @@ function render() {
      ${likeList()}
      <div class="pdp-backdrop" id="pdpBackdrop" onclick="closePDP()"></div>
      <div class="pdp-overlay" id="pdp"></div>
+     <div class="ats-scrim" id="atsScrim" onclick="closeAtSheet()"></div>
+     <div class="ats-sheet" id="atsSheet"></div>
      <div class="chat-scrim" id="chatScrim" onclick="closeChat()"></div>
      <div class="copilot" id="copilot" onclick="openCopilot()"></div>
      <div class="chat" id="chat"></div>
@@ -3182,7 +3291,7 @@ function render() {
   markScrollable();
   watchAskDock();
 }
-setDemoState('opt43');   /* 首屏 = 一级里的第一个(模块级默认值对应的是 opt1,必须显式切一次) */
+setDemoState('opt111');  /* 首屏 = 一级里的第一个(模块级默认值对应的是 opt1,必须显式切一次) */
 </script>
 </body>
 </html>
