@@ -1131,7 +1131,7 @@ const SAVED_UPDATES = {
      另外两条是 Migoo 自己在收藏上发现的变化("since you saved" / 库存),
      全部挂角标就成了"收藏=任务"的旧混淆,而且一屏三个铃铛,角标就不再是信号。 */
   sneaker: { ev:'Hit $89 — the target you set', buy:true, at:true },
-  phones:  { ev:'$100 off since you saved',     buy:true },
+  phones:  { ev:'$100 off since you liked it', buy:true },
   watch:   { ev:'Only 4 left in your size',     buy:true },
 };
 /* 流内配额:最多 3 张。收藏 20 件、8 件有更新时,全铺进流会把双列变成促销墙,
@@ -1527,13 +1527,11 @@ const cap = (id, showWhy) => { const p=P[id]; return `
 const imgw = (id, liked) => { const p=P[id]; return `
   <div class="imgw">
     <img src="${p.img}" alt="">
-    ${/* 这枚角标只出现在 auto-task 的更新卡上(scard),普通推荐卡从来没有 ——
-         所以它回答的一直是"这张卡为什么在这儿",位置和条件都对,错的只是名词:
-         它曾经写 You liked,而这张卡在这儿和收藏毫无关系,是一条任务跑出了结果。
-         值这块地方的理由:一屏推荐里有一张是**新闻**不是推荐,
-         这件事该在读到文字之前就被看见 —— 下面那行理由是读的,角标是扫的。
-         收藏本身不进角标:它是一条推荐依据,归价格下面那行。 */''}
-    ${liked ? `<div class="ltag">${(WATCH_MODE || LIKE_SPLIT) ? IC.bellSm : IC.heartSm}<span>${(WATCH_MODE || LIKE_SPLIT) ? 'Auto-task' : 'You liked'}</span></div>` : ''}
+    ${/* 角标回答"这张卡为什么在这儿",分家之后它有两种身份,字形跟着来源走:
+         🔔 Auto-task = 你亲手设的条件触发了(承诺兑现,是新闻)
+         ♡ You Liked  = Migoo 在你收藏的东西上注意到了变化(推荐,无承诺)
+         普通推荐卡两者都不挂。imgw 的 liked 参数由 scard 按 u.at 决定传谁。 */''}
+    ${liked ? `<div class="ltag">${(WATCH_MODE || LIKE_SPLIT) ? (liked === 'like' ? IC.heartSm : IC.bellSm) : IC.heartSm}<span>${(WATCH_MODE || LIKE_SPLIT) ? (liked === 'like' ? 'You Liked' : 'Auto-task') : 'You liked'}</span></div>` : ''}
     <div class="sparkb" onclick="event.stopPropagation();openSheet('${id}')">${IC.spark}</div>
   </div>`; };
 
@@ -1552,7 +1550,7 @@ const gcard = (id) => `<div class="gcard" onclick="openPDP('${id}')">${imgw(id)}
    ♥ 是与普通推荐理由行的唯一区分符:两者共用 .why 的字号与色值,
    若再加底色或边框就会变成第五种卡型,与刚统一的插卡语言打架。 */
 const scard = (id) => { const p=P[id], u=SAVED_UPDATES[id]; return `
-  <div class="gcard scard" onclick="openPDP('${id}')">${imgw(id, LIKE_SPLIT ? !!u.at : true)}
+  <div class="gcard scard" onclick="openPDP('${id}')">${imgw(id, LIKE_SPLIT ? (u.at ? true : 'like') : true)}
     <div class="cap">
       <div class="ttl">${p.brand} ${p.nm}</div>
       <div class="pr">$${p.pr}</div>
@@ -1671,7 +1669,10 @@ const home = () => {
          ♡ 永远不带点:收藏不会自己发生变化,没有"未读"这回事。 */''}
     ${LIKE_SPLIT ? `<div class="lk-corner lk-corner2" onclick="openLikeList()" aria-label="Likes">${IC.heartHead}</div>` : ''}
     <div class="lk-corner" onclick="openLikes()">
-      ${WATCH_MODE ? IC.bellHead : IC.heartHead}${AT_RUNS ? (upUnread ? '<span class="dot"></span>' : '') : (upUnreadN ? `<span class="badge">${upUnreadN}</span>` : '')}
+      ${/* LIKE_SPLIT 版连未读点也不要 —— PDP 的 pill、流内的角标已经在说"有事发生",
+           header 上再挂一个常亮的点就是第三处重复;何况 demo 里它清掉后一换方案又回来,
+           演示时反而像 bug。真实产品要不要恢复,是通知策略的事,不在这版回答。 */''}
+      ${WATCH_MODE ? IC.bellHead : IC.heartHead}${LIKE_SPLIT ? '' : (AT_RUNS ? (upUnread ? '<span class="dot"></span>' : '') : (upUnreadN ? `<span class="badge">${upUnreadN}</span>` : ''))}
     </div>
     <div class="greet${LIKE_SPLIT ? ' twoicon' : ''}">What are we looking for today?</div>
     ${(() => {
@@ -1760,8 +1761,16 @@ const detailsHTML = (details, desc) => `<div class="details">
   ${desc?`<p class="desc">${desc}</p>`:''}
 </div>`;
 
+/* 没写详情数据的商品,从卡片数据合成一个最小 PDP ——
+   图、价、名、Buy 都有真数据,没有的段落(卖点/变体/评价)整段不渲染。
+   流里的每一张卡都必须点得开:"No PDP for this item" 对用户是句黑话,
+   对 demo 是当场穿帮。 */
+const pdpFallback = (p) => ({ hero: p.img, gallery: 5, price: p.pr,
+  sub: 'Authenticated · Free Shipping',
+  bullets: [], variants: [], offers: [], reviews: [], details: [],
+  buy: { src: 'Amazon', price: p.pr } });
 function pdpHTML(id){
-  const p = P[id], d = PDPD[id];
+  const p = P[id], d = PDPD[id] || pdpFallback(p);
   return `
     <div class="pdp-body">
       <div class="pdp-hero">
@@ -1783,7 +1792,7 @@ function pdpHTML(id){
         <div class="pdp-title">${p.brand} ${p.nm}</div>
       </div>
       ${(p.why && !PDP_LEAN) ? `<div class="pdp-why">${p.why}</div>` : ''}
-      <ul class="ai-bullets">${d.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>
+      ${d.bullets.length ? `<ul class="ai-bullets">${d.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>` : ''}
       ${p.scene ? `<div class="pdp-scene" onclick="openGenSheet()">See it in a scene ›</div>` : ''}
       ${(p.tryon && !PDP_LEAN) ? `<div class="pdp-scene" onclick="openTryOn('${id}')">Try it on — with your character ›</div>` : ''}
       ${/* 条件说得清的入口。PDP 上颜色、尺码、价格全在屏幕上,族 1a 的条件
@@ -1794,11 +1803,11 @@ function pdpHTML(id){
       ${d.variants.map(varGroupHTML).join('')}
       <div style="height:16px"></div>
       <div class="section-divider"></div>
-      ${offersHTML(d.offers)}
+      ${d.offers.length ? offersHTML(d.offers) : ''}
       <div class="section-divider"></div>
-      ${reviewsHTML(d.reviews)}
+      ${d.reviews.length ? reviewsHTML(d.reviews) : ''}
       <div class="section-divider"></div>
-      ${detailsHTML(d.details, d.desc)}
+      ${d.details.length ? detailsHTML(d.details, d.desc) : ''}
     </div>
     <div class="pdp-dock">
       ${/* dock 版里这一格通向 mshop,不是 Migoo —— 头像跟着落点走。
@@ -1816,7 +1825,7 @@ function pdpHTML(id){
 let sheetDrag = null;
 let currentPdpId = null;
 function openPDP(id){
-  if (!PDPD[id]) { toast('No PDP for this item'); return; }
+  if (!P[id]) return;
   currentPdpId = id;
   const ov = document.getElementById('pdp');
   ov.innerHTML = pdpHTML(id);
