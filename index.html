@@ -2252,6 +2252,8 @@ const shpTop = () => `
   <div class="shp-top" id="shpTop">
     <div class="lk-corner shp-mecn" onclick="shpGateMe()">${shpIC.meSm}</div>
     ${shpToggle(shpView)}
+    ${/* ♡ 不过绑定门:like 是纯收藏(agent 不执行任何东西),不属于 agent 行为 */''}
+    <div class="lk-corner lk-corner2 shp-like${shpView==='chat'?' hide':''}" onclick="closeChat();openLikeList()" aria-label="Likes">${IC.heartHead}</div>
     <div class="lk-corner shp-bell${shpView==='chat'?' hide':''}" onclick="shpGateBell()">${IC.bellHead}</div>
     <div class="lk-corner shp-cfile${shpView==='chat'?'':' hide'}" onclick="shpGateFile()">${shpIC.chatfile}</div>
   </div>`;
@@ -2261,6 +2263,7 @@ function shpSync(){
   sg[0]?.classList.toggle('on', shpView === 'shopping');
   sg[1]?.classList.toggle('on', shpView === 'chat');
   t.querySelector('.shp-bell')?.classList.toggle('hide', shpView === 'chat');
+  t.querySelector('.shp-like')?.classList.toggle('hide', shpView === 'chat');
   t.querySelector('.shp-cfile')?.classList.toggle('hide', shpView !== 'chat');
 }
 /* Chat 输入框上方的能力行:方角 + icon(能力,点开有下一层),与全站形状规则一致。
@@ -2345,7 +2348,7 @@ function pdpHTML(id){
         ${/* 有在跑的任务时,图上左下角一枚小浮层报数;点击开一张半屏小单 ——
              压在商品上,范围不言自明;关掉就在原地,没有返回问题。
              创建在底部 Set;管理在首页铃铛进的任务页。看/建/管,三个门三种重量。 */''}
-        ${(PDP_ATROW && tasksOn(id).length) ? `
+        ${(PDP_ATROW && tasksOn(id).length && (!SHOPEE_SHELL || shpBound)) ? `
         <div class="pdp-atpill" onclick="event.stopPropagation();openAtSheet('${id}')">${IC.bellSm}<span>${tasksOn(id).length} auto-task${tasksOn(id).length>1?'s':''} running</span><span class="lk-chv">›</span></div>` : ''}
         <div class="pdp-watch" id="pdpSave" onclick="event.stopPropagation();${(WATCH_COMPOSE && !LIKE_SPLIT) ? `bellTap('${id}')` : `toggleSave('${id}')`}" aria-label="${saveLabel(saved.has(id))}">${saveIcon(saved.has(id))}</div>
         <img src="${d.hero.startsWith('assets/')?d.hero:A+d.hero}" alt="">
@@ -2382,7 +2385,9 @@ function pdpHTML(id){
       ${/* Set = 和 Ask 同一个 composer,只是建议全换成 auto-task 条件 ——
            创建的原语仍然是说一句话,这个键只是替你把语境换好。 */''}
       ${PDP_ATROW ? `<div class="ask-migoo setbtn" onclick="openFocus('', '${id}', null, true)">${IC.bell(false)}<span>Set</span></div>` : ''}
-      <div class="buy-main" onclick="toast('In-app checkout — Migoo fulfils & attributes')">Buy at ${d.buy.src} · $${d.buy.price} ${IC.arrowUR}</div>
+      ${SHOPEE_SHELL
+        ? `<div class="buy-main" onclick="openShopeeCheckout('${id}')">Buy on Shopee · $${d.buy.price}</div>`
+        : `<div class="buy-main" onclick="toast('In-app checkout — Migoo fulfils & attributes')">Buy at ${d.buy.src} · $${d.buy.price} ${IC.arrowUR}</div>`}
     </div>
     <div class="home-indicator"></div>`;
 }
@@ -2392,9 +2397,10 @@ let sheetDrag = null;
 let currentPdpId = null;
 function openPDP(id){
   if (!P[id]) return;
-  /* Shopee 壳里,商品页是宿主的:点任何商品都进 Shopee 自己的 PDP 框架,
-     Migoo 的 PDP sheet 在这一版不出现 —— 这正是"内嵌"与"独立 App"的分界线。 */
-  if (SHOPEE_SHELL) return openShopeePDP(id);
+  /* 商品页用 Migoo 自己的 PDP sheet —— 即使在 Shopee 壳里:
+     这一页是 agent 对商品的讲述(卖点/引用/Set),不是宿主的货架页;
+     交易仍归宿主 —— 底部 Buy 直接进 Shopee checkout。
+     (openShopeePDP 保留为宿主 PDP 资产,当前无入口。) */
   currentPdpId = id;
   const ov = document.getElementById('pdp');
   ov.innerHTML = pdpHTML(id);
