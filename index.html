@@ -329,6 +329,240 @@
   /* ---------- Migoo app tabbar(82px / 无文字 / 27px 实心 / #D6D9E6→墨色) ---------- */
   .tabbar { flex-shrink: 0; height: 82px; background: #fff; border-top: 1px solid var(--line-06);
     display: flex; align-items: flex-start; padding-top: 10px; z-index: 55; }
+  /* Shopee 壳:五格带文字,选中格只有 Migoo(logo 本色 + 深字),其余灰 */
+  .shp-bar { padding-top: 8px; }
+  .shp-tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-size: 10px; color: #7a7a82; cursor: pointer; }
+  .shp-tab img { width: 26px; height: 26px; object-fit: contain; }
+  .shp-tab.on { color: var(--black); font-weight: 600; }
+  .shp-tab .ic { position: relative; display: flex; }
+  .shp-tab .rdot { position: absolute; top: -1px; right: -3px; width: 7px; height: 7px;
+    border-radius: 50%; background: #EE4D2D; box-shadow: 0 0 0 1.5px #fff; }
+  .shp-tab .rbadge { position: absolute; top: -6px; right: -10px; min-width: 16px; height: 16px;
+    padding: 0 4px; border-radius: 8px; background: #EE4D2D; color: #fff; font-size: 10px;
+    font-weight: 700; font-style: normal; line-height: 16px; text-align: center;
+    box-shadow: 0 0 0 1.5px #fff; }
+  /* Shopping | Chat 切换:紧凑分段,居中;chat 页头里复用同一枚 */
+  .shp-seg { display: flex; width: 200px; margin: 6px auto 0; padding: 2px;
+    background: var(--chip-bg); border-radius: 999px; }
+  .shp-seg .sg { flex: 1; text-align: center; font-size: 13px; font-weight: 600;
+    color: var(--text-65); padding: 6px 0; border-radius: 999px; cursor: pointer; }
+  .shp-seg .sg.on { background: #fff; color: var(--black);
+    box-shadow: 0 1px 3px rgba(8,16,33,.10), 0 0 0 .5px rgba(0,0,0,.04); }
+  .shp-top { position: relative; height: 46px; flex-shrink: 0; background: #fff; }
+  .shp-top .lk-corner { top: 4px; }
+  .shp-top .shp-mecn { left: 14px; right: auto; }
+  .shp-top .lk-corner.hide { display: none; }
+  /* 三枚角标按墨迹对齐(≈16px 高),不按外框:
+     👤 的图形在 viewBox 里只占一半,同框会显小;chatfile 反之几乎占满。 */
+  .shp-mecn svg { width: 26px; height: 26px; }
+  .shp-cfile svg { width: 19px; height: 19px; }
+  /* Chat 欢迎态 + 输入框上方能力行 */
+  .mgw { padding: 22px 16px 0; }
+  .mgw .ava { width: 56px; height: 56px; object-fit: contain; display: block; margin: 4px 0 12px; }
+  .mgw-sugs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .shp-cchips { display: flex; gap: 7px; padding: 0 16px 9px; overflow-x: auto; }
+  .shp-cchips::-webkit-scrollbar { height: 0; }
+  /* 绑定门:chat 面上的透明捕获层(未绑定时任何一点都先进绑定) */
+  .bindcap { position: absolute; inset: 0; z-index: 60; cursor: pointer; }
+  .bind-scrim { position: absolute; inset: 0; z-index: 104; background: rgba(8,16,33,.45);
+    opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .bind-scrim.show { opacity: 1; pointer-events: auto; }
+  .bind-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 105; background: #fff;
+    border-radius: 22px 22px 0 0; padding: 20px 20px 30px; transform: translateY(100%);
+    transition: transform .32s cubic-bezier(.32,.72,0,1); }
+  .bind-sheet.show { transform: none; }
+  .bs-x { position: absolute; top: 16px; right: 14px; width: 32px; height: 32px; display: flex;
+    align-items: center; justify-content: center; cursor: pointer; color: var(--black); }
+  .bs-icons { display: flex; justify-content: center; align-items: center; gap: 16px; margin-top: 24px; }
+  .bs-icons .ic { width: 64px; height: 64px; border-radius: 15px; border: .5px solid var(--line-09);
+    box-shadow: 0 2px 10px rgba(8,16,33,.06); display: flex; align-items: center; justify-content: center; }
+  .bs-icons img { width: 40px; height: 40px; object-fit: contain; }
+  .bs-icons .dots { color: var(--text-40); font-weight: 800; letter-spacing: 3px; }
+  .bs-t { margin-top: 20px; text-align: center; font-size: 21px; font-weight: 750; color: var(--black);
+    letter-spacing: -.3px; }
+  .bs-s { margin: 8px 14px 0; text-align: center; font-size: 14.5px; color: var(--text-65); line-height: 1.4; }
+  .bs-card { margin-top: 18px; border: .5px solid var(--line-09); border-radius: 16px; padding: 16px 14px;
+    box-shadow: 0 1px 6px rgba(8,16,33,.04); }
+  .bs-row { display: flex; gap: 11px; align-items: flex-start; }
+  .bs-row + .bs-row { margin-top: 16px; }
+  .bs-row svg { flex-shrink: 0; margin-top: 1px; }
+  .bs-row b { font-size: 15px; color: var(--black); }
+  .bs-row p { margin: 5px 0 0; font-size: 13px; color: var(--text-65); line-height: 1.5; }
+  .bs-cta { margin-top: 20px; width: 100%; height: 50px; border: none; border-radius: 14px;
+    background: var(--brand); color: #fff; font-family: var(--sf); font-size: 16px; font-weight: 650;
+    cursor: pointer; }
+  /* ---- Google OAuth(内嵌浏览器的三步)---- */
+  .gauth { position: absolute; inset: 0; z-index: 106; display: flex; flex-direction: column;
+    transform: translateY(100%); transition: transform .32s cubic-bezier(.32,.72,0,1); }
+  .gauth.show { transform: none; }
+  .ga-gap { flex: 0 0 38px; background: rgba(40,40,44,.55); }
+  .ga-sheet { flex: 1; min-height: 0; display: flex; flex-direction: column; background: #fff;
+    border-radius: 18px 18px 0 0; }
+  .ga-chrome { display: flex; align-items: center; padding: 12px 14px 8px; }
+  .ga-chrome .gx { width: 34px; height: 34px; border-radius: 50%; background: #F1F3F4;
+    display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .ga-chrome .gu { flex: 1; text-align: center; font-size: 15.5px; font-weight: 650; color: var(--black); }
+  .ga-chrome .gp { width: 34px; height: 34px; border-radius: 50%; background: #F1F3F4;
+    display: flex; align-items: center; justify-content: center; }
+  .ga-signbar { display: flex; align-items: center; gap: 9px; padding: 10px 18px 12px;
+    border-bottom: .5px solid var(--line-09); font-size: 15px; color: #3C4043; }
+  .ga-body { flex: 1; overflow-y: auto; padding: 22px 22px 10px; }
+  .ga-body::-webkit-scrollbar { width: 0; }
+  .ga-logo { width: 42px; height: 42px; object-fit: contain; }
+  .ga-h1 { margin-top: 16px; font-size: 26px; font-weight: 450; color: #202124; letter-spacing: -.2px; line-height: 1.25; }
+  .ga-sub { margin-top: 8px; font-size: 15px; color: #202124; }
+  .ga-sub b, .ga-h2 b, .ga-note b { color: #1A73E8; font-weight: 500; }
+  .ga-acc { display: flex; align-items: center; gap: 13px; padding: 15px 2px;
+    border-bottom: 1px solid #E8EAED; cursor: pointer; }
+  .ga-acc:first-of-type { margin-top: 18px; border-top: 1px solid #E8EAED; }
+  .gav { width: 34px; height: 34px; border-radius: 50%; background: #B3155C; color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; flex-shrink: 0; }
+  .gav.grey { background: #5F6368; }
+  .gav.ring { background: #fff; }
+  .gav.sm { width: 22px; height: 22px; font-size: 11px; }
+  .ga-acc .gi { flex: 1; min-width: 0; }
+  .ga-acc .gn { font-size: 15px; font-weight: 550; color: #202124; }
+  .ga-acc .ge { font-size: 13px; color: #5F6368; margin-top: 1px; }
+  .ga-acc .gs { font-size: 13px; color: #5F6368; }
+  .ga-note { margin-top: 16px; font-size: 13.5px; color: #5F6368; line-height: 1.5; }
+  .ga-pill { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px;
+    border: 1px solid #DADCE0; border-radius: 999px; padding: 5px 12px 5px 6px;
+    font-size: 13.5px; color: #3C4043; }
+  .ga-pill .gcaret { color: #5F6368; }
+  .ga-h2 { margin-top: 20px; font-size: 17px; color: #202124; line-height: 1.35; }
+  .ga-info { display: flex; gap: 13px; align-items: flex-start; margin-top: 15px; }
+  .ga-info .gn { font-size: 14.5px; color: #202124; }
+  .ga-info .ge { font-size: 12.5px; color: #5F6368; margin-top: 1px; }
+  .ga-scope { display: flex; align-items: flex-start; gap: 12px; padding: 13px 2px; cursor: pointer; }
+  .ga-scope .t { flex: 1; font-size: 14px; color: #202124; line-height: 1.45; }
+  .ga-scope svg { flex-shrink: 0; margin-top: 2px; }
+  .ga-scope.all { font-size: 14.5px; color: #202124; padding-top: 16px; }
+  .ga-line { border-bottom: 1px solid #E8EAED; }
+  .gck { width: 18px; height: 18px; border: 2px solid #5F6368; border-radius: 2px; flex-shrink: 0;
+    margin-top: 1px; position: relative; }
+  .gck.on { background: #1A73E8; border-color: #1A73E8; }
+  .gck.on::after { content: ''; position: absolute; left: 4px; top: 0px; width: 5px; height: 9px;
+    border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(42deg); }
+  .ga-btns { display: flex; justify-content: space-between; gap: 10px; margin: 24px 0 14px; }
+  .gb-line, .gb-fill { flex: 1; height: 42px; border-radius: 999px; font-family: var(--sf);
+    font-size: 14.5px; font-weight: 600; cursor: pointer; }
+  .gb-line { background: #fff; border: 1px solid #DADCE0; color: #1A73E8; }
+  .gb-fill { background: #1A73E8; border: none; color: #fff; }
+  .ga-foot { flex-shrink: 0; display: flex; align-items: center; gap: 18px; padding: 10px 20px 22px;
+    color: #3C4043; font-size: 19px; }
+  .ga-foot .gfb { cursor: pointer; }
+  /* ---- Shopee PDP:宿主的一个独立页面 —— 从右侧推入(push 导航),不是原地浮现。
+     返回时推出去。带自己的状态栏:它是一整页,不是盖在别人页上的层。 ---- */
+  .spdp { position: absolute; inset: 0; z-index: 92; background: #fff; display: flex; flex-direction: column;
+    transform: translateX(100%); transition: transform .32s cubic-bezier(.32,.72,0,1); }
+  .spdp.show { transform: none; }
+  .spdp .sp-body { flex: 1; overflow-y: auto; }
+  .spdp .sp-body::-webkit-scrollbar { width: 0; }
+  .sp-hero { position: relative; }
+  .sp-hero img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
+  .sp-nav { position: absolute; top: 10px; left: 0; right: 0; display: flex; gap: 8px; padding: 0 12px; }
+  /* .indicator 的样式原本只写在 .pdp-hero 作用域里,这里要自己的一份 */
+  .sp-hero .indicator { position: absolute; right: 12px; bottom: 12px; background: rgba(0,0,0,.5);
+    color: #fff; border-radius: 999px; padding: 3px 9px; font-size: 11.5px; }
+  .sp-nav .sp-cir:first-child { margin-right: auto; }
+  .sp-cir { position: relative; width: 34px; height: 34px; border-radius: 50%; background: rgba(0,0,0,.4);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .sp-cir .n { position: absolute; top: -5px; right: -7px; min-width: 17px; height: 16px; padding: 0 4px;
+    border-radius: 8px; background: #fff; color: #EE4D2D; border: 1px solid #EE4D2D;
+    font-size: 10px; font-weight: 700; font-style: normal; line-height: 14px; text-align: center; }
+  .sp-promo { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px;
+    background: linear-gradient(90deg, #F53D2D, #FF6633); color: #fff; font-size: 12.5px; font-weight: 600; }
+  .sp-promo .tt { display: flex; align-items: center; gap: 3px; font-size: 12px; }
+  .sp-promo .tt b { background: #1C1C1E; border-radius: 3px; padding: 1px 4px; font-size: 11.5px; }
+  .sp-price { display: flex; padding: 10px 12px 2px; }
+  .sp-price .pl { flex: 1; min-width: 0; }
+  .sp-price .p { font-size: 25px; font-weight: 800; color: #EE4D2D; letter-spacing: -.3px; }
+  .sp-price .av { margin-left: 7px; font-size: 12px; color: #EE4D2D; font-weight: 600; }
+  .sp-price .av svg { vertical-align: -4px; }
+  .sp-price .inst { margin-top: 3px; font-size: 12.5px; color: var(--text-65); }
+  .sp-price .vrow { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .sp-price .vc { border: 1px solid #EE4D2D; color: #EE4D2D; border-radius: 3px; padding: 2px 6px; font-size: 11px; }
+  .sp-price .vi { background: #EE4D2D; color: #fff; border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
+  .sp-price .pr { flex-shrink: 0; display: flex; align-items: center; gap: 8px; height: fit-content; }
+  .sp-price .sold { font-size: 12.5px; color: var(--text-65); }
+  .sp-price .hh { cursor: pointer; display: flex; }
+  .sp-title { padding: 8px 12px 10px; font-size: 15px; font-weight: 600; color: var(--black); line-height: 1.35; }
+  .sp-row { display: flex; align-items: center; gap: 9px; padding: 12px; border-top: .5px solid var(--line-09);
+    font-size: 13px; color: var(--text-87); cursor: pointer; }
+  .sp-row svg { flex-shrink: 0; }
+  .sp-row span:nth-child(2) { flex: 1; min-width: 0; }
+  .sp-rate { padding: 12px; border-top: 6px solid #F5F5F7; font-size: 14.5px; color: var(--black); }
+  .sp-rate .star { color: #FFB300; }
+  .sp-rate .tags { display: flex; gap: 6px; margin-top: 9px; overflow-x: auto; }
+  .sp-rate .tags span { flex: 0 0 auto; background: #FFF3EF; color: #B84B31; border-radius: 3px;
+    padding: 4px 8px; font-size: 11.5px; }
+  .sp-bar { flex-shrink: 0; display: flex; height: 58px; }
+  .sp-bar .act { flex: 1; background: #26AA99; color: #fff; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px; font-size: 10.5px; cursor: pointer; }
+  .sp-bar .act + .act { border-left: 1px solid rgba(255,255,255,.35); }
+  .sp-bar .buy { flex: 1.35; background: #EE4D2D; color: #fff; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; cursor: pointer; font-size: 12px; }
+  .sp-bar .buy b { font-size: 15px; font-weight: 800; }
+  /* ---- Shopee checkout(叠在 Shopee PDP 之上,同一套右侧推入) ---- */
+  .spck { z-index: 94; }
+  .ck-head { position: relative; height: 48px; display: flex; align-items: center; justify-content: center;
+    background: #fff; font-size: 19px; font-weight: 650; color: var(--black); flex-shrink: 0; }
+  .ck-head .bk { position: absolute; left: 14px; top: 0; height: 100%; display: flex; align-items: center; cursor: pointer; }
+  .ck-body { background: #F5F5F7; }
+  .ck-card { background: #fff; margin: 10px 10px 0; border-radius: 6px; }
+  .ck-addr { display: flex; gap: 9px; padding: 13px 12px; cursor: pointer; align-items: flex-start; }
+  .ck-addr .ai { flex: 1; min-width: 0; }
+  .ck-addr .nm { font-size: 14.5px; font-weight: 650; color: var(--black); }
+  .ck-addr .nm span { font-weight: 400; color: var(--text-40); font-size: 13px; }
+  .ck-addr .ad { margin-top: 3px; font-size: 13px; color: var(--text-65); line-height: 1.4; }
+  .ck-shop { display: flex; align-items: center; gap: 7px; padding: 12px 12px 4px;
+    font-size: 14.5px; font-weight: 650; color: var(--black); }
+  .ck-item { display: flex; gap: 10px; padding: 10px 12px 12px; }
+  .ck-item img { width: 64px; height: 64px; border-radius: 4px; object-fit: cover; flex-shrink: 0; }
+  .ck-item .ci { flex: 1; min-width: 0; }
+  .ck-item .t { font-size: 13.5px; color: var(--text-87); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ck-item .s { font-size: 12px; color: var(--text-40); margin-top: 2px; }
+  .ck-item .pr { margin-top: 8px; font-size: 15px; font-weight: 700; color: #EE4D2D; }
+  .ck-item .pr s { font-size: 12px; color: var(--text-40); font-weight: 400; margin-left: 5px; }
+  .ck-item .qty { flex-shrink: 0; font-size: 12.5px; color: var(--text-65); align-self: flex-end; }
+  .ck-row { display: flex; justify-content: space-between; align-items: center; padding: 12px;
+    border-top: .5px solid var(--line-09); font-size: 14px; color: var(--black); cursor: pointer; }
+  .ck-row .v { color: var(--text-40); font-size: 13px; display: flex; align-items: center; gap: 3px; }
+  .ck-row.tt b { font-size: 15px; }
+  .ck-ship { position: relative; margin: 2px 12px 12px; padding: 13px 12px; border: 1px solid #26AA99;
+    border-radius: 4px; background: #FBFFFE; display: flex; justify-content: space-between;
+    font-size: 13.5px; color: var(--black); overflow: hidden; }
+  .ck-ship b { font-weight: 600; }
+  .ck-ship .ckc { position: absolute; top: 0; left: 0; width: 0; height: 0;
+    border-top: 20px solid #26AA99; border-right: 20px solid transparent; }
+  .ck-ship .ckc svg { position: absolute; top: -19px; left: 1px; }
+  .ck-offer .of-h { display: flex; justify-content: space-between; align-items: center; padding: 11px 12px;
+    background: linear-gradient(90deg, #FFF3EC, #FFF9F5); border-radius: 6px 6px 0 0; }
+  .ck-offer .lo { color: #EE4D2D; font-size: 15.5px; font-weight: 750; }
+  .ck-offer .cd { display: flex; gap: 3px; }
+  .ck-offer .cd b { background: #1C1C1E; color: #fff; border-radius: 3px; padding: 1px 5px;
+    font-size: 12px; font-weight: 700; }
+  .of-item { display: flex; gap: 10px; padding: 12px; cursor: pointer; }
+  .of-item img { width: 86px; height: 86px; border-radius: 4px; object-fit: cover; flex-shrink: 0; }
+  .of-item .oi { flex: 1; min-width: 0; }
+  .of-item .t { font-size: 13.5px; color: var(--text-87); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .of-item .s, .of-item .sh { font-size: 12px; color: var(--text-40); margin-top: 3px; }
+  .of-item .pr { margin-top: 6px; font-size: 15px; font-weight: 700; color: #EE4D2D; }
+  .of-item .fs { font-size: 12px; font-weight: 600; color: #26AA99; margin-left: 6px; }
+  .of-item .radio { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #C9C9CF;
+    flex-shrink: 0; align-self: center; }
+  .of-refresh { text-align: right; padding: 0 12px 12px; font-size: 12.5px; color: var(--text-40); }
+  .ck-bar { flex-shrink: 0; display: flex; align-items: center; background: #fff;
+    border-top: .5px solid var(--line-09); padding: 8px 10px 10px; gap: 10px; }
+  .ck-bar .tot { flex: 1; text-align: right; font-size: 13px; color: var(--black); }
+  .ck-bar .tot b { color: #EE4D2D; font-size: 17px; font-weight: 800; }
+  .ck-bar .sv { color: #EE4D2D; font-size: 12px; margin-top: 1px; }
+  .ck-bar button { width: 138px; height: 44px; border: none; border-radius: 8px; background: #EE4D2D;
+    color: #fff; font-family: var(--sf); font-size: 15px; font-weight: 700; cursor: pointer; }
+  .chat.shpmode { bottom: 82px; }
+  .chat.shpmode .cbody { padding-top: 10px; }
+  .chat.shpmode .cdock { padding-bottom: 12px; }
   .tab { flex: 1; display: flex; flex-direction: column; align-items: center; color: #D6D9E6; cursor: pointer; }
   .tab.on { color: var(--black); }
   .tab svg.tabfill { width: 27px; height: 27px; }
@@ -967,6 +1201,20 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cf-quote .qx { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
     cursor: pointer; flex-shrink: 0; color: var(--text-40); }
+  /* 问句卡附件:商品 = 引用条样式,多个同一行横滑;图片 = 图片 */
+  .cf-qatt { display: flex; gap: 8px; margin-bottom: 11px; }
+  .cf-qatt.prods { overflow-x: auto; }
+  .cf-qatt.prods::-webkit-scrollbar { height: 0; }
+  .cf-qatt .qit { flex: 0 0 auto; display: flex; align-items: center; gap: 8px;
+    background: var(--chip-bg); border-radius: 13px; padding: 6px 8px 6px 6px; max-width: 235px; }
+  .cf-qatt .qit .qx { display: flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; color: var(--text-40); cursor: pointer; flex-shrink: 0; }
+  .cf-qatt .qit .qx svg { width: 12px; height: 12px; }
+  .cf-qatt .qit img { width: 34px; height: 34px; border-radius: 8px; object-fit: cover; background: #fff; }
+  .cf-qatt .qit .qb { font-size: 12px; font-weight: 600; color: var(--text-87); line-height: 1.25; }
+  .cf-qatt .qit .qn { font-size: 11.5px; color: var(--text-40); line-height: 1.3; margin-top: 1px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px; }
+  .cf-qatt.one img { width: auto; height: 88px; border-radius: 11px; }
   .cf-text { font-size: 16.5px; line-height: 1.35; color: var(--text-87); min-height: 22px;
     letter-spacing: -.2px; word-break: break-word; }
   .cf-text.ph { color: var(--text-40); }
@@ -1013,13 +1261,16 @@
   .tglbtn.on{background:#081021;border-color:#081021;color:#fff;}
   .tglbtn.sub{font-size:12px;padding:5px 13px;color:#6B7280;}
   .tglbtn.sub.on{background:#4B5563;border-color:#4B5563;color:#fff;}
+  .tglbtn.reset{color:#9CA3AF;border-style:dashed;}
 </style>
 <!-- 一级只放"看哪一版",备选方案收进 Backup —— 三个并排会让人以为
      它们是三个平级候选,实际上主方案只有一个,Option 2/3 是留档的对照。
      主方案不叫 "Option 1":它不是候选之一,就是这次要看的东西。 -->
 <div style="display:flex;justify-content:center;gap:8px;margin:-8px 0 0">
   <button class="tglbtn on" id="tgl-opt111" onclick="setDemoState('opt111')">Demo 0805</button>
+  <button class="tglbtn" id="tgl-optshopee" onclick="setDemoState('optshopee')">Demo in Shopee</button>
   <button class="tglbtn" id="tgl-backup" onclick="setDemoState(lastBackup)">Backup</button>
+  <button class="tglbtn reset" onclick="demoReset()" title="回到当前方案的初始状态">↺ Reset</button>
 </div>
 <div id="backupRow" style="display:none;justify-content:center;gap:6px;margin:9px 0 0;flex-wrap:wrap">
   <button class="tglbtn sub" id="tgl-opt11" onclick="setDemoState('opt11')">Demo NEW</button>
@@ -1185,6 +1436,12 @@ const DEMO = {
   /* Demo NEW 1:Demo NEW 的拷贝,起点完全一致 */
   opt111:{caps:true,  mix:true,  sheet:false, agent:false, watch:true,  pdplean:true,
           runsui:true, likesplit:true, homecomp:true, tryon:false, qrow:true, atrow:true },
+  /* Demo in Shopee:Migoo 作为 Shopee 的第二个底 tab 嵌入 ——
+       底部换成 Shopee 的五格 tabbar(Migoo 选中);
+       顶部一枚 Shopping | Chat 切换:Shopping = 电商 tab,Chat = Migoo 会话页。 */
+  optshopee:{caps:true, mix:true, sheet:false, agent:false, watch:true,  pdplean:true,
+          runsui:true, likesplit:true, homecomp:true, tryon:false, qrow:true, atrow:true,
+          shopee:true },
   opt2: { caps:false, mix:true,   sheet:false, agent:false, watch:false },
   opt3: { caps:false, mix:false,  sheet:false, agent:false, watch:false },
   opt4: { caps:true,  mix:true,   sheet:true,  agent:true,  watch:true  },
@@ -1269,6 +1526,8 @@ let QUERY_ROW = false;
    没有任务时右边不出现,整行就是一个纯创建入口 —— 一个组件覆盖两态,
    不用再去右上角和 ♡ 抢位置(那个位置属于收藏,而 auto-task 不是商品的属性)。 */
 let PDP_ATROW = false;
+/* Migoo 内嵌在 Shopee 的壳里:Shopee 底 tab + 顶部 Shopping/Chat 切换 */
+let SHOPEE_SHELL = false;
 let likesState = 'opt1';
 /* 收进 Backup 的历版 —— 一级只留还在推进的那几个。
    加减备选只动这一个数组,setDemoState 里不再有硬编码的 id 比较。 */
@@ -1294,12 +1553,14 @@ function setDemoState(s) {
   TRYON_CHIP = DEMO[s].tryon !== false;
   QUERY_ROW = !!DEMO[s].qrow && !DEMO[s].dock;
   PDP_ATROW = !!DEMO[s].atrow;
+  SHOPEE_SHELL = !!DEMO[s].shopee;
+  shpBound = false; bindNext = null; shpView = 'shopping';   /* 换方案就当没绑过,便于反复演示 */
   cthread = [];              /* 换方案等于换一条线程,不要串味 */
   upUnreadN = 3; upUnread = true;   /* 换方案就当没看过,便于反复演示 */
   lkTab = 'updates';
   const isBackup = BACKUP.includes(s);
   if (isBackup) lastBackup = s;
-  ['opt1','opt11','opt111','opt2','opt3','opt4','opt41','opt42','opt43','opt431','opt5'].forEach(k => {
+  ['opt1','opt11','opt111','optshopee','opt2','opt3','opt4','opt41','opt42','opt43','opt431','opt5'].forEach(k => {
     const b = document.getElementById('tgl-'+k);
     if (b) b.classList.toggle('on', k === s);
   });
@@ -1520,7 +1781,7 @@ const cap = (id, showWhy) => { const p=P[id]; return `
     <div class="pr">$${p.pr}</div>
     ${/* 理由行是这张卡唯一解释"为什么是它"的地方。
          没有别的理由但你收藏过时,那就是理由 —— 一句话,不是一个角标。 */''}
-    ${(() => { const why = p.why || ((LIKE_SPLIT && saved.has(id)) ? 'You liked this' : '');
+    ${(() => { const why = p.why || ((LIKE_SPLIT && saved.has(id) && (!SHOPEE_SHELL || shpBound)) ? 'You liked this' : '');
         return (showWhy && why) ? `<div class="why">${why}</div>` : ''; })()}
   </div>`; };
 
@@ -1549,13 +1810,17 @@ const gcard = (id) => `<div class="gcard" onclick="openPDP('${id}')">${imgw(id)}
    它本来就是货(白底),只是多了一层"你收藏过 + 现在变了"。
    ♥ 是与普通推荐理由行的唯一区分符:两者共用 .why 的字号与色值,
    若再加底色或边框就会变成第五种卡型,与刚统一的插卡语言打架。 */
-const scard = (id) => { const p=P[id], u=SAVED_UPDATES[id]; return `
+const scard = (id) => { const p=P[id], u=SAVED_UPDATES[id];
+  /* 绑定前 Migoo 不认识你:没有 auto-task,没有 like,自然没有这两种更新卡。
+     同一个坑位退回普通推荐卡 —— 冷启动的流只有货,没有关系。 */
+  if (SHOPEE_SHELL && !shpBound) return gcard(id);
+  return `
   <div class="gcard scard" onclick="openPDP('${id}')">${imgw(id, LIKE_SPLIT ? (u.at ? true : 'like') : true)}
     <div class="cap">
       <div class="ttl">${p.brand} ${p.nm}</div>
       <div class="pr">$${p.pr}</div>
       <div class="why ev">${u.ev}</div>
-      ${u.buy ? `<button class="buynow" onclick="event.stopPropagation();toast('→ 下单确认页 · ${p.brand}(不直接扣款)')">Buy now</button>` : ''}
+      ${u.buy ? `<button class="buynow" onclick="event.stopPropagation();buyNow('${id}')">Buy now</button>` : ''}
     </div>
   </div>`; };
 
@@ -1667,14 +1932,14 @@ const home = () => {
          🔔 = 它替我在跑的事(run / task,带未读点)
          并排放不是重复 —— 重复的判定看"点了到哪儿",这两个落点毫无交集。
          ♡ 永远不带点:收藏不会自己发生变化,没有"未读"这回事。 */''}
-    ${LIKE_SPLIT ? `<div class="lk-corner lk-corner2" onclick="openLikeList()" aria-label="Likes">${IC.heartHead}</div>` : ''}
-    <div class="lk-corner" onclick="openLikes()">
+    ${(LIKE_SPLIT && !SHOPEE_SHELL) ? `<div class="lk-corner lk-corner2" onclick="openLikeList()" aria-label="Likes">${IC.heartHead}</div>` : ''}
+    ${SHOPEE_SHELL ? '' : `<div class="lk-corner" onclick="openLikes()">
       ${/* LIKE_SPLIT 版连未读点也不要 —— PDP 的 pill、流内的角标已经在说"有事发生",
            header 上再挂一个常亮的点就是第三处重复;何况 demo 里它清掉后一换方案又回来,
            演示时反而像 bug。真实产品要不要恢复,是通知策略的事,不在这版回答。 */''}
       ${WATCH_MODE ? IC.bellHead : IC.heartHead}${LIKE_SPLIT ? '' : (AT_RUNS ? (upUnread ? '<span class="dot"></span>' : '') : (upUnreadN ? `<span class="badge">${upUnreadN}</span>` : ''))}
-    </div>
-    <div class="greet${LIKE_SPLIT ? ' twoicon' : ''}">What are we looking for today?</div>
+    </div>`}
+    <div class="greet${(LIKE_SPLIT && !SHOPEE_SHELL) ? ' twoicon' : ''}">What are we looking for today?</div>
     ${(() => {
       const askRow = `<div class="askrow">
     ${(CHAT_SHEET && !CHAT_DOCK) ? `<div class="askbot${CHAT_AGENT ? '' : ' migoo'}" id="askbot" onclick="openCopilot()" aria-label="Open conversation"></div>` : ''}
@@ -1712,7 +1977,308 @@ const home = () => {
 
 /* 会话统一发生在第一个 tab(Migoo 助理);Shop 里的问/对比/追问=**切 tab** 而非下钻,
    所以会话页顶部无返回箭头,回 Shop 靠底部 tabbar */
-const fbar = (active='shop') => `
+/* ---------- Shopee PDP(宿主商品页框架) ----------
+   按 Shopee 的版式画:悬浮返回/分享/购物车、通栏图、橙色促销条 + 倒计时、
+   橙色大价 + After Voucher、分期行、券 chips、标题、三行服务信息、评分区、
+   底部 Chat Now / Add to Cart(青)+ Buy with Voucher(橙)。
+   价格沿用本 demo 的 $ 数据 —— 只换框架,不编数据。 */
+const spIC = {
+  back:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 4.5 7.5 12l7.5 7.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  share:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M13.5 5.5 20 11l-6.5 5.5v-3.4C8.9 13 6 14.6 4 18c.4-5.6 3.6-9 9.5-9.5z" stroke="#fff" stroke-width="1.9" stroke-linejoin="round"/></svg>',
+  cart:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M3 4h2.4l2.2 11.2a1.6 1.6 0 0 0 1.6 1.3h8.4a1.6 1.6 0 0 0 1.6-1.3L21 8H6.2" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.4" fill="#fff"/><circle cx="17.4" cy="20" r="1.4" fill="#fff"/></svg>',
+  chatw:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 5.8A1.8 1.8 0 0 1 5.8 4h12.4A1.8 1.8 0 0 1 20 5.8v9.4a1.8 1.8 0 0 1-1.8 1.8H9.4L5.2 20.4A.7.7 0 0 1 4 19.9V5.8z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 9h8M8 12.4h5.4" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg>',
+  cartAdd:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 4h2.4l2.2 11.2a1.6 1.6 0 0 0 1.6 1.3h8.4a1.6 1.6 0 0 0 1.6-1.3L21 8H6.2" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M12.8 10.6h4M14.8 8.6v4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="20" r="1.4" fill="#fff"/><circle cx="17.4" cy="20" r="1.4" fill="#fff"/></svg>',
+  truck:'<svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M3 6.5h11v10H3zM14 10h4.2L21 13v3.5h-7" stroke="#54545C" stroke-width="1.6" stroke-linejoin="round"/><circle cx="7" cy="17.6" r="1.7" stroke="#54545C" stroke-width="1.5"/><circle cx="17.4" cy="17.6" r="1.7" stroke="#54545C" stroke-width="1.5"/></svg>',
+  shield:'<svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 3 5 5.6v5.2c0 4.5 3 7.9 7 9.6 4-1.7 7-5.1 7-9.6V5.6L12 3z" stroke="#EE4D2D" stroke-width="1.6" stroke-linejoin="round"/><path d="m9.2 11.6 2 2 3.6-3.8" stroke="#EE4D2D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  ticket:'<svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 8a2 2 0 0 0 2-2h12a2 2 0 0 0 2 2v2.6a1.8 1.8 0 0 0 0 3.6V17a2 2 0 0 0-2 2H6a2 2 0 0 0-2-2v-2.8a1.8 1.8 0 0 0 0-3.6V8z" stroke="#EE4D2D" stroke-width="1.6" stroke-linejoin="round"/><path d="M12 8.4v8" stroke="#EE4D2D" stroke-width="1.4" stroke-dasharray="2 2.4"/></svg>',
+};
+function openShopeePDP(id){
+  const p = P[id];
+  const after = (p.pr * 0.95).toFixed(2), save = (p.pr * 0.05).toFixed(2), inst = (p.pr * 0.95 / 3).toFixed(2);
+  document.getElementById('spdp').innerHTML = `
+  ${statusbar()}
+  <div class="sp-body">
+    <div class="sp-hero">
+      <img src="${p.img}" alt="">
+      <div class="sp-nav">
+        <div class="sp-cir" onclick="closeShopeePDP()">${spIC.back}</div>
+        <div class="sp-cir" onclick="toast('Share — demo 外')">${spIC.share}</div>
+        <div class="sp-cir" onclick="toast('Cart — demo 外')">${spIC.cart}<i class="n">55</i></div>
+        <div class="sp-cir" onclick="toast('More — demo 外')" style="font-weight:700;color:#fff">⋯</div>
+      </div>
+      <div class="indicator">1/${5 + (p.pr % 5)}</div>
+    </div>
+    <div class="sp-promo"><span>%&nbsp; Special: 5% off saving $${save}</span><span class="tt">End in <b>60</b>:<b>25</b>:<b>39</b></span></div>
+    <div class="sp-price">
+      <div class="pl"><span class="p">$${after}</span><span class="av">${spIC.ticket} After Voucher</span>
+        <div class="inst">$${inst} x 3 months with SPayLater ›</div>
+        <div class="vrow"><span class="vc">5% off saving $${save} · Ends in 1 Hour</span><span class="vi">0% interest</span></div>
+      </div>
+      <div class="pr"><span class="sold">${p.sold} Sold</span><span class="hh" onclick="toggleSave('${id}');this.innerHTML=saveIcon(saved.has('${id}'))">${saveIcon(saved.has(id))}</span></div>
+    </div>
+    <div class="sp-title">${(p.brand + ' ' + p.nm).toUpperCase()}</div>
+    <div class="sp-row">${spIC.truck}<span>Free Shipping to your area</span></div>
+    <div class="sp-row" onclick="toast('Electronics Protection — demo 外')">${spIC.shield}<span>Electronics Protection</span><span class="lk-chv">›</span></div>
+    <div class="sp-row" onclick="toast('SPayLater — demo 外')">${spIC.ticket}<span>SPayLater: 0% Installment + 50k Discount</span><span class="lk-chv">›</span></div>
+    <div class="sp-rate"><b>${p.rt}</b> <span class="star">★</span> Product Ratings (${p.sold})
+      <div class="tags"><span>Great quality (12)</span><span>Fast delivery (8)</span><span>As described (5)</span></div>
+    </div>
+    <div style="height:24px"></div>
+  </div>
+  <div class="sp-bar">
+    <div class="act" onclick="toast('Chat with seller — demo 外')">${spIC.chatw}<span>Chat Now</span></div>
+    <div class="act" onclick="toast('Added to cart — demo')">${spIC.cartAdd}<span>Add to Cart</span></div>
+    <div class="buy" onclick="openShopeeCheckout('${id}')"><span>Buy with Voucher</span><b>$${after}</b></div>
+  </div>`;
+  document.getElementById('spdp').classList.add('show');
+}
+function closeShopeePDP(){ document.getElementById('spdp').classList.remove('show'); }
+/* Buy now 的分岔:Shopee 壳里进宿主的 checkout 整页,独立 App 里维持原 toast */
+function buyNow(id){
+  if (SHOPEE_SHELL) return openShopeeCheckout(id);
+  toast('→ 下单确认页 · ' + P[id].brand + '(不直接扣款)');
+}
+/* Shopee checkout:又一个从右推入的宿主页面(可以叠在 Shopee PDP 之上)。
+   地址/店铺/券/留言/运费/加购,全按 Shopee 的版式;数字从商品真数据算。 */
+function openShopeeCheckout(id){
+  const p = P[id];
+  const after = (p.pr * 0.95).toFixed(2), ship = 3.99;
+  const total = (p.pr * 0.95 + ship).toFixed(2), saved = (p.pr * 0.05 + 3).toFixed(2);
+  const upId = id === 'bottle' ? 'mug' : 'bottle'; const up = P[upId];
+  document.getElementById('spck').innerHTML = `
+  ${statusbar()}
+  <div class="ck-head"><span class="bk" onclick="closeShopeeCheckout()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m0 0 6-6m-6 6 6 6" stroke="#EE4D2D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Checkout</div>
+  <div class="sp-body ck-body">
+    <div class="ck-card ck-addr" onclick="toast('Address — demo 外')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 21s-6.6-5.4-6.6-10.4a6.6 6.6 0 1 1 13.2 0C18.6 15.6 12 21 12 21z" fill="#EE4D2D"/><circle cx="12" cy="10.4" r="2.5" fill="#fff"/></svg>
+      <div class="ai"><div class="nm">Alex <span>(+1) 415 0132 889</span></div>
+        <div class="ad">2130 Fillmore St, Apt 4B<br>San Francisco, CA 94115</div></div>
+      <span class="lk-chv">›</span>
+    </div>
+    <div class="ck-card">
+      <div class="ck-shop"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M4 9.4 5.2 4h13.6L20 9.4M4 9.4v9.8A1.8 1.8 0 0 0 5.8 21h12.4a1.8 1.8 0 0 0 1.8-1.8V9.4M4 9.4h16M9.6 21v-6.4h4.8V21" stroke="#1C1C1E" stroke-width="1.6" stroke-linejoin="round"/></svg>${p.brand} Official Store</div>
+      <div class="ck-item">
+        <img src="${p.img}" alt="">
+        <div class="ci"><div class="t">${p.brand} ${p.nm}</div><div class="s">${LK_MDL[id] || 'Standard'}</div>
+          <div class="pr">$${after} <s>$${p.pr}</s></div></div>
+        <span class="qty">x1</span>
+      </div>
+      <div class="ck-row" onclick="toast('Voucher — demo 外')"><span>Shop Voucher</span><span class="v">Select or enter code <i class="lk-chv">›</i></span></div>
+      <div class="ck-row" onclick="toast('Message — demo 外')"><span>Message for Seller</span><span class="v">Please leave a message <i class="lk-chv">›</i></span></div>
+      <div class="ck-row" onclick="toast('Shipping — demo 外')"><span>Shipping Option</span><span class="v">View All <i class="lk-chv">›</i></span></div>
+      <div class="ck-ship"><span class="ckc"><svg width="9" height="9" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7.5" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Standard Delivery<b>$${ship}</b></div>
+      <div class="ck-row tt"><span>Total 1 Item(s)</span><b>$${total}</b></div>
+    </div>
+    <div class="ck-card ck-offer">
+      <div class="of-h"><span class="lo">Limited Offer</span><span class="cd"><b>00</b>:<b>59</b>:<b>56</b></span></div>
+      <div class="of-item" onclick="toast('Add-on — demo 外')">
+        <img src="${up.img}" alt="">
+        <div class="oi"><div class="t">${up.brand} ${up.nm}</div><div class="s">Add-on deal</div>
+          <div class="sh">Standard Delivery</div><div class="pr">$${up.pr} <span class="fs">Free Shipping</span></div></div>
+        <span class="radio"></span>
+      </div>
+      <div class="of-refresh">Refresh ⟳</div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="ck-bar">
+    <div class="tot"><div>Total <b>$${total}</b></div><div class="sv">Saved $${saved}</div></div>
+    <button onclick="toast('Order placed — demo(不直接扣款)')">Place Order</button>
+  </div>`;
+  document.getElementById('spck').classList.add('show');
+}
+function closeShopeeCheckout(){ document.getElementById('spck').classList.remove('show'); }
+
+/* Shopee 的五格底 tab。宿主的壳按宿主的长相画(灰字、右上红标),
+   不套 Migoo 的规范 —— 蓝在这里反而是错的;Migoo 只以第二格的 logo 出现。 */
+const shpIC = {
+  bagSm:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 8h14l-1 12.2a1.6 1.6 0 0 1-1.6 1.3H7.6A1.6 1.6 0 0 1 6 20.2L5 8z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M8.6 10.6V6.4a3.4 3.4 0 0 1 6.8 0v4.2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
+  calSm:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3.6" y="5" width="16.8" height="16" rx="2" stroke="currentColor" stroke-width="1.9"/><path d="M3.6 9.6h16.8M8 2.8v4M16 2.8v4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>',
+  docSm:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 3.5h8.5L19 8v12.5H6V3.5z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/><path d="M14 3.8V8.3h4.6M9 12.4h6.4M9 15.8h4.6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+  meSm:'<svg width="21" height="21" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.4" r="3.4" stroke="#1C1C1E" stroke-width="1.7"/><path d="M5.4 19.6c.9-3.3 3.6-5 6.6-5s5.7 1.7 6.6 5" stroke="#1C1C1E" stroke-width="1.7" stroke-linecap="round"/></svg>',
+  chatfile:'<svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.5 22H8.8C7.11984 22 6.27976 22 5.63803 21.673C5.07354 21.3854 4.6146 20.9265 4.32698 20.362C4 19.7202 4 18.8802 4 17.2V6.8C4 5.11984 4 4.27976 4.32698 3.63803C4.6146 3.07354 5.07354 2.6146 5.63803 2.32698C6.27976 2 7.11984 2 8.8 2H12.0118C12.7455 2 13.1124 2 13.4577 2.08289C13.7638 2.15638 14.0564 2.27759 14.3249 2.44208C14.6276 2.6276 14.887 2.88703 15.4059 3.40589L18.5941 6.59411C19.113 7.11297 19.3724 7.3724 19.5579 7.67515C19.7224 7.94356 19.8436 8.2362 19.9171 8.5423C20 8.88757 20 9.25445 20 9.98822V11.5M14 2.26946V6.4C14 6.96005 14 7.24008 14.109 7.45399C14.2049 7.64215 14.3578 7.79513 14.546 7.89101C14.7599 8 15.0399 8 15.6 8H19.7305M22 22L20.5 20.5M21.5 18C21.5 19.933 19.933 21.5 18 21.5C16.067 21.5 14.5 19.933 14.5 18C14.5 16.067 16.067 14.5 18 14.5C19.933 14.5 21.5 16.067 21.5 18Z" stroke="#1C1C1E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  home:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 10.2 12 3.6l8 6.6V20a1 1 0 0 1-1 1h-4.6v-5.8h-4.8V21H5a1 1 0 0 1-1-1v-9.8z" stroke="#54545C" stroke-width="1.7" stroke-linejoin="round"/></svg>',
+  live:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="6.5" width="18" height="13" rx="2.4" stroke="#54545C" stroke-width="1.7"/><path d="m8.5 2.8 3.5 3.4 3.5-3.4" stroke="#54545C" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.4 10.4l4.4 2.6-4.4 2.6z" fill="#54545C"/></svg>',
+  noti:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M4 5.8A1.8 1.8 0 0 1 5.8 4h12.4A1.8 1.8 0 0 1 20 5.8v9.4a1.8 1.8 0 0 1-1.8 1.8H9.4L5.2 20.4A.7.7 0 0 1 4 19.9V5.8z" stroke="#54545C" stroke-width="1.7" stroke-linejoin="round"/><path d="M8 9h8M8 12.4h5.4" stroke="#54545C" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  me:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.2" r="3.6" stroke="#54545C" stroke-width="1.7"/><path d="M4.8 20.2c.9-3.6 3.8-5.4 7.2-5.4s6.3 1.8 7.2 5.4" stroke="#54545C" stroke-width="1.7" stroke-linecap="round"/></svg>',
+};
+const shpBar = () => `
+  <div class="tabbar shp-bar">
+    <div class="shp-tab" onclick="toast('Shopee Home — demo 外')">${shpIC.home}<span>Home</span></div>
+    <div class="shp-tab on"><img src="${A}migoo-logo.png"><span>Migoo</span></div>
+    <div class="shp-tab" onclick="toast('Live & Video — demo 外')"><span class="ic">${shpIC.live}<i class="rdot"></i></span><span>Live & Video</span></div>
+    <div class="shp-tab" onclick="toast('Notification — demo 外')"><span class="ic">${shpIC.noti}<i class="rbadge">8</i></span><span>Notification</span></div>
+    <div class="shp-tab" onclick="toast('Me — demo 外')">${shpIC.me}<span>Me</span></div>
+  </div>`;
+/* Shopping | Chat:同一个 Migoo tab 的两个面。Shopping = 电商页,Chat = Migoo 会话页。
+   切换不是导航 —— chat 本来就是盖在同一格 tab 上的一层,Shopping 只是把它收掉。 */
+let shpView = 'shopping';
+/* 账号绑定门:未绑定时,一切 agent 行为(会话/个人页/任务页)都先弹绑定浮层。
+   Continue 即视为绑定成功(session 内),并续跑被拦下的那个动作 ——
+   拦截不该吃掉意图,绑完人应该落在他本来要去的地方。
+   宿主侧的行为(逛/看商品/Shopee checkout)不拦:那些不经过 Migoo。 */
+let shpBound = false, bindNext = null;
+const shopeeAppIC = '<svg width="38" height="38" viewBox="0 0 48 48"><rect width="48" height="48" rx="11" fill="#EE4D2D"/><path d="M15.5 17.5h17l-1.5 17.6a2 2 0 0 1-2 1.9H19a2 2 0 0 1-2-1.9l-1.5-17.6z" fill="#fff"/><path d="M19.6 17.5v-2.3a4.4 4.4 0 0 1 8.8 0v2.3" stroke="#fff" stroke-width="2.2" fill="none"/><text x="24" y="31.5" text-anchor="middle" font-size="13" font-weight="800" fill="#EE4D2D" font-family="-apple-system,sans-serif">S</text></svg>';
+function openBindSheet(){
+  document.getElementById('bindSheet').innerHTML = `
+    <div class="csheet-grab"></div>
+    <div class="bs-x" onclick="closeBindSheet()">${IC_X}</div>
+    <div class="bs-icons"><span class="ic"><img src="${A}migoo-logo.png" alt=""></span><span class="dots">···</span><span class="ic">${shopeeAppIC}</span></div>
+    <div class="bs-t">Connect Migoo With Shopee</div>
+    <div class="bs-s">Allow Migoo connect with your Shopee to provide better shopping experience</div>
+    <div class="bs-card">
+      <div class="bs-row"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M10.4 13.6a4.2 4.2 0 0 0 6 0l3.4-3.4a4.24 4.24 0 1 0-6-6l-1.4 1.4M13.6 10.4a4.2 4.2 0 0 0-6 0l-3.4 3.4a4.24 4.24 0 1 0 6 6l1.4-1.4" stroke="#1C1C1E" stroke-width="1.9" stroke-linecap="round"/></svg>
+        <div><b>Why Link Your Account</b><p>By Linking Your Shopee Account With Migoo, You Will See Up-To-Date Pricing Info, Smarter Product Recommendations And Enjoy A Faster, More Seamless Checkout Experience.</p></div></div>
+      <div class="bs-row"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M12 3 5 5.6v5.2c0 4.5 3 7.9 7 9.6 4-1.7 7-5.1 7-9.6V5.6L12 3z" stroke="#1C1C1E" stroke-width="1.8" stroke-linejoin="round"/><path d="m9.2 11.6 2 2 3.6-3.8" stroke="#1C1C1E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div><b>Your Data, Kept Secure</b><p>An Encrypted Version Of Your Shopee ID And Your Shopping Preferences And History Will Be Shared With Migoo To Enhance Your Customer Experience And Improve Migoo's Services To You.</p></div></div>
+    </div>
+    <button class="bs-cta" onclick="bindStart()">Continue</button>`;
+  document.getElementById('bindScrim').classList.add('show');
+  document.getElementById('bindSheet').classList.add('show');
+}
+function closeBindSheet(){
+  bindNext = null;
+  document.getElementById('bindScrim')?.classList.remove('show');
+  document.getElementById('bindSheet')?.classList.remove('show');
+}
+/* Connect 浮层 → Google OAuth 三步(选账号 / 确认信息 / 勾权限)→ 完成绑定。
+   浮层收起但 bindNext 留着 —— 整条 OAuth 走完才轮到它续跑。 */
+function bindStart(){
+  document.getElementById('bindScrim')?.classList.remove('show');
+  document.getElementById('bindSheet')?.classList.remove('show');
+  gaStep(1);
+  document.getElementById('gauth').classList.add('show');
+}
+let gaChecks = [false, false, false];
+function gaStep(n){
+  const body = document.getElementById('gaBody');
+  if (n === 1) body.innerHTML = `
+    <img class="ga-logo" src="${A}migoo-logo.png" alt="">
+    <div class="ga-h1">Choose an account</div>
+    <div class="ga-sub">to continue to <b>Migoo</b></div>
+    <div class="ga-acc" onclick="gaStep(2)">
+      <span class="gav">C</span>
+      <div class="gi"><div class="gn">Claudia Gu</div><div class="ge">claudiaaagu@gmail.com</div></div>
+    </div>
+    <div class="ga-acc dim" onclick="toast('Signed out — demo')">
+      <span class="gav grey">S</span>
+      <div class="gi"><div class="gn">Shirley Tan</div><div class="ge">shirleytan@gmail.com</div></div>
+      <span class="gs">Signed out</span>
+    </div>
+    <div class="ga-acc" onclick="toast('Use another account — demo 外')">
+      <span class="gav ring"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.6" r="3.4" stroke="#5F6368" stroke-width="1.6"/><path d="M5.2 19.6c.9-3.2 3.6-4.9 6.8-4.9s5.9 1.7 6.8 4.9" stroke="#5F6368" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+      <div class="gi"><div class="gn" style="font-weight:400">Use another account</div></div>
+    </div>
+    <div class="ga-note">Before using this app, you can review Migoo's <b>Privacy Policy</b> and <b>Terms of Service</b>.</div>`;
+  else if (n === 2) body.innerHTML = `
+    <img class="ga-logo" src="${A}migoo-logo.png" alt="">
+    <div class="ga-h1">Sign in to Migoo</div>
+    <div class="ga-pill"><span class="gav sm">C</span>claudiaaagu@gmail.com <span class="gcaret">▾</span></div>
+    <div class="ga-h2">Google will allow Migoo to access this info about you</div>
+    <div class="ga-info"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8.6" r="3.4" stroke="#5F6368" stroke-width="1.6"/><path d="M5.2 19.6c.9-3.2 3.6-4.9 6.8-4.9s5.9 1.7 6.8 4.9" stroke="#5F6368" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <div><div class="gn">Claudia Gu</div><div class="ge">Name and profile picture</div></div></div>
+    <div class="ga-info"><svg width="20" height="16" viewBox="0 0 24 18"><rect x=".8" y=".8" width="22.4" height="16.4" rx="1.6" fill="none" stroke="#5F6368" stroke-width="1.6"/><path d="M2 3l10 7.2L22 3" stroke="#5F6368" stroke-width="1.6" fill="none"/></svg>
+      <div><div class="gn">claudiaaagu@gmail.com</div><div class="ge">Email address</div></div></div>
+    <div class="ga-note">Review Migoo's <b>Privacy Policy</b> and <b>Terms of Service</b> to understand how Migoo will process and protect your data.</div>
+    <div class="ga-note">To make changes at any time, go to your <b>Google Account</b>.</div>
+    <div class="ga-btns"><button class="gb-line" onclick="gaCancel()">Cancel</button><button class="gb-fill" onclick="gaStep(3)">Continue</button></div>`;
+  else body.innerHTML = `
+    <img class="ga-logo" src="${A}migoo-logo.png" alt="">
+    <div class="ga-h1">Migoo wants access to your Google Account</div>
+    <div class="ga-pill bare"><span class="gav sm">C</span>claudiaaagu@gmail.com</div>
+    <div class="ga-h2">Select what <b>Migoo</b> can access</div>
+    <div class="ga-scope all" onclick="gaAll(this)"><span class="gck"></span>Select all</div>
+    <div class="ga-line"></div>
+    <div class="ga-scope" onclick="gaTick(0,this)"><svg width="20" height="15" viewBox="0 0 24 18"><path d="M1 2h22v14H1z" fill="#fff" stroke="#DADCE0"/><path d="M2 3l10 7.4L22 3v3.4L12 13.8 2 6.4z" fill="#EA4335"/></svg><span class="t">View your email messages and settings. <b>Learn more</b></span><span class="gck"></span></div>
+    <div class="ga-scope" onclick="gaTick(1,this)"><svg width="18" height="16" viewBox="0 0 24 21"><path d="M9 1h6.4l8.2 14.2H17.2z" fill="#FBBC04"/><path d="M9 1 .8 15.2l3.3 5.6L15.4 1z" fill="#34A853"/><path d="M4.1 20.8h13.1l3.4-5.6H7.4z" fill="#2684FC"/></svg><span class="t">See and download all your Google Drive files. <b>Learn more</b></span><span class="gck"></span></div>
+    <div class="ga-scope" onclick="gaTick(2,this)"><svg width="17" height="17" viewBox="0 0 24 24"><rect width="24" height="24" rx="3" fill="#1A73E8"/><text x="12" y="16.5" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff" font-family="-apple-system,sans-serif">31</text></svg><span class="t">See and download any calendar you can access using your Google Calendar. <b>Learn more</b></span><span class="gck"></span></div>
+    <div class="ga-h2" style="margin-top:20px">Make sure you trust Migoo</div>
+    <div class="ga-note">Review Migoo's <b>Privacy Policy</b> and <b>Terms of Service</b> to understand how Migoo will process and protect your data.</div>
+    <div class="ga-btns"><button class="gb-line" onclick="gaCancel()">Cancel</button><button class="gb-fill" onclick="gaFinish()">Continue</button></div>`;
+  if (n === 3) gaChecks = [false, false, false];
+  document.querySelector('.ga-body').scrollTop = 0;
+}
+function gaTick(i, el){ gaChecks[i] = !gaChecks[i]; el.querySelector('.gck').classList.toggle('on', gaChecks[i]); gaSyncAll(); }
+function gaAll(el){
+  const to = !gaChecks.every(Boolean);
+  gaChecks = [to, to, to];
+  document.querySelectorAll('.ga-scope:not(.all) .gck').forEach(c => c.classList.toggle('on', to));
+  gaSyncAll();
+}
+function gaSyncAll(){ document.querySelector('.ga-scope.all .gck')?.classList.toggle('on', gaChecks.every(Boolean)); }
+function gaCancel(){ bindNext = null; document.getElementById('gauth').classList.remove('show'); }
+/* 第三步确认 → 绑定完成 */
+function gaFinish(){
+  document.getElementById('gauth').classList.remove('show');
+  bindContinue();
+}
+function bindContinue(){
+  shpBound = true;
+  document.getElementById('bindScrim')?.classList.remove('show');
+  document.getElementById('bindSheet')?.classList.remove('show');
+  const fn = bindNext; bindNext = null;
+  /* 绑定的那一刻,流从冷启动换成个性化(scard 们长出来)—— 整页重渲一次。
+     render 只重建不重开:若正停在 chat 面,得自己把它开回来。 */
+  render();
+  if (shpView === 'chat') openAssistant();
+  /* 不弹 toast —— 流当场从冷启动换成个性化,这个变化本身就是"绑定成功"的确认 */
+  if (fn) setTimeout(fn, 220);
+}
+function shpGateFile(){
+  if (!shpBound) { bindNext = null; return openBindSheet(); }
+  toast('Chat files — demo 外');
+}
+function shpGateMe(){
+  if (!shpBound) { bindNext = null; return openBindSheet(); }
+  toast('个人主页 — demo 外');
+}
+function shpGateBell(){
+  if (!shpBound) { bindNext = () => { closeChat(); openLikes(); }; return openBindSheet(); }
+  closeChat(); openLikes();
+}
+const shpToggle = (cur) => `
+  <div class="shp-seg">
+    <span class="sg${cur==='shopping'?' on':''}" onclick="shpGo('shopping')">Shopping</span>
+    <span class="sg${cur==='chat'?' on':''}" onclick="shpGo('chat')">Chat</span>
+  </div>`;
+/* 顶栏常驻:切换器 + ♡ + 🔔 都住在这一条里,切换时一根像素都不动 ——
+   抖动的根源就是两个面各画了一遍这条 chrome(位置还不一样)。
+   Chat 只是把顶栏和底 tab 之间那块换掉,状态栏/顶栏/底 tab 全程钉死。 */
+/* 顶栏:左 = 个人主页(两个面都在);右随面切换 ——
+     Shopping → 🔔 任务页(auto-task 是购物侧的东西)
+     Chat     → chatfile(会话文件,只属于会话)
+   右侧属于"当前这个面的工具",跟着面走;左侧属于"我",钉死。 */
+const shpTop = () => `
+  <div class="shp-top" id="shpTop">
+    <div class="lk-corner shp-mecn" onclick="shpGateMe()">${shpIC.meSm}</div>
+    ${shpToggle(shpView)}
+    <div class="lk-corner shp-bell${shpView==='chat'?' hide':''}" onclick="shpGateBell()">${IC.bellHead}</div>
+    <div class="lk-corner shp-cfile${shpView==='chat'?'':' hide'}" onclick="shpGateFile()">${shpIC.chatfile}</div>
+  </div>`;
+function shpSync(){
+  const t = document.getElementById('shpTop'); if (!t) return;
+  const sg = t.querySelectorAll('.sg');
+  sg[0]?.classList.toggle('on', shpView === 'shopping');
+  sg[1]?.classList.toggle('on', shpView === 'chat');
+  t.querySelector('.shp-bell')?.classList.toggle('hide', shpView === 'chat');
+  t.querySelector('.shp-cfile')?.classList.toggle('hide', shpView !== 'chat');
+}
+/* Chat 输入框上方的能力行:方角 + icon(能力,点开有下一层),与全站形状规则一致。
+   Shopping 直接切面;Auto-task 去任务页;后两个 demo 外。 */
+const shpChatChips = () => `
+  <div class="shp-cchips">
+    <span class="cf-chip capchip" onclick="shpGo('shopping')"><span class="ci">${shpIC.bagSm}</span>Shopping</span>
+    <span class="cf-chip capchip" onclick="closeChat();openLikes()"><span class="ci">${IC.clock}</span>Auto-task</span>
+    <span class="cf-chip capchip" onclick="toast('Schedule — demo 外')"><span class="ci">${shpIC.calSm}</span>Schedule</span>
+    <span class="cf-chip capchip" onclick="toast('Docs — demo 外')"><span class="ci">${shpIC.docSm}</span>Doc</span>
+  </div>`;
+function shpGo(v){
+  if (v === shpView) return;
+  shpView = v; shpSync();
+  if (v === 'chat') openAssistant();
+  else closeChat();
+}
+const fbar = (active='shop') => SHOPEE_SHELL ? shpBar() : `
   <div class="tabbar">
     <div class="tab${active==='migoo'?' on':''}" ${active==='migoo'?'':'onclick="openAssistant()"'}><img class="logo" src="${A}migoo-logo.png"></div>
     <div class="tab" onclick="toast('→ Tasks tab (out of demo scope)')">${IC.tabTasks}</div>
@@ -1826,6 +2392,9 @@ let sheetDrag = null;
 let currentPdpId = null;
 function openPDP(id){
   if (!P[id]) return;
+  /* Shopee 壳里,商品页是宿主的:点任何商品都进 Shopee 自己的 PDP 框架,
+     Migoo 的 PDP sheet 在这一版不出现 —— 这正是"内嵌"与"独立 App"的分界线。 */
+  if (SHOPEE_SHELL) return openShopeePDP(id);
   currentPdpId = id;
   const ov = document.getElementById('pdp');
   ov.innerHTML = pdpHTML(id);
@@ -2024,6 +2593,18 @@ const LK_RUN = { tote:'Checked 20 min ago · no change since Jul 9',
 /* 会话里建的任务落到这里(session 内)—— 否则 demo 当场自证其伪:
    刚发完 "Remind me when…",回到商品页铃铛还是 0,任务页也没有它。 */
 let SESSION_TASKS = [];
+/* Reset:把演示过程里长出来的一切(建的任务/改的收藏/改的价格线/绑定/已读)
+   打回初始,停留在当前方案 —— 演给下一个人看之前按一下,不用刷新页面。 */
+const SAVED_INIT = [...saved];
+const ALERTS_INIT = { ...ALERTS };
+function demoReset(){
+  SESSION_TASKS.length = 0;
+  saved.clear(); SAVED_INIT.forEach(x => saved.add(x));
+  Object.keys(ALERTS).forEach(k => delete ALERTS[k]); Object.assign(ALERTS, ALERTS_INIT);
+  lkScanned = false;
+  setDemoState(likesState);   /* 其余(线程/未读/绑定/视图)它本来就会重置 */
+  toast('已重置到当前方案的初始状态');
+}
 /* 方向是"任务引用商品" —— 反了的话,跨两件商品的那条(比价型)没地方放 */
 const tasksOn = (pid) => AT_ROWS().filter(r => (r.pids || (r.pid ? [r.pid] : [])).includes(pid));
 const AT_ROWS = () => [
@@ -2656,6 +3237,7 @@ function cfRender(){
    之前把 watch 态下所有商品 chips 一律换成条件,结果 ✦ 那个入口也被换掉,
    而 Try it on 又被无条件插在最前面,于是条件列表里混进一个执行型能力。 */
 function openFocus(prefill, prodId, capKey, watchOnly){
+  qPending = null;           /* 任何一次新唤起都作废上一张问句卡的剧本 */
   cfValue = prefill || '';
   cfProd  = prodId || null;
   cfCap   = capKey || null;
@@ -2828,6 +3410,14 @@ function closeFocus(){
 }
 function cfSend(){                                     /* 用户主动发送 → 跳 tab1 会话 */
   if (!cfValue) return;
+  /* 未绑定时,发送先过绑定门 —— 门在一切副作用(落库/关浮层)之前,
+     绑完从头续跑这一次发送,一个字都不丢。 */
+  if (SHOPEE_SHELL && !shpBound) { bindNext = () => cfSend(); return openBindSheet(); }
+  if (qPending && cfValue === QCARDS[qPending].q) {
+    const k = qPending, ids = qAttIds; qPending = null; qAttIds = null;
+    closeFocus();
+    return runQ(k, ids);
+  }
   const q = cfValue, ctx = cfProd;
   /* 在 Auto-task 标签下发出去的那一句,就是这条任务成立的时刻 —— 铃铛在这里才变实心。
      铃铛本身不再是开关(它现在是入口),所以状态必须由"说出口"来推进。 */
@@ -2932,21 +3522,33 @@ function chatShell(bodyHTML) {
          ${CHAT_EXPAND ? `<span class="cexp" onclick="toggleSheetTall()" aria-label="${chatTall ? 'Collapse' : 'Expand'}">${chatTall ? IC.collapse : IC.expand}</span>` : ''}
          <span class="cdoc" onclick="closeChat()" aria-label="Close">${IC_X}</span>
        </div>`
-    : `<div class="chead">
+    : SHOPEE_SHELL
+      ? ``
+      : `<div class="chead">
            <div class="ct">Migoo</div><div class="cs">Generated by AI</div>
            <span class="cdoc" onclick="toast('会话历史 — demo')">${IC.doc}</span>
          </div>`;
   el.innerHTML = head +
     `<div class="cbody">${bodyHTML}</div>
-     <div class="cdock">${caskHTML()}</div>` +
-    (CHAT_SHEET ? '' : fbar(CHAT_AGENT ? 'shop' : 'migoo'));
+     <div class="cdock">${SHOPEE_SHELL && !CHAT_SHEET ? shpChatChips() : ''}${caskHTML()}</div>` +
+    ((CHAT_SHEET || SHOPEE_SHELL) ? '' : fbar(CHAT_AGENT ? 'shop' : 'migoo')) +
+    ((SHOPEE_SHELL && !CHAT_SHEET && !shpBound) ? '<div class="bindcap" onclick="openBindSheet()"></div>' : '');
   el.classList.toggle('tall', CHAT_SHEET && chatTall);
+  /* Shopee 壳:chat 是顶栏和底 tab 之间的一块,不盖 chrome —— 顶边贴住常驻顶栏 */
+  el.classList.toggle('shpmode', SHOPEE_SHELL && !CHAT_SHEET);
+  if (SHOPEE_SHELL && !CHAT_SHEET) {
+    const t = document.getElementById('shpTop');
+    el.style.top = t ? (t.offsetTop + t.offsetHeight) + 'px' : '';
+  } else el.style.top = '';
   const pdpOpen = document.getElementById('pdp')?.classList.contains('open');
   el.classList.toggle('top', CHAT_SHEET && pdpOpen);
   const cs = document.getElementById('chatScrim');
   cs?.classList.toggle('show', CHAT_SHEET);
   cs?.classList.toggle('top', CHAT_SHEET && pdpOpen);
   el.classList.add('show');
+  /* Shopee 壳:会话一亮,顶部切换就该站到 Chat 上 —— 不管它是从哪条路开的
+     (发送/问句卡/开场 pill),切换器指的是"现在看的是哪个面",不是"你点过哪个"。 */
+  if (SHOPEE_SHELL && !CHAT_SHEET) { shpView = 'chat'; shpSync(); }
 }
 /* 展开 = 这一层变高,不是换一个地方。
    曾经它是"浮层 → 整页":点开就成了 mshop 自己的整页,于是要给整页配返回、
@@ -3072,6 +3674,7 @@ function replyFor(q, id) {
   return { text: `On it — from what you told me before, here's my read on “${q}” for the ${p.nm}:`, ids: SIMILAR[id].slice(0,2) };
 }
 function sendQ(q) {
+  if (SHOPEE_SHELL && !shpBound) { bindNext = () => sendQ(q); return openBindSheet(); }
   const id = sheetId;
   closeSheet();
   /* 浮层模式下不关 PDP —— 会话是叠在当前页上的一层,当前页可以是 PDP。
@@ -3150,14 +3753,64 @@ QCARDS.hat.reply = () => [
   { t: `The tee is a vintage band shirt, so there's no exact match. Want me to hunt for a similar print?` }
 ];
 
+/* Shopee 壳里,问句卡不再直接开会话:先在当前页唤起 composer、把问句键进输入框 ——
+   和所有别的入口同一条路,绑定门也就同一个位置(发送时)。
+   发送时若原句未改,走卡片自带的完整剧本(runQ);改过就当普通消息发。 */
+let qPending = null, qAttIds = null;
+/* 问句卡附件可单个摘掉 —— 摘完发送,剧本照走,只是气泡里不再带它 */
+function qAttRemove(id, el){
+  event.stopPropagation();
+  qAttIds = (qAttIds || []).filter(x => x !== id);
+  el.closest('.qit')?.remove();
+}
 function askQ(key) {
+  if (SHOPEE_SHELL) return openFocusQ(key);
+  runQ(key);
+}
+/* 问句卡专用的 composer 态:整句 + 卡上的附件一起进输入框,上方什么都不给 ——
+   这句话已经写完了,chips 和推荐 query 都是"帮你把话说完"的脚手架,没活可干。
+   附件:单商品 = 引用条;多商品 = 缩略图同一行;图片 = 图片。 */
+function openFocusQ(key){
   const c = QCARDS[key];
+  cfValue = c.q; cfProd = null; cfCap = null; cfWatch = false;
+  qAttIds = (c.pk || c.ids) ? [...(c.pk || c.ids)] : null;
+  const ids = qAttIds;
+  /* 商品附件一律用引用条的长相(缩略图 + 品牌 + 名),多个就同一行横滑 ——
+     裸缩略图认不出是谁;图片附件仍是图片(它不是商品,没有名字可念)。 */
+  const att = ids
+    ? `<div class="cf-qatt prods">${ids.map(id => { const q = P[id]; return `
+        <div class="qit" data-id="${id}"><img src="${q.img}" alt=""><div class="qi"><div class="qb">${q.brand}</div><div class="qn">${q.nm}</div></div><span class="qx" onclick="qAttRemove('${id}', this)">${IC_X}</span></div>`; }).join('')}</div>`
+    : (c.img ? `<div class="cf-qatt one"><img src="${A}${c.img}" alt=""></div>` : '');
+  document.getElementById('cfocus').innerHTML = `
+    <div class="cf-scrim" onclick="closeFocus()"></div>
+    <div class="cf-dock">
+      <div class="cf-input">
+        ${att}
+        <div class="cf-text ph" id="cfText"></div>
+        <div class="cf-row">
+          <span class="ic">${IC.plus}</span><span class="sp3"></span>
+          <span class="ic">${IC.mic}</span>
+          <span class="cf-send off" id="cfSend" onclick="cfSend()">${IC.upSm}</span>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('cfocus').classList.add('show');
+  kbdShow(true);
+  cfRender();
+  qPending = key;
+}
+function runQ(key, idsOverride) {
+  const c = QCARDS[key];
+  const ids = idsOverride !== undefined && idsOverride !== null
+    ? (idsOverride.length ? idsOverride : null)
+    : (c.pk || c.ids);
   if (CHAT_SHEET) setTimeout(markCopilot, 0);
-  chatFlow(chatPre(), bubbleU(c.q, c.pk || c.ids, c.img), c.reply ? c.reply() : [
+  chatFlow(chatPre(), bubbleU(c.q, ids, c.img), c.reply ? c.reply() : [
     { t: `On it — give me a second.` }
   ]);
 }
 function closeChat() {
+  shpView = 'shopping'; if (SHOPEE_SHELL) shpSync();
   flowStop();
   /* 浮层关掉不等于对话没了 —— 存回线程,常驻入口再点开就接着看。
      这是把会话改成浮层的前提:不存,浮层比切 tab 更糟(切 tab 至少留在 tab1)。 */
@@ -3173,6 +3826,20 @@ function closeChat() {
 }
 /* 从 Shop 点 Migoo tab → 切到助理 tab(会话的常驻家) */
 function openAssistant() {
+  /* Shopee 壳的 Chat 默认态:自我介绍 + 一组开场 query。
+     morning brief 那版是"已有关系"的假设;内嵌首见更可能是冷启动,先自我介绍。 */
+  if (SHOPEE_SHELL) {
+    chatShell(`
+      <div class="mgw">
+        <img class="ava" src="${A}migoo-logo.png" alt="">
+        <div class="ma"><div class="b">Hi, I’m Migoo — your Shopee AI assistant. I can help you shop smarter, manage your Google email and calendars, and execute your daily tasks.</div></div>
+        <div class="mgw-sugs">
+          ${['Pick the perfect gift','Find the best deals','Trending in fashion','Set an auto-task for me','Let Migoo surprise me']
+            .map(t => `<span class="cf-chip" onclick="sendQ('${t}')">${t}</span>`).join('')}
+        </div>
+      </div>`);
+    return;
+  }
   chatShell(
     `<div class="cts">Today</div>` +
     bubbleA(`Morning. Two of your saves moved overnight — the AirPods Max hit its lowest since you saved it, and the Nike Free is at your $89 target.` + plist(['phones','sneaker']))
@@ -3280,7 +3947,7 @@ function markScrollable(){
   if (last.right > r.getBoundingClientRect().right + 0.5) r.classList.add('scrollable');
 }
 function render() {
-  document.getElementById('phone').innerHTML = statusbar() + home() + fbar() +
+  document.getElementById('phone').innerHTML = statusbar() + (SHOPEE_SHELL ? shpTop() : '') + home() + fbar() +
     `<div class="scrim" id="scrim" onclick="closeSheet()"></div>
      <div class="sheet" id="sheet"></div>
      <div class="flow" id="flow"></div>
@@ -3288,6 +3955,19 @@ function render() {
      ${likeList()}
      <div class="pdp-backdrop" id="pdpBackdrop" onclick="closePDP()"></div>
      <div class="pdp-overlay" id="pdp"></div>
+     <div class="spdp" id="spdp"></div>
+     <div class="spdp spck" id="spck"></div>
+     <div class="bind-scrim" id="bindScrim" onclick="closeBindSheet()"></div>
+     <div class="bind-sheet" id="bindSheet"></div>
+     <div class="gauth" id="gauth">
+       <div class="ga-gap"></div>
+       <div class="ga-sheet">
+         <div class="ga-chrome"><span class="gx" onclick="gaCancel()">${IC_X}</span><span class="gu">accounts.google.com</span><span class="gp"><svg width="16" height="14" viewBox="0 0 20 16" fill="none"><rect x="1" y="1" width="18" height="14" rx="2" stroke="#1C1C1E" stroke-width="1.6"/><path d="M1 5h18" stroke="#1C1C1E" stroke-width="1.6"/></svg></span></div>
+         <div class="ga-signbar"><svg width="17" height="17" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.2C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9.1h12.4c-.5 2.9-2.2 5.4-4.6 7.1l7.5 5.8c4.4-4.1 6.8-10.1 6.8-17.4z"/><path fill="#FBBC05" d="M10.5 28.6a14.5 14.5 0 0 1 0-9.2l-7.9-6.2a24 24 0 0 0 0 21.6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.9l-7.9 6.2C6.5 42.6 14.6 48 24 48z"/></svg>Sign in with Google</div>
+         <div class="ga-body" id="gaBody"></div>
+         <div class="ga-foot"><span class="gfb">‹</span><span style="flex:1"></span><span class="gfb">⎋</span><span class="gfb">⟳</span></div>
+       </div>
+     </div>
      <div class="ats-scrim" id="atsScrim" onclick="closeAtSheet()"></div>
      <div class="ats-sheet" id="atsSheet"></div>
      <div class="chat-scrim" id="chatScrim" onclick="closeChat()"></div>
