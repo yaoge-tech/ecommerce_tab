@@ -2238,8 +2238,8 @@ function shpGateBell(){
 }
 const shpToggle = (cur) => `
   <div class="shp-seg">
-    <span class="sg${cur==='shopping'?' on':''}" onclick="shpGo('shopping')">Shopping</span>
-    <span class="sg${cur==='chat'?' on':''}" onclick="shpGo('chat')">Chat</span>
+    <span class="sg${cur==='shopping'?' on':''}" onclick="shpGo('shopping')">For You</span>
+    <span class="sg${cur==='chat'?' on':''}" onclick="shpGo('chat')">Assistant</span>
   </div>`;
 /* 顶栏常驻:切换器 + ♡ + 🔔 都住在这一条里,切换时一根像素都不动 ——
    抖动的根源就是两个面各画了一遍这条 chrome(位置还不一样)。
