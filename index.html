@@ -1267,8 +1267,8 @@
      它们是三个平级候选,实际上主方案只有一个,Option 2/3 是留档的对照。
      主方案不叫 "Option 1":它不是候选之一,就是这次要看的东西。 -->
 <div style="display:flex;justify-content:center;gap:8px;margin:-8px 0 0">
-  <button class="tglbtn on" id="tgl-opt111" onclick="setDemoState('opt111')">Demo 0805</button>
   <button class="tglbtn" id="tgl-optshopee" onclick="setDemoState('optshopee')">Demo in Shopee</button>
+  <button class="tglbtn" id="tgl-opt111" onclick="setDemoState('opt111')">Demo 0805</button>
   <button class="tglbtn" id="tgl-backup" onclick="setDemoState(lastBackup)">Backup</button>
   <button class="tglbtn reset" onclick="demoReset()" title="回到当前方案的初始状态">↺ Reset</button>
 </div>
@@ -3980,7 +3980,7 @@ function render() {
   markScrollable();
   watchAskDock();
 }
-setDemoState('opt111');  /* 首屏 = 一级里的第一个(模块级默认值对应的是 opt1,必须显式切一次) */
+setDemoState('optshopee');  /* 首屏 = 一级里的第一个(模块级默认值对应的是 opt1,必须显式切一次) */
 </script>
 </body>
 </html>
